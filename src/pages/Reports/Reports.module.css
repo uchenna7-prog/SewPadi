@@ -3,8 +3,8 @@
 .page {
   background: var(--bg);
   min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
+
+  flex: 1;
 }
 
 .scrollArea {

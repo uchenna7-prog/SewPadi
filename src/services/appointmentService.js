@@ -11,41 +11,45 @@ import {
 } from 'firebase/firestore'
 import { db } from '../firebase'
 
-function apptCol(uid) {
+
+function appointmentsRef(uid) {
   return collection(db, 'users', uid, 'appointments')
 }
 
-function apptDoc(uid, id) {
+
+function appointmentDoc(uid, id) {
   return doc(db, 'users', uid, 'appointments', id)
 }
 
-// ── Real-time listener ────────────────────────────────────────
+
 export function subscribeToAppointments(uid, onData, onError) {
-  const q = query(apptCol(uid), orderBy('createdAt', 'desc'))
+
+  const q = query(appointmentsRef(uid), orderBy('createdAt', 'desc'))
+
   return onSnapshot(
     q,
-    snap => {
-      const data = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    snapshot => {
+      const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
       onData(data)
     },
     onError
   )
 }
 
-// ── Create ────────────────────────────────────────────────────
+
 export async function createAppointment(uid, apptData) {
-  return addDoc(apptCol(uid), {
+  return addDoc(appointmentsRef(uid), {
     ...apptData,
     createdAt: serverTimestamp(),
   })
 }
 
-// ── Update ────────────────────────────────────────────────────
+
 export async function updateAppointment(uid, id, updates) {
-  return updateDoc(apptDoc(uid, id), updates)
+  return updateDoc(appointmentDoc(uid, id), updates)
 }
 
-// ── Delete ────────────────────────────────────────────────────
+
 export async function deleteAppointment(uid, id) {
   return deleteDoc(apptDoc(uid, id))
 }

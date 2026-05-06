@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
+import Skeleton from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
 import ConfirmSheet from '../../../../components/ConfirmSheet/ConfirmSheet'
 import Header from '../../../../components/Header/Header'
 import styles from './MeasurementsTab.module.css'
@@ -6,6 +8,25 @@ import styles from './MeasurementsTab.module.css'
 
 const UNIT_SHORT = { in: '"', cm: 'cm', yd: 'yd' }
 const UNIT_FULL  = { in: 'Inches (")', cm: 'Centimetres (cm)', yd: 'Yards (yd)' }
+
+
+// ─────────────────────────────────────────────────────────────
+// Skeleton placeholder — mirrors the real measurement row
+// ─────────────────────────────────────────────────────────────
+
+function MeasurementRowSkeleton() {
+  return (
+    <div className={styles.measurementRow} style={{ pointerEvents: 'none'}}>
+      <div className={styles.thumbnailContainer}>
+        <Skeleton width={58} height={58} borderRadius={10} style={{ background:"var(--surface2)"}}/>
+      </div>
+      <div className={styles.measurementRowInfo}>
+        <Skeleton width={120} height={14} borderRadius={6} style={{ marginBottom: 6,background:"var(--surface2)"}} />
+        <Skeleton width={80}  height={11} borderRadius={6} style={{ background:"var(--surface2)"}} />
+      </div>
+    </div>
+  )
+}
 
 
 function compressImage(file, maxWidth = 1200, quality = 0.78) {
@@ -438,8 +459,7 @@ function MeasureDetail({ measurement, onClose, onDelete }) {
 
   if (!measurement) return null
 
-  const unitLabel = UNIT_FULL[measurement.unit] ?? measurement.unit
-  const images    = measurement.imgSrcs?.length
+  const images = measurement.imgSrcs?.length
     ? measurement.imgSrcs
     : measurement.imgSrc
       ? [measurement.imgSrc]
@@ -478,7 +498,6 @@ function MeasureDetail({ measurement, onClose, onDelete }) {
             </div>
           </div>
 
-          {/* Measurements section card */}
           <div className={styles.sectionCard}>
             <div className={styles.sectionCardLabel}>Measurements</div>
 
@@ -514,7 +533,11 @@ function MeasureDetail({ measurement, onClose, onDelete }) {
 }
 
 
-export default function MeasurementsTab({ measurements, onSave, onDelete, showToast }) {
+// ─────────────────────────────────────────────────────────────
+// Main export
+// ─────────────────────────────────────────────────────────────
+
+export default function MeasurementsTab({ measurements, loading, onSave, onDelete, showToast }) {
   const [isModalOpen,         setIsModalOpen]         = useState(false)
   const [selectedMeasurement, setSelectedMeasurement] = useState(null)
   const [measurementToDelete, setMeasurementToDelete] = useState(null)
@@ -538,6 +561,35 @@ export default function MeasurementsTab({ measurements, onSave, onDelete, showTo
     setSelectedMeasurement(null)
   }
 
+  // ── Skeleton state ────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className={styles.measurementGroup}>
+        {[1, 2, 3].map(i => <MeasurementRowSkeleton key={i} />)}
+      </div>
+    )
+  }
+
+  // ── Empty state ───────────────────────────────────────────
+  if (measurements.length === 0) {
+    return (
+      <>
+        <div className={styles.emptyState}>
+          <span className="mi" style={{ fontSize: '2.8rem', opacity: 0.4 }}>straighten</span>
+          <p>No garment measurements added yet.</p>
+          <span className={styles.emptyStateHint}>Tap + to add the first one</span>
+        </div>
+
+        <MeasureModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleSave}
+        />
+      </>
+    )
+  }
+
+  // ── Populated list ────────────────────────────────────────
   const measurementsByDate = measurements.reduce((groups, measurement) => {
     const dateKey = measurement.date || 'Unknown Date'
     if (!groups[dateKey]) groups[dateKey] = []
@@ -547,15 +599,6 @@ export default function MeasurementsTab({ measurements, onSave, onDelete, showTo
 
   return (
     <>
-
-      {measurements.length === 0 && (
-        <div className={styles.emptyState}>
-          <span className="mi" style={{ fontSize: '2.8rem', opacity: 0.4 }}>straighten</span>
-          <p>No garment measurements added yet.</p>
-          <span className={styles.emptyStateHint}>Tap + to add the first one</span>
-        </div>
-      )}
-
       {Object.entries(measurementsByDate).map(([date, measurementsInGroup]) => (
         <div key={date} className={styles.measurementGroup}>
           <div className={styles.measurementGroupDate}>{date}</div>
@@ -572,7 +615,6 @@ export default function MeasurementsTab({ measurements, onSave, onDelete, showTo
                 className={`${styles.measurementRow} ${isLastInGroup ? styles.measurementRow_last : ''}`}
                 onClick={() => setSelectedMeasurement(measurement)}
               >
-      
                 <div className={styles.thumbnailContainer}>
                   <div className={styles.thumbnailBox}>
                     {coverImage

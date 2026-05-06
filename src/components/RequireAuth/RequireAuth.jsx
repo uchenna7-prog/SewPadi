@@ -1,10 +1,3 @@
-// src/components/RequireAuth/RequireAuth.jsx
-// ─────────────────────────────────────────────────────────────
-// Waits for Firebase to resolve the session before deciding
-// whether to redirect. Without this, a page refresh kicks the
-// user to /login before Firebase finishes loading.
-// ─────────────────────────────────────────────────────────────
-
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 
@@ -12,9 +5,6 @@ export default function RequireAuth({ children }) {
   const { user, loading } = useAuth()
   const location          = useLocation()
 
-  // ── Still resolving Firebase session — show nothing ───────
-  // AuthContext sets loading=false once onAuthStateChanged fires.
-  // This prevents a premature redirect to /login on refresh.
   if (loading) {
     return (
       <div style={{

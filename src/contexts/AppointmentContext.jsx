@@ -1,13 +1,3 @@
-// src/contexts/AppointmentContext.jsx
-// ─────────────────────────────────────────────────────────────
-// Global real-time subscription to the user's appointments.
-// Exposes allAppointments so the dashboard and any other page
-// can read them without setting up their own listeners.
-//
-// Derived slices (upcomingToday, missedCount, etc.) are also
-// computed here so consumers don't have to repeat the logic.
-// ─────────────────────────────────────────────────────────────
-
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useAuth } from './AuthContext'
 import { subscribeToAppointments } from '../services/appointmentService'

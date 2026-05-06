@@ -638,18 +638,18 @@ export default function CustomerDetail({ onMenuClick }) {
       {totalSpent > 0 && (
         <div className={styles.statsGrid}>
           <div className={styles.statCell}>
-            <span className={styles.statAmount}>{formatCurrency("₦", totalSpent, minimumFractionDigits=0, maximumFractionDigits=0)}</span>
+            <span className={styles.statAmount}>{formatCurrency("₦", totalSpent, 0, 0)}</span>
             <span className={styles.statLabel}>Total Billed</span>
           </div>
           {outstanding > 0 && (
             <div className={`${styles.statCell} ${styles.statCell_owed}`}>
-              <span className={styles.statAmount}>{formatCurrency("₦", outstanding, minimumFractionDigits=0, maximumFractionDigits=0)}</span>
+              <span className={styles.statAmount}>{formatCurrency("₦", outstanding,0,0)}</span>
               <span className={styles.statLabel}>Balance Due</span>
             </div>
           )}
           {totalPaidAcrossPayments > 0 && (
             <div className={`${styles.statCell} ${styles.statCell_paid}`}>
-              <span className={styles.statAmount}>{formatCurrency("₦", totalPaidAcrossPayments, minimumFractionDigits=0, maximumFractionDigits=0)}</span>
+              <span className={styles.statAmount}>{formatCurrency("₦", totalPaidAcrossPayments,0,0)}</span>
               <span className={styles.statLabel}>Total Paid</span>
             </div>
           )}
@@ -842,6 +842,7 @@ export default function CustomerDetail({ onMenuClick }) {
         {activeTab === 'measurements' && (
           <MeasurementsTab
             measurements={data.measurements}
+            loading={data.measurementsLoading}   // ← add this
             onSave={data.saveMeasurement}
             onDelete={data.deleteMeasurement}
             showToast={showToast}
@@ -851,6 +852,7 @@ export default function CustomerDetail({ onMenuClick }) {
           <OrdersTab
             customerId={id}
             orders={orders}
+            loading={data.ordersLoading}   // ← add
             measurements={data.measurements}
             showToast={showToast}
             onGenerateInvoice={handleGenerateInvoice}
@@ -859,6 +861,7 @@ export default function CustomerDetail({ onMenuClick }) {
         {activeTab === 'invoices' && (
           <InvoicesTab
             invoices={Invoices}
+            loading={data.invoicesLoading}   // ← add
             orders={orders}
             measurements={data.measurements}
             customer={customer}

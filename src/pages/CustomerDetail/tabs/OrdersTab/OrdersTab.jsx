@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import Skeleton from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
 import { useOrders }   from '../../../../contexts/OrdersContext'
 import { useAuth }     from '../../../../contexts/AuthContext'
 import { useSettings } from '../../../../contexts/SettingsContext'
@@ -82,6 +84,33 @@ function getTodayReadable() {
   return new Date().toLocaleDateString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric',
   })
+}
+
+
+// ─────────────────────────────────────────────────────────────
+// SKELETON — mirrors the real order row layout
+// ─────────────────────────────────────────────────────────────
+
+function OrderRowSkeleton() {
+  return (
+    <div className={styles.orderRow} style={{ pointerEvents: 'none' }}>
+      {/* Mosaic thumbnail */}
+      <Skeleton width={80} height={80} borderRadius={12} />
+
+      {/* Info column */}
+      <div className={styles.orderRowInfo}>
+        <Skeleton width={140} height={14} borderRadius={6} style={{ marginBottom: 6,background:"var(--bg)" }} />
+        <Skeleton width={80}  height={11} borderRadius={6} style={{ marginBottom: 6,background:"var(--bg)" }} />
+        <Skeleton width={60}  height={11} borderRadius={6} />
+      </div>
+
+      {/* Right column — price + badge */}
+      <div className={styles.orderRowRight} style={{ alignItems: 'flex-end', gap: 6 ,background:"var(--bg)"}}>
+        <Skeleton width={70} height={14} borderRadius={6} />
+        <Skeleton width={60} height={20} borderRadius={20} />
+      </div>
+    </div>
+  )
 }
 
 
@@ -223,7 +252,6 @@ function OrderModal({ isOpen, onClose, measurements, onSave, taxRate, taxEnabled
     setPricingError('')
   }
 
-  // ── Derived totals ──────────────────────────────────────────
   const subtotal = selectedItems.reduce((sum, item) => {
     return sum + (parseFloat(item.price) || 0) * (parseInt(item.qty, 10) || 0)
   }, 0)
@@ -324,7 +352,6 @@ function OrderModal({ isOpen, onClose, measurements, onSave, taxRate, taxEnabled
       <div className={styles.formScrollBody}>
         <div style={{ padding: '20px' }}>
 
-          {/* ── Step 1: Select Clothes ── */}
           <p className={styles.stepHeading}>1. Select Clothes</p>
 
           {measurements.length > VISIBLE_MEASUREMENT_LIMIT && (
@@ -395,11 +422,8 @@ function OrderModal({ isOpen, onClose, measurements, onSave, taxRate, taxEnabled
             </div>
           )}
 
-
-          {/* ── Steps 2 & 3 — hidden until at least one item selected ── */}
           {hasItems && (
             <>
-              {/* ── Step 2: Price & Quantity ── */}
               <p className={styles.stepHeading} style={{ marginTop: 24 }}>
                 2. Price &amp; Quantity Per Item
               </p>
@@ -412,8 +436,6 @@ function OrderModal({ isOpen, onClose, measurements, onSave, taxRate, taxEnabled
 
                   return (
                     <div key={item.id} className={`${styles.pricingItem} ${isLast ? styles.pricingItem_last : ''}`}>
-
-                      {/* Item identity row: thumb + name on left, amount on right */}
                       <div className={styles.pricingItemMeta}>
                         <div className={styles.pricingThumb}>
                           {item.imgSrc
@@ -429,7 +451,6 @@ function OrderModal({ isOpen, onClose, measurements, onSave, taxRate, taxEnabled
                         )}
                       </div>
 
-                      {/* Price + Qty inputs side by side, full width */}
                       <div className={styles.pricingInputRow}>
                         <div className={styles.pricingFieldPrice}>
                           <label className={styles.fieldLabel}>
@@ -460,7 +481,6 @@ function OrderModal({ isOpen, onClose, measurements, onSave, taxRate, taxEnabled
                           />
                         </div>
                       </div>
-
                     </div>
                   )
                 })}
@@ -478,15 +498,11 @@ function OrderModal({ isOpen, onClose, measurements, onSave, taxRate, taxEnabled
                 </div>
               </div>
 
-
-              {/* ── Step 3: Charges & Fees ── */}
               <p className={styles.stepHeading} style={{ marginTop: 24 }}>
                 3. Discount &amp; Charges
               </p>
 
               <div className={styles.chargesCard}>
-
-                {/* Shipping */}
                 <div className={styles.chargeRow}>
                   <div className={styles.chargeRowLeft}>
                     <div className={styles.chargeIconBox}>
@@ -512,7 +528,6 @@ function OrderModal({ isOpen, onClose, measurements, onSave, taxRate, taxEnabled
 
                 <div className={styles.chargeDivider} />
 
-                {/* Discount */}
                 <div className={styles.chargeRow}>
                   <div className={styles.chargeRowLeft}>
                     <div className={styles.chargeIconBox}>
@@ -547,7 +562,6 @@ function OrderModal({ isOpen, onClose, measurements, onSave, taxRate, taxEnabled
                   </div>
                 </div>
 
-                {/* Tax */}
                 {taxEnabled && (
                   <>
                     <div className={styles.chargeDivider} />
@@ -574,7 +588,6 @@ function OrderModal({ isOpen, onClose, measurements, onSave, taxRate, taxEnabled
                   </>
                 )}
 
-                {/* Breakdown */}
                 <div className={styles.chargeTotalBlock}>
                   <div className={styles.chargeSummaryRow}>
                     <span className={styles.chargeSummaryLabel}>Subtotal</span>
@@ -608,13 +621,10 @@ function OrderModal({ isOpen, onClose, measurements, onSave, taxRate, taxEnabled
                     <span>₦{grandTotal.toLocaleString()}</span>
                   </div>
                 </div>
-
               </div>
             </>
           )}
 
-
-          {/* ── Final Details ── */}
           <p className={styles.stepHeading} style={{ marginTop: 24 }}>
             {hasItems ? '4' : '2'}. Final Details
           </p>
@@ -904,7 +914,7 @@ function OrderDetail({ order, measurements, onClose, onDelete, onStatusChange, o
 // MAIN ORDERS TAB
 // ─────────────────────────────────────────────────────────────
 
-export default function OrdersTab({ customerId, orders, measurements, showToast, onGenerateInvoice }) {
+export default function OrdersTab({ customerId, orders, loading, measurements, showToast, onGenerateInvoice }) {
   const { addOrder, deleteOrder, updateOrderStatus, updateOrderStage } = useOrders()
   const { user } = useAuth()
   const { settings } = useSettings()
@@ -997,6 +1007,37 @@ export default function OrdersTab({ customerId, orders, measurements, showToast,
     window.open(waUrl, '_blank', 'noopener,noreferrer')
   }
 
+  // ── Skeleton state ────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className={styles.orderGroup}>
+        {[1, 2, 3].map(i => <OrderRowSkeleton key={i} />)}
+      </div>
+    )
+  }
+
+  // ── Empty state ───────────────────────────────────────────
+  if (orders.length === 0) {
+    return (
+      <>
+        <div className={styles.emptyState}>
+          <span className="mi" style={{ fontSize: '2.8rem', opacity: 0.4 }}>shopping_basket</span>
+          <p>No active orders yet.</p>
+        </div>
+
+        <OrderModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          measurements={measurements}
+          onSave={handleSaveOrder}
+          taxRate={taxRate}
+          taxEnabled={taxEnabled}
+        />
+      </>
+    )
+  }
+
+  // ── Populated list ────────────────────────────────────────
   const ordersByDate = orders.reduce((groups, order) => {
     const dateKey = order.takenAt || formatFirestoreDate(order.createdAt) || order.date || 'Unknown Date'
     if (!groups[dateKey]) groups[dateKey] = []
@@ -1006,13 +1047,6 @@ export default function OrdersTab({ customerId, orders, measurements, showToast,
 
   return (
     <>
-      {orders.length === 0 && (
-        <div className={styles.emptyState}>
-          <span className="mi" style={{ fontSize: '2.8rem', opacity: 0.4 }}>shopping_basket</span>
-          <p>No active orders yet.</p>
-        </div>
-      )}
-
       {Object.entries(ordersByDate).map(([date, ordersInGroup]) => (
         <div key={date} className={styles.orderGroup}>
           <div className={styles.orderGroupDate}>{date}</div>

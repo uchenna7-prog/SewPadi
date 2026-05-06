@@ -1,20 +1,8 @@
 // src/hooks/useCustomerData.js
-// ─────────────────────────────────────────────────────────────
-// Provides real-time Firestore data for a single customer:
-//   measurements, orders, and invoices.
-// All three are live listeners — UI updates instantly on any
-// device when data changes.
-//
-// Data paths:
-//   users/{uid}/customers/{customerId}/measurements/{id}
-//   users/{uid}/customers/{customerId}/orders/{id}
-//   users/{uid}/customers/{customerId}/invoices/{id}
-// ─────────────────────────────────────────────────────────────
 
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 
-// ── Firestore services ────────────────────────────────────────
 import {
   subscribeToOrders,
   addOrder          as fsAddOrder,
@@ -36,41 +24,49 @@ import {
   deleteMeasurement as fsDeleteMeasurement,
 } from '../services/measurementService'
 
-// ─────────────────────────────────────────────────────────────
-
 export function useCustomerData(customerId) {
   const { user } = useAuth()
 
-  const [measurements, setMeasurements] = useState([])
-  const [orders,       setOrders]       = useState([])
-  const [invoices,     setInvoices]     = useState([])
+  const [measurements,        setMeasurements]        = useState([])
+  const [orders,              setOrders]              = useState([])
+  const [invoices,            setInvoices]            = useState([])
+  const [measurementsLoading, setMeasurementsLoading] = useState(true)
+  const [ordersLoading,       setOrdersLoading]       = useState(true)
+  const [invoicesLoading,     setInvoicesLoading]     = useState(true) 
 
-  // ── Real-time listeners ───────────────────────────────────
   useEffect(() => {
     if (!user || !customerId) {
       setMeasurements([])
       setOrders([])
       setInvoices([])
+      setMeasurementsLoading(false)
+      setOrdersLoading(false)
+      setInvoicesLoading(false)
+      
       return
     }
 
+    setMeasurementsLoading(true)
+    setOrdersLoading(true)
+    setInvoicesLoading(true) 
+
     const unsubMeas = subscribeToMeasurements(
       user.uid, customerId,
-      (data) => setMeasurements(data),
-      (err)  => console.error('[useCustomerData] measurements:', err)
+      (data) => { setMeasurements(data); setMeasurementsLoading(false) },
+      (err)  => { console.error('[useCustomerData] measurements:', err); setMeasurementsLoading(false) }
     )
 
     const unsubOrders = subscribeToOrders(
       user.uid, customerId,
-      (data) => setOrders(data),
-      (err)  => console.error('[useCustomerData] orders:', err)
+      (data) => { setOrders(data); setOrdersLoading(false) },
+      (err)  => { console.error('[useCustomerData] orders:', err); setOrdersLoading(false) }
     )
 
     const unsubInvoices = subscribeToInvoices(
-      user.uid, customerId,
-      (data) => setInvoices(data),
-      (err)  => console.error('[useCustomerData] invoices:', err)
-    )
+    user.uid, customerId,
+    (data) => { setInvoices(data); setInvoicesLoading(false) },       // ← add setter
+    (err)  => { console.error('[useCustomerData] invoices:', err); setInvoicesLoading(false) }  // ← add setter
+  )
 
     return () => {
       unsubMeas()
@@ -167,10 +163,10 @@ export function useCustomerData(customerId) {
     }
   }, [user, customerId])
 
-  // ─────────────────────────────────────────────────────────
+
   return {
-    measurements, saveMeasurement, deleteMeasurement,
-    orders,       saveOrder,       updateOrderStatus, deleteOrder,
-    invoices,     saveInvoice,     updateInvoiceStatus, deleteInvoice,
+    measurements, saveMeasurement, deleteMeasurement, measurementsLoading,
+    orders,       saveOrder,       updateOrderStatus,  deleteOrder,        ordersLoading,
+    invoices,     saveInvoice,     updateInvoiceStatus, deleteInvoice,     invoicesLoading, 
   }
 }

@@ -1,5 +1,6 @@
-
 import { useState, useEffect, useRef } from 'react'
+import Skeleton from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
 import InvoiceViewer from '../../../../components/InvoiceViewer/InvoiceViewer'
 import ConfirmSheet from '../../../../components/ConfirmSheet/ConfirmSheet'
 import Header from '../../../../components/Header/Header'
@@ -115,9 +116,33 @@ function getInvoiceTotal(invoice) {
 
 
 // ─────────────────────────────────────────────────────────────
+// SKELETON — mirrors InvoiceCard layout
+// ─────────────────────────────────────────────────────────────
+
+function InvoiceRowSkeleton() {
+  return (
+    <div className={styles.invoiceRow} style={{ pointerEvents: 'none' }}>
+      {/* Mosaic thumbnail */}
+      <Skeleton width={68} height={68} borderRadius={12} />
+
+      {/* Info column */}
+      <div className={styles.invoiceRowInfo}>
+        <Skeleton width={130} height={14} borderRadius={6} style={{ marginBottom: 6 }} />
+        <Skeleton width={70}  height={11} borderRadius={6} />
+      </div>
+
+      {/* Right column — badge + amount */}
+      <div className={styles.invoiceRowRight} style={{ alignItems: 'flex-end', gap: 6 }}>
+        <Skeleton width={72} height={20} borderRadius={20} />
+        <Skeleton width={60} height={14} borderRadius={6}  />
+      </div>
+    </div>
+  )
+}
+
+
+// ─────────────────────────────────────────────────────────────
 // ORDER MOSAIC THUMBNAIL
-// CSS-module version matching OrdersTab card mosaics exactly.
-// size="sm" → 38px picker thumb   size="md" → 68px list row
 // ─────────────────────────────────────────────────────────────
 
 function OrderMosaic({ items = [], size = 'md' }) {
@@ -208,11 +233,6 @@ function OrderMosaic({ items = [], size = 'md' }) {
 
 // ─────────────────────────────────────────────────────────────
 // ORDER PICKER MODAL
-// Full-screen, single scrollable screen.
-// Multi-select: tap orders to toggle. Step 2 appears once at
-// least one order is selected, showing all chosen orders and
-// a single "Generate Invoice(s)" button.
-// No generate action in the header.
 // ─────────────────────────────────────────────────────────────
 
 function OrderPickerModal({ isOpen, onClose, orders, invoices, onGenerateSelected, generatingIds }) {
@@ -222,7 +242,6 @@ function OrderPickerModal({ isOpen, onClose, orders, invoices, onGenerateSelecte
   const showSearch                    = orders.length > 5
   const currency                      = getCurrency()
 
-  // Reset when modal closes
   useEffect(() => {
     if (!isOpen) {
       setSelectedIds(new Set())
@@ -230,14 +249,12 @@ function OrderPickerModal({ isOpen, onClose, orders, invoices, onGenerateSelecte
     }
   }, [isOpen])
 
-  // Scroll step 2 card into view when first order is selected
   useEffect(() => {
     if (selectedIds.size === 1 && step2Ref.current) {
       setTimeout(() => step2Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 60)
     }
   }, [selectedIds.size])
 
-  // Only non-invoiced orders
   const invoicedOrderIds  = new Set(invoices.map(inv => String(inv.orderId)))
   const nonInvoicedOrders = orders.filter(order => !invoicedOrderIds.has(String(order.id)))
 
@@ -267,8 +284,6 @@ function OrderPickerModal({ isOpen, onClose, orders, invoices, onGenerateSelecte
 
   return (
     <div className={`${styles.pickerOverlay} ${isOpen ? styles.pickerOverlay_open : ''}`}>
-
-      {/* Header — no action button */}
       <Header
         type="back"
         title="New Invoice"
@@ -278,10 +293,8 @@ function OrderPickerModal({ isOpen, onClose, orders, invoices, onGenerateSelecte
       <div className={styles.pickerScrollBody}>
         <div style={{ padding: '20px' }}>
 
-          {/* ── Step 1: Select Orders ── */}
           <p className={styles.stepHeading}>1. Select Orders</p>
 
-          {/* Search bar */}
           {showSearch && (
             <div className={styles.clothSearchBar}>
               <span className="mi" style={{ fontSize: '1.1rem', color: 'var(--text3)' }}>search</span>
@@ -303,7 +316,6 @@ function OrderPickerModal({ isOpen, onClose, orders, invoices, onGenerateSelecte
             </div>
           )}
 
-          {/* Empty — all invoiced */}
           {nonInvoicedOrders.length === 0 && (
             <div className={styles.pickerEmpty}>
               <span className="mi" style={{ fontSize: '2rem', color: 'var(--text3)' }}>receipt_long</span>
@@ -311,7 +323,6 @@ function OrderPickerModal({ isOpen, onClose, orders, invoices, onGenerateSelecte
             </div>
           )}
 
-          {/* Empty search result */}
           {nonInvoicedOrders.length > 0 && filtered.length === 0 && (
             <div className={styles.pickerEmpty}>
               <span className="mi" style={{ fontSize: '2rem', color: 'var(--text3)' }}>search_off</span>
@@ -319,7 +330,6 @@ function OrderPickerModal({ isOpen, onClose, orders, invoices, onGenerateSelecte
             </div>
           )}
 
-          {/* Multi-select order list */}
           <div className={styles.clothPickerList}>
             {filtered.map(order => {
               const isSelected   = selectedIds.has(order.id)
@@ -335,10 +345,8 @@ function OrderPickerModal({ isOpen, onClose, orders, invoices, onGenerateSelecte
                   `}
                   onClick={() => toggleOrder(order)}
                 >
-                  {/* Full mosaic thumbnail */}
                   <OrderMosaic items={order.items || []} size="sm" />
 
-                  {/* Order name + due date */}
                   <div className={styles.clothInfo}>
                     <h5>{order.desc || 'Untitled Order'}</h5>
                     {order.due
@@ -347,7 +355,6 @@ function OrderPickerModal({ isOpen, onClose, orders, invoices, onGenerateSelecte
                     }
                   </div>
 
-                  {/* Check circle or per-order spinner */}
                   <div className={`${styles.clothCheckCircle} ${isSelected ? styles.clothCheckCircle_checked : ''}`}>
                     {isGenerating
                       ? <div className={styles.pickerSpinner} />
@@ -361,8 +368,6 @@ function OrderPickerModal({ isOpen, onClose, orders, invoices, onGenerateSelecte
             })}
           </div>
 
-
-          {/* ── Step 2: Generate Invoices ── */}
           {selectedOrders.length > 0 && (
             <div ref={step2Ref}>
               <p className={styles.stepHeading} style={{ marginTop: 24 }}>
@@ -370,8 +375,6 @@ function OrderPickerModal({ isOpen, onClose, orders, invoices, onGenerateSelecte
               </p>
 
               <div className={styles.generateCard}>
-
-                {/* One row per selected order */}
                 {selectedOrders.map((order, idx) => {
                   const isGenerating = generatingIds.has(order.id)
                   const isLast       = idx === selectedOrders.length - 1
@@ -403,10 +406,8 @@ function OrderPickerModal({ isOpen, onClose, orders, invoices, onGenerateSelecte
                   )
                 })}
 
-                {/* Dashed divider — matches orderTotalRow in OrderModal */}
                 <div className={styles.generateDivider} />
 
-                {/* Generate button — ONLY here, not in header */}
                 <button
                   className={styles.generateInlineButton}
                   onClick={() => onGenerateSelected(selectedOrders)}
@@ -442,7 +443,7 @@ function OrderPickerModal({ isOpen, onClose, orders, invoices, onGenerateSelecte
 
 
 // ─────────────────────────────────────────────────────────────
-// INVOICE CARD — one row in the list
+// INVOICE CARD
 // ─────────────────────────────────────────────────────────────
 
 function InvoiceCard({ invoice, currency, onTap, isLast, orderItems }) {
@@ -504,6 +505,7 @@ function EmptyState() {
 
 export default function InvoiceTab({
   invoices = [],
+  loading  = false,
   orders   = [],
   customer,
   onStatusChange,
@@ -520,15 +522,12 @@ export default function InvoiceTab({
   const orderItemsMap = buildOrderItemsMap(orders)
   const groupedByDate = groupInvoicesByDate(invoices)
 
-  // Listen for FAB click dispatched from CustomerDetail
   useEffect(() => {
     const openPicker = () => setPickerOpen(true)
     document.addEventListener('openInvoiceModal', openPicker)
     return () => document.removeEventListener('openInvoiceModal', openPicker)
   }, [])
 
-  // Generate invoices for all selected orders sequentially,
-  // lighting up per-order spinners as each one resolves.
   async function handleGenerateSelected(selectedOrders) {
     if (generatingIds.size > 0) return
 
@@ -574,7 +573,6 @@ export default function InvoiceTab({
     }
   }
 
-  // Keep viewingInvoice in sync when invoices prop updates
   useEffect(() => {
     if (!viewingInvoice) return
     const updated = invoices.find(inv => inv.id === viewingInvoice.id)
@@ -583,12 +581,39 @@ export default function InvoiceTab({
     }
   }, [invoices])
 
+  // ── Skeleton state ────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className={styles.dateGroup}>
+        {[1, 2, 3].map(i => <InvoiceRowSkeleton key={i} />)}
+      </div>
+    )
+  }
+
+  // ── Empty state ───────────────────────────────────────────
+  if (invoices.length === 0) {
+    return (
+      <>
+        <EmptyState />
+        <OrderPickerModal
+          isOpen={pickerOpen}
+          onClose={() => {
+            if (generatingIds.size > 0) return
+            setPickerOpen(false)
+          }}
+          orders={orders}
+          invoices={invoices}
+          onGenerateSelected={handleGenerateSelected}
+          generatingIds={generatingIds}
+        />
+      </>
+    )
+  }
+
+  // ── Populated list ────────────────────────────────────────
   return (
     <>
-      {invoices.length === 0 && <EmptyState />}
-
-      {/* Invoice list grouped by date */}
-      {invoices.length > 0 && Object.entries(groupedByDate).map(([date, dateInvoices]) => (
+      {Object.entries(groupedByDate).map(([date, dateInvoices]) => (
         <div key={date} className={styles.dateGroup}>
           <div className={styles.dateGroupLabel}>{date}</div>
           <div className={styles.dateGroupDivider} />
@@ -606,7 +631,6 @@ export default function InvoiceTab({
         </div>
       ))}
 
-      {/* Order picker modal */}
       <OrderPickerModal
         isOpen={pickerOpen}
         onClose={() => {
@@ -619,7 +643,6 @@ export default function InvoiceTab({
         generatingIds={generatingIds}
       />
 
-      {/* Invoice viewer */}
       {viewingInvoice && (
         <div className={styles.modalOverlay}>
           <Header
@@ -646,7 +669,6 @@ export default function InvoiceTab({
         </div>
       )}
 
-      {/* Delete confirm sheet */}
       <ConfirmSheet
         open={!!deleteTarget}
         title="Delete this invoice?"

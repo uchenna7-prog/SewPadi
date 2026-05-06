@@ -1,12 +1,14 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import {
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut,
-  sendPasswordResetEmail,
-} from 'firebase/auth'
+import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '../firebase'
+import { 
+  signup,
+  login,
+  logout,
+  resetPassword, 
+  changePassword,
+  changeEmail 
+} from '../services/authService'
 
 const AuthContext = createContext(null)
 
@@ -16,27 +18,35 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // onAuthStateChanged fires immediately with the cached session,
-    // then again whenever the user logs in or out.
-    const unsub = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser)
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user)
       setLoading(false)
     })
-    return unsub
+    return unsubscribe
   }, [])
 
-  const login = (email, password) =>
-    signInWithEmailAndPassword(auth, email, password)
+  const login = (email, password) => login(email, password)
+  const signup = (email, password) => signup(auth, email, password)
+  const resetPassword = (email) => resetPassword(email)
+  const changePassword = (user,newPassword) => changePassword(user,newPassword)
+  const changeEmail = (user,newEmail) => changeEmail(user,newEmail)
+  const logout = () => logout()
 
-  const signup = (email, password) =>
-    createUserWithEmailAndPassword(auth, email, password)
-
-  const logout = () => signOut(auth)
-
-  const resetPassword = (email) => sendPasswordResetEmail(auth, email)
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, resetPassword }}>
+    <AuthContext.Provider value={
+      { 
+      user, 
+      loading, 
+      login, 
+      signup, 
+      logout, 
+      resetPassword, 
+      changePassword, 
+      changeEmail 
+      }
+    }>
 
       {!loading && children}
       
@@ -45,8 +55,10 @@ export function AuthProvider({ children }) {
 }
 
 export function useAuth() {
+
   const ctx = useContext(AuthContext)
   if (!ctx) throw new Error('useAuth must be used inside AuthProvider')
+
   return ctx
 }
 

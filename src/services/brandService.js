@@ -1,37 +1,66 @@
 // src/services/brandService.js
-// Syncs brand/settings data to Firestore so the public portfolio page can read it.
-// Data path: users/{uid}/publicProfile/brand
-//
-// NOTE: brandLogo is intentionally excluded from Firestore writes.
-// Base64 logos easily exceed Firestore's 1MB document limit and cause
-// the entire setDoc to fail silently. The logo is kept in localStorage
-// only (via SettingsContext) and is not needed by the public Portfolio page
-// since Portfolio reads it from the brand doc — if you want logo on portfolio,
-// upload it to Firebase Storage instead and store the download URL.
 
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore'
-import { db } from '../firebase'
-import { DEFAULT_COLOUR_ID } from '../config/brandPalette'
+import { ref, uploadBytes, getDownloadURL }      from 'firebase/storage'
+import { db, storage }                           from '../firebase'
+import { DEFAULT_COLOUR_ID }                     from '../config/brandPalette'
+
+// ─────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────
 
 function brandDocRef(uid) {
   return doc(db, 'users', uid, 'publicProfile', 'brand')
 }
 
+// ─────────────────────────────────────────────────────────────
+// Logo — Firebase Storage
+// ─────────────────────────────────────────────────────────────
+
 /**
- * Save brand settings to Firestore.
- * Called from SettingsContext whenever brand-related fields change.
+ * Upload a logo file to Firebase Storage and return its public download URL.
+ *
+ * Storage path: users/{uid}/brandLogo
+ * Must match the path used in Profile.jsx → BrandModal → handleLogoChange.
+ *
+ * The caller saves the returned URL via updateSetting('brandLogo', url),
+ * which propagates it to localStorage and Firestore automatically.
+ *
+ * @param {File}   file - The image file selected by the user.
+ * @param {string} uid  - The authenticated user's UID.
+ * @returns {Promise<string>} Resolves with the public download URL.
+ */
+export async function uploadBrandLogo(file, uid) {
+  if (!file || !uid) throw new Error('uploadBrandLogo: file and uid are required')
+
+  const logoRef = ref(storage, `users/${uid}/brandLogo`)
+  await uploadBytes(logoRef, file)
+  return getDownloadURL(logoRef)
+}
+
+// ─────────────────────────────────────────────────────────────
+// Brand — Firestore
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * Persist all brand settings to Firestore, including the logo URL.
+ * Called automatically by SettingsContext 1.5 s after any setting changes.
+ *
+ * @param {string} uid      - The authenticated user's UID.
+ * @param {object} settings - Full settings object from SettingsContext.
  */
 export async function saveBrandToFirestore(uid, settings) {
   if (!uid) return
+
   await setDoc(brandDocRef(uid), {
-    // ── Core brand ──
+    // ── Visual identity ──
     brandName:      settings.brandName      || '',
     brandTagline:   settings.brandTagline   || '',
     brandColourId:  settings.brandColourId  || DEFAULT_COLOUR_ID,
-    brandColour:    settings.brandColour    || '#3737d4',
-    // brandLogo intentionally omitted — base64 strings exceed Firestore's
-    // 1MB document limit and cause the entire write to fail.
-    // Store logo via Firebase Storage and save the download URL instead.
+    brandColour:    settings.brandColour    || '#D4AF37',
+    brandLogo:      settings.brandLogo      || null,   // ← Firebase Storage URL
+
+    // ── Contact ──
     brandPhone:     settings.brandPhone     || '',
     brandEmail:     settings.brandEmail     || '',
     brandAddress:   settings.brandAddress   || '',
@@ -54,7 +83,10 @@ export async function saveBrandToFirestore(uid, settings) {
 
 /**
  * Read brand settings from Firestore.
- * Used by the public Portfolio page.
+ * Used by the public Portfolio page (unauthenticated access).
+ *
+ * @param {string} uid - The tailor's UID (from the public portfolio URL).
+ * @returns {Promise<object|null>} Brand data or null if not found.
  */
 export async function getBrandFromFirestore(uid) {
   if (!uid) return null
