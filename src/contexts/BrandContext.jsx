@@ -28,11 +28,16 @@ export function BrandProvider({ children }) {
   const [personal, setPersonal] = useState(loadPersonal)
 
   // Re-read personal info whenever the window gains focus
+  // or when localStorage changes (e.g. saved from Profile modal)
   useEffect(() => {
 
     const refresh = () => setPersonal(loadPersonal())
     window.addEventListener('focus', refresh)
-    return () => window.removeEventListener('focus', refresh)
+    window.addEventListener('storage', refresh)
+    return () => {
+      window.removeEventListener('focus', refresh)
+      window.removeEventListener('storage', refresh)
+    }
   }, [])
 
   const refreshPersonal = useCallback(() => setPersonal(loadPersonal()), [])
@@ -60,6 +65,8 @@ export function BrandProvider({ children }) {
     featuredTechnique: profileSettings.brandFeaturedTechnique || '',
     milestone:         profileSettings.brandMilestone         || '',
     socials:           profileSettings.brandSocials           || [],
+    signature:         profileSettings.brandSignature         || null,
+    paymentTerms:      profileSettings.brandPaymentTerms      || '',
 
 
     accountBank:   profileSettings.accountBank   || '',
@@ -67,9 +74,14 @@ export function BrandProvider({ children }) {
     accountName:   profileSettings.accountName   || '',
 
 
-    ownerName:  personal.fullName  || '',
-    ownerEmail: personal.email     || '',
-    ownerPhone: personal.phone     || '',
+    ownerName:       personal.fullName   || '',
+    ownerEmail:      personal.email      || '',
+    ownerPhone:      personal.phone      || '',
+    ownerCity:       personal.city       || '',
+    ownerCountry:    personal.country    || '',
+    ownerSex:        personal.sex        || '',
+    ownerBirthMonth: personal.birthMonth || '',
+    ownerBirthDay:   personal.birthDay   || '',
 
 
     invoiceCurrency:   generalSettings.invoiceCurrency || '₦',
@@ -78,14 +90,14 @@ export function BrandProvider({ children }) {
     invoiceShowTax:    generalSettings.invoiceShowTax  || false,
     invoiceTaxRate:    generalSettings.invoiceTaxRate  || 0,
     invoiceFooter:     generalSettings.invoiceFooter   || 'Thank you for your patronage 🙏',
-    invoiceTemplate:  generalSettings.invoiceTemplate || 'invoiceTemplate1',
+    invoiceTemplate:   generalSettings.invoiceTemplate || 'invoiceTemplate1',
 
     receiptCurrency:   generalSettings.receiptCurrency || '₦',
     receiptPrefix:     generalSettings.receiptPrefix   || 'RCP',
     receiptShowTax:    generalSettings.receiptShowTax  || false,
     receiptTaxRate:    generalSettings.receiptTaxRate  || 0,
     receiptFooter:     generalSettings.receiptFooter   || 'Thank you for your patronage 🙏',
-    receiptTemplate:  generalSettings.receiptTemplate || 'receiptTemplate1',
+    receiptTemplate:   generalSettings.receiptTemplate || 'receiptTemplate1',
   
 
   }
