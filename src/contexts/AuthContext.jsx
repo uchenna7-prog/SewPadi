@@ -26,14 +26,6 @@ export function AuthProvider({ children }) {
     return unsubscribe
   }, [])
 
-  const login = (email, password) => login(email, password)
-  const signup = (email, password) => signup(auth, email, password)
-  const resetPassword = (email) => resetPassword(email)
-  const changePassword = (user,newPassword) => changePassword(user,newPassword)
-  const changeEmail = (user,newEmail) => changeEmail(user,newEmail)
-  const logout = () => logout()
-
-
   return (
     <AuthContext.Provider value={
       { 
