@@ -41,11 +41,7 @@
   padding: 16px 16px 0;
 }
 
-/* ── PAPER WRAP ──
-   On mobile this is the measuring container.
-   It must be full width so ResizeObserver can read clientWidth.
-   overflow: hidden clips the scaled content neatly.
-*/
+/* ── PAPER WRAP ── */
 .paperWrap {
   width: 100%;
   overflow: hidden;
@@ -55,27 +51,12 @@
   margin-bottom: 14px;
 }
 
-/* ── SCALE SHELL ──
-   Fixed at template design width (380px).
-   transform: scale() shrinks it visually without affecting layout.
-   Because CSS transform doesn't affect document flow, the shell
-   renders as 380px wide in the DOM but the parent clips it.
-   We don't set a height here — the paperInner's natural height
-   determines it, and the parent paperWrap shows it clipped/scaled.
-*/
-.scaleShell {
-  display: block;
-  /* width set inline via JS */
-  /* transform set inline via JS */
-}
-
 /* ── PAPER INNER ──
-   The actual template container. Width fixed so the template
-   always renders at its intended design width.
-   No overflow: hidden — needed for html2canvas to capture correctly.
+   Fluid width — fills whatever the paperWrap gives it.
+   The template's internal CSS is responsible for its own layout.
 */
 .paperInner {
-  width: 380px;
+  width: 100%;
   background: #ffffff;
 }
 
@@ -134,7 +115,6 @@
     padding: 28px 24px 0;
   }
 
-  /* On desktop no scaling — paperWrap just sizes to content */
   .paperWrap {
     width: fit-content;
     max-width: 100%;

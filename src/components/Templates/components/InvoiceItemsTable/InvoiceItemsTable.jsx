@@ -10,7 +10,7 @@ export function ItemsTable({ invoice, brand }) {
 
   useBrandTokens(brand.colourId, tableRef)
 
-  const { currency, showTax, taxRate: brandTaxRate } = brand
+  const { currency, showTax, invoiceTaxRate: brandTaxRate } = brand
 
   const subtotal = invoice.items?.length > 0
     ? invoice.items.reduce((sum, item) => sum + ((item.qty ?? 1) * (parseFloat(item.price) || 0)), 0)

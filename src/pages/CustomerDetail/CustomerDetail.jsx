@@ -472,9 +472,15 @@ export default function CustomerDetail({ onMenuClick }) {
     let settingsSnapshot = {}
     try { settingsSnapshot = JSON.parse(localStorage.getItem('tailorbook_settings') || '{}') } catch {}
 
-    const todayStr    = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     const allInstalls = payment.installments || []
-    const orderTotal  = parseFloat(payment.orderPrice) || 0
+
+    // Resolve the order FIRST — everything below depends on it
+    const order = orders.find(o => String(o.id) === String(payment.orderId))
+
+    // Use the order's true grand total (includes shipping, discount, tax)
+    // Fall back to payment.orderPrice only if order is not found
+    const orderTotal = parseFloat(order?.totalAmount ?? order?.price ?? payment.orderPrice) || 0
 
     const thisInstallIndex = allInstalls.findIndex(i => String(i.id) === String(installment.id))
     const installsUpToThis = thisInstallIndex >= 0 ? allInstalls.slice(0, thisInstallIndex + 1) : [installment]
@@ -486,8 +492,6 @@ export default function CustomerDetail({ onMenuClick }) {
       .slice(0, Math.max(0, thisInstallIndex))
       .map(inst => ({ id: inst.id, amount: inst.amount, method: inst.method || 'cash', date: inst.date }))
     const previousPaid = previousInstallments.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0)
-
-    const order = orders.find(o => String(o.id) === String(payment.orderId))
 
     const perPaymentCount = receipts.filter(r => String(r.paymentId) === String(payment.id)).length + 1
     const globalCount     = receipts.length + 1
@@ -842,7 +846,7 @@ export default function CustomerDetail({ onMenuClick }) {
         {activeTab === 'measurements' && (
           <MeasurementsTab
             measurements={data.measurements}
-            loading={data.measurementsLoading}   // ← add this
+            loading={data.measurementsLoading}
             onSave={data.saveMeasurement}
             onDelete={data.deleteMeasurement}
             showToast={showToast}
@@ -852,7 +856,7 @@ export default function CustomerDetail({ onMenuClick }) {
           <OrdersTab
             customerId={id}
             orders={orders}
-            loading={data.ordersLoading}   // ← add
+            loading={data.ordersLoading}
             measurements={data.measurements}
             showToast={showToast}
             onGenerateInvoice={handleGenerateInvoice}
@@ -861,7 +865,7 @@ export default function CustomerDetail({ onMenuClick }) {
         {activeTab === 'invoices' && (
           <InvoicesTab
             invoices={Invoices}
-            loading={data.invoicesLoading}   // ← add
+            loading={data.invoicesLoading}
             orders={orders}
             measurements={data.measurements}
             customer={customer}

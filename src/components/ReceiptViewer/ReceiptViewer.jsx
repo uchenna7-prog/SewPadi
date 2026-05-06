@@ -23,39 +23,40 @@ export default function ReceiptViewer({ receipt: initialReceipt, customer, onClo
   const isFullPay      = cumulativePaid >= orderTotal && orderTotal > 0
 
   const handleDownload = async () => {
-  if (!paperRef.current || pdfLoading) return
-  setPdfLoading(true)
-  showToast?.('Generating PDF…')
-  try {
-    const exactHeight = Math.ceil(paperRef.current.getBoundingClientRect().height)
-    await downloadPDF(paperRef.current, filename, brandCSSVars, exactHeight)
-    showToast?.('PDF downloaded ✓')
-  } catch (err) {
-    console.error(err)
-    showToast?.('PDF failed — please try again.')
-  } finally {
-    setPdfLoading(false)
+    if (!paperRef.current || pdfLoading) return
+    setPdfLoading(true)
+    showToast?.('Generating PDF…')
+    try {
+      const exactHeight = Math.ceil(paperRef.current.getBoundingClientRect().height)
+      await downloadPDF(paperRef.current, filename, brandCSSVars, exactHeight)
+      showToast?.('PDF downloaded ✓')
+    } catch (err) {
+      console.error(err)
+      showToast?.('PDF failed — please try again.')
+    } finally {
+      setPdfLoading(false)
+    }
   }
-}
 
   const handleShare = async () => {
-  if (!paperRef.current || shareLoading) return
-  setShareLoading(true)
-  showToast?.('Preparing…')
-  try {
-    const exactHeight = Math.ceil(paperRef.current.getBoundingClientRect().height)
-    const message = buildReceiptWhatsAppMessage(receipt, customer, effectiveBrand)
-    await sharePDF(paperRef.current, filename, message, brandCSSVars, exactHeight)
-    showToast?.('Shared ✓')
-  } catch (err) {
-    if (err?.name !== 'AbortError') {
-      console.error(err)
-      showToast?.('Share failed — please try again.')
+    if (!paperRef.current || shareLoading) return
+    setShareLoading(true)
+    showToast?.('Preparing…')
+    try {
+      const exactHeight = Math.ceil(paperRef.current.getBoundingClientRect().height)
+      const message = buildReceiptWhatsAppMessage(receipt, customer, effectiveBrand)
+      await sharePDF(paperRef.current, filename, message, brandCSSVars, exactHeight)
+      showToast?.('Shared ✓')
+    } catch (err) {
+      if (err?.name !== 'AbortError') {
+        console.error(err)
+        showToast?.('Share failed — please try again.')
+      }
+    } finally {
+      setShareLoading(false)
     }
-  } finally {
-    setShareLoading(false)
   }
-}
+
   return (
     <div className={styles.overlay}>
       <Header

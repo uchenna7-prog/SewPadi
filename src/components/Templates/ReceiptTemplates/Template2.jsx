@@ -52,27 +52,34 @@ export function ReceiptTemplate2({ receipt, customer, brand }) {
 
       </div>
 
-      <ItemsTable receipt={receipt} brand={brand} />
-      <ReceiptPaymentSummary receipt={receipt} brand={brand} />
+      {/* grows to push footer down */}
+      <div className={styles.body}>
 
-      {brand.accountBank && (
-        <div className={styles.paymentInfo}>
-          <strong style={{fontWeight :900,color :"var(--brand-primary-dark)"}}>Payment Details</strong><br/>
+        <ItemsTable receipt={receipt} brand={brand} />
+        <ReceiptPaymentSummary receipt={receipt} brand={brand} />
 
-            <div>
+        {brand.accountBank && (
+          <div className={styles.paymentInfo}>
+            <strong style={{fontWeight :900,color :"var(--brand-primary-dark)"}}>Payment Details</strong><br/>
 
               <div>
 
-                  {brand.name && (
-                    <div>Received By  : {brand.name}</div>
-                  )}
-                
-              </div>
+                <div>
 
-            </div>
-        </div>
-      )}
+                    {brand.name && (
+                      <div>Received By  : {brand.name}</div>
+                    )}
+                  
+                </div>
+
+              </div>
+          </div>
+        )}
+
+      </div>
+
       <div className={styles.footerCenteredText}>{brand.receiptFooter || 'Thank you!'}</div>
+
     </div>
   )
 }

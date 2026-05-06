@@ -54,10 +54,13 @@ export function ReceiptTemplate1({ receipt, customer, brand }) {
 
       </div>
 
-      <ItemsTable receipt={receipt} brand={brand} />
+      {/* grows to push footer down */}
+      <div className={styles.body}>
 
-      <ReceiptPaymentSummary receipt={receipt} brand={brand}/>
+        <ItemsTable receipt={receipt} brand={brand} />
+        <ReceiptPaymentSummary receipt={receipt} brand={brand}/>
 
+      </div>
 
       {(brand.accountBank || brand.phone || brand.email || brand.receiptFooter) && (
 
@@ -105,3 +108,5 @@ export function ReceiptTemplate1({ receipt, customer, brand }) {
   )
 
 }
+
+

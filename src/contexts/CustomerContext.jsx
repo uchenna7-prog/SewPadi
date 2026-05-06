@@ -2,9 +2,9 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 import { useAuth } from './AuthContext'
 import {
   subscribeToCustomers,
-  addCustomer,
-  updateCustomer,
-  deleteCustomer
+  addCustomer as addCustomerToDb,
+  updateCustomer as updateCustomerInDb,
+  deleteCustomer as deleteCustomerFromDb
 } from '../services/customerService'
 
 const CustomerContext = createContext(null)
@@ -45,7 +45,7 @@ export function CustomerProvider({ children }) {
     try {
       const { id, ...data } = customer
       
-      return await addCustomer(user.uid, data)
+      return await addCustomerToDb(user.uid, data)
     } 
     catch (err) {
       setError(err.message)
@@ -58,7 +58,7 @@ export function CustomerProvider({ children }) {
     if (!user) return
 
     try {
-      await updateCustomer(user.uid, String(id), updates)
+      await updateCustomerInDb(user.uid, String(id), updates)
     } catch (err) {
       setError(err.message)
       throw err
@@ -69,7 +69,7 @@ export function CustomerProvider({ children }) {
 
     if (!user) return
     try {
-      await deleteCustomer(user.uid, String(id))
+      await deleteCustomerFromDb(user.uid, String(id))
     } 
     catch (err) {
       setError(err.message)

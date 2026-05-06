@@ -19,53 +19,47 @@ function capitalize(str) {
 }
 
 
-export function ReceiptPaymentSummary({ receipt, brand, isTemplate5 = false  }) {
+export function ReceiptPaymentSummary({ receipt, brand, isTemplate5 = false }) {
 
-  
-    const { currency, showTax, taxRate: brandTaxRate } = brand
+  const { currency, showTax, taxRate: brandTaxRate } = brand
 
-    const subtotal = receipt.items?.length > 0
-      ? receipt.items.reduce((sum, item) => sum + ((item.qty ?? 1) * (parseFloat(item.price) || 0)), 0)
-      : 0
-  
-    
-    const shippingFee    = parseFloat(receipt.shippingFee)    || 0
-    const discountAmount = parseFloat(receipt.discountAmount) || 0
-    const discountType   = receipt.discountType   || null   // 'percent' | 'flat' | null
-    const discountValue  = parseFloat(receipt.discountValue)  || 0
-    const useTax         = receipt.taxRate != null ? receipt.taxRate > 0 : (showTax && brandTaxRate > 0)
-    const taxRate        = receipt.taxRate != null ? receipt.taxRate : brandTaxRate
-    const taxAmount      = parseFloat(receipt.taxAmount) || calcTax(subtotal, taxRate, useTax)
-    const grandTotal     = receipt.totalAmount != null
-      ? parseFloat(receipt.totalAmount)
-      : subtotal + shippingFee - discountAmount + taxAmount
-  
-    const discountLabel = discountType === 'percent'
-      ? `Discount (${discountValue}%)`
-      : 'Discount'
-  
-    const hasExtras = shippingFee > 0 || discountAmount > 0 || (useTax && taxAmount > 0)
-  
+  // ── Order totals — prefer frozen values saved on the receipt ─────────────
+  const subtotal = receipt.items?.length > 0
+    ? receipt.items.reduce((sum, item) => sum + ((item.qty ?? 1) * (parseFloat(item.price) || 0)), 0)
+    : 0
 
-  const tax   = calcTax(grandTotal, taxRate, showTax)
+  const shippingFee    = parseFloat(receipt.shippingFee)    || 0
+  const discountAmount = parseFloat(receipt.discountAmount) || 0
+  const discountType   = receipt.discountType  || null
+  const discountValue  = parseFloat(receipt.discountValue)  || 0
+  const useTax         = receipt.taxRate != null ? receipt.taxRate > 0 : (showTax && brandTaxRate > 0)
+  const taxRate        = receipt.taxRate != null ? receipt.taxRate : brandTaxRate
+  const taxAmount      = parseFloat(receipt.taxAmount) || calcTax(subtotal, taxRate, useTax)
+
+  // grandTotal is the true order total including shipping, discount, and tax
+  const grandTotal = receipt.totalAmount != null
+    ? parseFloat(receipt.totalAmount)
+    : subtotal + shippingFee - discountAmount + taxAmount
 
   // ── Build payment rows ────────────────────────────────────────────────────
   const paymentRows = buildPaymentRows(receipt)
 
-  // Previously paid = all non-latest rows
   const previouslyPaid = paymentRows
     .filter(p => !p._isCurrent)
     .reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0)
 
-  // This payment = sum of latest-date rows only
   const thisPaymentTotal = paymentRows
     .filter(p => p._isCurrent)
     .reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0)
 
+  const totalPaid = thisPaymentTotal + previouslyPaid
+
+  // Balance is always grandTotal minus everything paid, never against subtotal
   const balanceRemaining = parseFloat(receipt.balance) >= 0
     ? parseFloat(receipt.balance)
     : Math.max(0, grandTotal - resolveCumulativePaid(receipt))
-  const isFullyPaid      = receipt.isFullPayment ?? (balanceRemaining <= 0)
+
+  const isFullyPaid = receipt.isFullPayment ?? (balanceRemaining <= 0)
 
   // ── "This Receipt" label ─────────────────────────────────────────────────
   const currentRows    = paymentRows.filter(p => p._isCurrent)
@@ -82,8 +76,8 @@ export function ReceiptPaymentSummary({ receipt, brand, isTemplate5 = false  }) 
       {paymentRows.length > 0 && (
         <div className={styles.historySection}>
 
-          <div className={styles.sectionLabel} 
-          style={{ color : isTemplate5 ? 'var(--brand-on-primary)' : 'var(--brand-primary)' }}>
+          <div className={styles.sectionLabel}
+            style={{ color: isTemplate5 ? 'var(--brand-on-primary)' : 'var(--brand-primary)' }}>
             Payment History
           </div>
 
@@ -93,13 +87,13 @@ export function ReceiptPaymentSummary({ receipt, brand, isTemplate5 = false  }) 
 
             return (
               <div key={payment.id ?? index} className={styles.paymentRow}
-              style={{ borderBottom : isTemplate5 ? '1px solid rgba(255,255,255,0.35)' : '1px dashed #ebebeb' }}>
+                style={{ borderBottom: isTemplate5 ? '1px solid rgba(255,255,255,0.35)' : '1px dashed #ebebeb' }}>
 
                 <span className={styles.emoji}>{methodEmoji(method)}</span>
 
                 <div className={styles.paymentMeta}>
-                  <div className={styles.paymentMethod} 
-                  style={{ color : isTemplate5 ? 'var(--brand-on-primary)' : 'var(--brand-primary)' }}>
+                  <div className={styles.paymentMethod}
+                    style={{ color: isTemplate5 ? 'var(--brand-on-primary)' : 'var(--brand-primary)' }}>
                     {capitalize(method)}
                     {isCurrent && <span className={styles.latestBadge}>Latest</span>}
                   </div>
@@ -107,8 +101,8 @@ export function ReceiptPaymentSummary({ receipt, brand, isTemplate5 = false  }) 
                 </div>
 
                 <span className={`${styles.paymentAmount} ${isCurrent ? styles.amountCurrent : ''}`}
-                style={{ color : isTemplate5 ? 'var(--brand-on-primary)' : 'var(--brand-primary)' }}>
-                  { formatCurrency(currency, payment.amount)}
+                  style={{ color: isTemplate5 ? 'var(--brand-on-primary)' : 'var(--brand-primary)' }}>
+                  {formatCurrency(currency, payment.amount)}
                 </span>
 
               </div>
@@ -121,68 +115,65 @@ export function ReceiptPaymentSummary({ receipt, brand, isTemplate5 = false  }) 
       {/* ── Totals Summary ───────────────────────────────────────────── */}
       <div className={styles.totalsSection}>
 
-        {showTax && taxRate > 0 && (
+        {useTax && taxAmount > 0 && (
           <div className={styles.totalsRow}>
             <span className={styles.totalsKey}>Tax ({taxRate}%)</span>
-            <span className={styles.totalsVal}>{ formatCurrency(currency, tax)}</span>
+            <span className={styles.totalsVal}>{formatCurrency(currency, taxAmount)}</span>
           </div>
         )}
 
         {paymentRows.length > 0 && previouslyPaid > 0 && (
           <div className={styles.totalsRow}>
             <span className={styles.totalsKey}
-            style={{ color : isTemplate5 ? 'var(--brand-on-primary)' : 'var(--brand-primary)' }}>
+              style={{ color: isTemplate5 ? 'var(--brand-on-primary)' : 'var(--brand-primary)' }}>
               Previously Paid
             </span>
             <span className={styles.totalsVal}
-            style={{ color : isTemplate5 ? 'var(--brand-on-primary)' : 'var(--brand-primary)' }}>
-              { formatCurrency(currency, previouslyPaid)}</span>
+              style={{ color: isTemplate5 ? 'var(--brand-on-primary)' : 'var(--brand-primary)' }}>
+              {formatCurrency(currency, previouslyPaid)}
+            </span>
           </div>
         )}
 
         {paymentRows.length > 0 && thisPaymentTotal > 0 && (
           <div className={styles.totalsRow}>
             <span className={styles.totalsKey}
-            style={{ color : isTemplate5 ? 'var(--brand-on-primary)' : 'var(--brand-primary)' }}>
+              style={{ color: isTemplate5 ? 'var(--brand-on-primary)' : 'var(--brand-primary)' }}>
               This Payment
             </span>
             <span className={`${styles.totalsVal} ${styles.amountPaid}`}>
-              + { formatCurrency(currency, thisPaymentTotal)}
+              + {formatCurrency(currency, thisPaymentTotal)}
             </span>
           </div>
         )}
 
-        <div className={styles.totalsDivider} 
-        style={{ borderBottom : isTemplate5 ? '1.5px solid var(--brand-on-primary)' : '1.5px solid var(--brand-primary-dark)' }}/>
+        <div className={styles.totalsDivider}
+          style={{ borderBottom: isTemplate5 ? '1.5px solid var(--brand-on-primary)' : '1.5px solid var(--brand-primary-dark)' }} />
 
         <div className={styles.totalPaidRow}>
           <span className={styles.totalPaidKey}
-          style={{ color : isTemplate5 ? 'var(--brand-on-primary)' : 'var(--brand-primary)' }}
-          >
-            Total Paid</span>
-          <span className={styles.totalPaidVal} 
-          style={{ color : isTemplate5 ? 'var(--brand-on-primary)' : '' }} 
-          >
-            { formatCurrency(currency, thisPaymentTotal + previouslyPaid)}
+            style={{ color: isTemplate5 ? 'var(--brand-on-primary)' : 'var(--brand-primary)' }}>
+            Total Paid
+          </span>
+          <span className={styles.totalPaidVal}
+            style={{ color: isTemplate5 ? 'var(--brand-on-primary)' : '' }}>
+            {formatCurrency(currency, totalPaid)}
           </span>
         </div>
 
-        {/* Status callout */}
         {!isFullyPaid ? (
           <div className={styles.balanceCallout}>
             <div>
-
               <div className={styles.balanceLabel}>Balance</div>
-              
             </div>
-            <span className={styles.balanceAmount}>{ formatCurrency(currency, balanceRemaining)}</span>
+            <span className={styles.balanceAmount}>{formatCurrency(currency, balanceRemaining)}</span>
           </div>
         ) : (
           <div className={styles.paidCallout}>
             <div>
               <div className={styles.paidLabel}>✓ PAID IN FULL</div>
             </div>
-            <span className={styles.paidAmount}>{ formatCurrency(currency, grandTotal)}</span>
+            <span className={styles.paidAmount}>{formatCurrency(currency, grandTotal)}</span>
           </div>
         )}
 

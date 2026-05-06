@@ -6,6 +6,8 @@ export const RECEIPT_SAMPLE_DATA = {
   date: '12 Apr 2025',
   orderDesc: 'Complete Suit Set',
   price: '60000',
+
+
     items: [
     { name: 'Suit Jacket', price: '25000' },
     { name: 'Trousers', price: '15000' },
@@ -34,16 +36,19 @@ export const getBrandSampleData = (brand) => {
     phone: '+234 801 234 5678',
     email: 'info@emekatailors.ng',
     website: 'emekatailors.ng',
-    currency: '₦',
-    footer: 'Thank you for your patronage🙏',
+    currency: brand.invoiceCurrency || '₦',
+    invoiceFooter: 'Thank you for your patronage🙏',
     showTax: false,
     taxRate: 0,
     dueDays: 14,
     accountBank: 'GTBank',
     accountNumber: '0123456789',
     accountName: 'Emeka Nwosu',
-    colour: brand?.colour || '#0057D7',
+    colour: brand?.colour || '#1C1814',
     colourId: brand?.colourId || 'bold-electric-blue',
+    receiptFooter: 'Thank you for your patronage🙏',
+
+
   };
 }; 
 

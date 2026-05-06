@@ -62,7 +62,12 @@ export function InvoiceTemplate1({ invoice, customer, brand }) {
 
       </div>
 
-      <ItemsTable invoice={invoice} brand={brand} />
+      {/* grows to push footer down */}
+      <div className={styles.body}>
+
+        <ItemsTable invoice={invoice} brand={brand} />
+
+      </div>
 
       {(brand.accountBank || brand.phone || brand.email || brand.invoiceFooter) && (
 
@@ -72,7 +77,7 @@ export function InvoiceTemplate1({ invoice, customer, brand }) {
 
             <div className={styles.footerLeft}>
 
-              <strong style={{fontWeight :900,color :"var(--brand-primary-dark)"}}>Payment Information :</strong><br />
+              <strong style={{fontWeight :900,color :"var(--brand-primary-dark)"}}>Payment Information:</strong><br />
 
               <div>
 

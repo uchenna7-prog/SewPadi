@@ -55,33 +55,40 @@ export function InvoiceTemplate2({ invoice, customer, brand }) {
 
       </div>
 
-      <ItemsTable invoice={invoice} brand={brand} />
+      {/* grows to push footer down */}
+      <div className={styles.body}>
 
-      {brand.accountBank && (
-        <div className={styles.paymentInfo}>
-          <strong style={{fontWeight :900,color :"var(--brand-primary-dark)"}}>Payment Information:</strong><br/>
+        <ItemsTable invoice={invoice} brand={brand} />
 
-            <div>
+        {brand.accountBank && (
+          <div className={styles.paymentInfo}>
+            <strong style={{fontWeight :900,color :"var(--brand-primary-dark)"}}>Payment Information:</strong><br/>
 
               <div>
-                {brand.accountBank && (
-                  <div>Bank Name : {brand.accountBank}</div>
-                )}
 
-                {brand.accountNumber && (
-                  <div>Account Number : {brand.accountNumber}</div>
-                )}
+                <div>
+                  {brand.accountBank && (
+                    <div>Bank Name : {brand.accountBank}</div>
+                  )}
 
-                {brand.accountName && (
-                  <div>Account Name : {brand.accountName}</div>
-                )}
-                
+                  {brand.accountNumber && (
+                    <div>Account Number : {brand.accountNumber}</div>
+                  )}
+
+                  {brand.accountName && (
+                    <div>Account Name : {brand.accountName}</div>
+                  )}
+                  
+                </div>
+
               </div>
+          </div>
+        )}
 
-            </div>
-        </div>
-      )}
+      </div>
+
       <div className={styles.footerCenteredText}>{brand.invoiceFooter || 'Thank you!'}</div>
+
     </div>
   )
 }

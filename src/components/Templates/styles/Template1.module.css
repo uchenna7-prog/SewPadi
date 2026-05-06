@@ -1,4 +1,3 @@
-
 .template { 
   padding:18px;
   color:#1a1a1a;
@@ -77,8 +76,15 @@
   line-height: 1.4; 
 }
 
+/* grows to push footer to the bottom */
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 .footer{ 
-  margin-top: auto; 
+  margin-top: 16px; 
   padding-top: 12px; 
   border-top: 1px solid var(--brand-muted); 
   display: flex; 
@@ -90,4 +96,3 @@
   font-size: 10px; 
   line-height: 1.6; 
 }
-
