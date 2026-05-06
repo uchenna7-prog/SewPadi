@@ -5,7 +5,7 @@ import { ItemsTable } from "../components/ReceiptItemsTable/ReceiptItemsTable"
 
 export function ReceiptTemplate1({ receipt, customer, brand }) {
 
-  const lineColor = brand.colour || '#0057D7'
+  const lineColor = brand.colour || '#1C1814'
 
   return (
 
@@ -59,7 +59,7 @@ export function ReceiptTemplate1({ receipt, customer, brand }) {
       <ReceiptPaymentSummary receipt={receipt} brand={brand}/>
 
 
-      {(brand.accountBank || brand.phone || brand.email || brand.footer) && (
+      {(brand.accountBank || brand.phone || brand.email || brand.receiptFooter) && (
 
         <div className={styles.footer}>
 
@@ -83,14 +83,14 @@ export function ReceiptTemplate1({ receipt, customer, brand }) {
 
           )}
 
-          {(brand.phone || brand.email || brand.footer) && (
+          {(brand.phone || brand.email || brand.receiptFooter) && (
 
             <div className={styles.footRight}>
 
               <strong style={{fontWeight :900,color :"var(--brand-primary-dark)"}}>Notes :</strong><br />
               {brand.phone   && <span>{brand.phone}<br /></span>}
               {brand.email   && <span>{brand.email}<br /></span>}
-              {brand.footer  && <span>{brand.footer}</span>}
+              {brand.receiptFooter  && <span>{brand.receiptFooter}</span>}
 
             </div>
 

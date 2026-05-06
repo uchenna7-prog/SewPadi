@@ -1,13 +1,6 @@
-// src/contexts/InvoiceContext.jsx
-// ─────────────────────────────────────────────────────────────
-// Combines:
-//   • currentInvoice / brand / template  (customisable invoice)
-//   • allInvoices real-time subscription (global invoice list)
-// ─────────────────────────────────────────────────────────────
-
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { useAuth }      from './AuthContext'
-import { useSettings }  from './SettingsContext'
+import { useProfileSettings }  from './ProfileSettingsContext'
 import { useCustomers } from './CustomerContext'
 import { subscribeToInvoices } from '../services/invoiceService'
 
@@ -15,7 +8,7 @@ const InvoiceContext = createContext()
 
 export function InvoiceProvider({ children }) {
   const { user }      = useAuth()
-  const { settings }  = useSettings()
+  const { profileSettings }  = useProfileSettings()
   const { customers } = useCustomers()
 
   // ── Customisable invoice (unchanged from original) ────────
@@ -72,16 +65,16 @@ export function InvoiceProvider({ children }) {
         // ── Customisable invoice ──────────────────────────
         currentInvoice,
         setCurrentInvoice,
-        template: settings.invoiceTemplate,
+        template: profileSettings.invoiceTemplate,
         brand: {
-          name:    settings.brandName,
-          logo:    settings.brandLogo,
-          colour:  settings.brandColour,
-          phone:   settings.brandPhone,
-          email:   settings.brandEmail,
-          address: settings.brandAddress,
-          website: settings.brandWebsite,
-          tagline: settings.brandTagline,
+          name:    profileSettings.brandName,
+          logo:    profileSettings.brandLogo,
+          colour:  profileSettings.brandColour,
+          phone:   profileSettings.brandPhone,
+          email:   profileSettings.brandEmail,
+          address: profileSettings.brandAddress,
+          website: profileSettings.brandWebsite,
+          tagline: profileSettings.brandTagline,
         },
         // ── Global invoice list ───────────────────────────
         allInvoices,

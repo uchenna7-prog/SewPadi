@@ -245,26 +245,26 @@ th.colTotal, td.colTotal {
 
 .breakdownKey {
   font-size: 9.5px;
-  color: #6b7280;
+  color: var(--brand-on-primary);
   font-weight: 500;
 }
 
 .breakdownVal {
   font-size: 9.5px;
   font-weight: 500;
-  color: #1a1a1a;
+  color: var(--brand-on-primary);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
 }
 
-/* Discount row — green */
 .breakdownKeyDiscount {
+  font-weight: 900;
   color: #15803d;
 }
 
 .breakdownValDiscount {
   color: #15803d;
-  font-weight: 700;
+  font-weight: 900;
 }
 
 .orderTotalWrap {
@@ -272,6 +272,7 @@ th.colTotal, td.colTotal {
   justify-content: space-between;
   align-items: center;
   padding: 7px 0;
+  border-top:1px solid rgba(255,255,255,0.35);
 }
 
 
@@ -280,13 +281,13 @@ th.colTotal, td.colTotal {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--brand-primary-dark);
+  color: var(--brand-on-primary);
 }
 
 .orderTotalValue {
   font-size: 11px;
   font-weight: 900;
-  color: #1a1a1a;
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
+  color: var(--brand-on-primary);
 }

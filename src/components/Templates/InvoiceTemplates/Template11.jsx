@@ -4,9 +4,11 @@ import { formatCurrency } from "../../../utils/formatCurrency"
 
 
 export function InvoiceTemplate11({ invoice, customer, brand }) {
-  const dueDate     = getDueDate(invoice, brand.dueDays)
-  const accentColor = brand.colour || '#0057D7'
-  const { currency, showTax, taxRate: brandTaxRate } = brand
+
+  
+  const dueDate     = getDueDate(invoice, brand.invoiceDueDays)
+  const accentColor = brand.colour || '#1C1814'
+  const { currency, showTax, invoiceTaxRate: brandTaxRate } = brand
 
   const subtotal = invoice.items?.length > 0
     ? invoice.items.reduce((sum, item) => sum + ((item.qty ?? 1) * (parseFloat(item.price) || 0)), 0)
@@ -197,7 +199,7 @@ export function InvoiceTemplate11({ invoice, customer, brand }) {
           </div>
         </>
       )}
-      <div className={styles.thankYou} style={{ color : accentColor }}>{brand.footer || 'THANK YOU!'}</div>
+      <div className={styles.thankYou} style={{ color : accentColor }}>{brand.invoiceFooter || 'THANK YOU!'}</div>
     </div>
   )
 }

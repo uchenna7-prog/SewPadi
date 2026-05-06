@@ -5,8 +5,8 @@ import { formatCurrency } from "../../../utils/formatCurrency"
 
 export function InvoiceTemplate5({ invoice, customer, brand }) {
 
-  const dueDate = getDueDate(invoice, brand.dueDays)
-  const { currency, showTax, taxRate: brandTaxRate } = brand
+  const dueDate = getDueDate(invoice, brand.invoiceDueDays)
+  const { currency, showTax, invoiceTaxRate: brandTaxRate } = brand
 
   const subtotal = invoice.items?.length > 0
     ? invoice.items.reduce((sum, item) => sum + ((item.qty ?? 1) * (parseFloat(item.price) || 0)), 0)

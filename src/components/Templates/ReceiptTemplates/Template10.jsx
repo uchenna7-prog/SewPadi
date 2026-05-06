@@ -5,8 +5,8 @@ import { formatCurrency } from "../../../utils/formatCurrency"
 
 
 export function ReceiptTemplate10({ receipt, customer, brand }) {
-  const accentColor = brand.colour || '#0057D7'
-   const { currency, showTax, taxRate: brandTaxRate } = brand
+  const accentColor = brand.colour || '#1C1814'
+  const { currency, showTax, receiptTaxRate: brandTaxRate } = brand
 
   const subtotal = receipt.items?.length > 0
     ? receipt.items.reduce((sum, item) => sum + ((item.qty ?? 1) * (parseFloat(item.price) || 0)), 0)
@@ -170,7 +170,7 @@ export function ReceiptTemplate10({ receipt, customer, brand }) {
               className={styles.paymentNote}
               style={{ fontWeight : 900, color : "var(--brand-primary-dark)" }}
             >
-              {brand.footer}
+              {brand.receiptFooter}
             </div>
           </div>
           <div className={styles.signArea}>

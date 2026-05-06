@@ -550,4 +550,4 @@ export function getPalettesByStyle(style) {
 }
 
 
-export const DEFAULT_COLOUR_ID = 'soft-sage-green'
+export const DEFAULT_COLOUR_ID = 'classic-warm-black'

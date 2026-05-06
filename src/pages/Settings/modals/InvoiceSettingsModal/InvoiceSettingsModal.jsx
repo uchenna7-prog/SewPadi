@@ -5,24 +5,24 @@ import styles from "./InvoiceSettingsModal.module.css"
 import { FullModal } from "../../components/FullModal/FullModal"
 import { SegmentControl } from "../../components/SegmentControl/SegmentControl"
 import { useState } from "react"
-import { useSettings } from "../../../../contexts/SettingsContext"
+import { useGeneralSettings } from "../../../../contexts/GeneralSettingsContext"
 import { Field,FieldGroup } from "../../components/FormField/FormField"
 import { Textarea,TextInput } from "../../components/FormInput/FormInput"
 import { Toggle } from "../../components/Toggle/Toggle"
 
 
 export function InvoiceSettingsModal({ onBack, showToast }) {
-  const { settings, updateMany } = useSettings()
+  const { generalSettings, updateManyGeneralSettings } = useGeneralSettings()
   const [local, setLocal] = useState({
-    invoicePrefix:   settings.invoicePrefix,
-    invoiceCurrency: settings.invoiceCurrency,
-    invoiceDueDays:  settings.invoiceDueDays,
-    invoiceShowTax:  settings.invoiceShowTax,
-    invoiceTaxRate:  settings.invoiceTaxRate,
-    invoiceFooter:   settings.invoiceFooter,
+    invoicePrefix:   generalSettings.invoicePrefix,
+    invoiceCurrency: generalSettings.invoiceCurrency,
+    invoiceDueDays:  generalSettings.invoiceDueDays,
+    invoiceShowTax:  generalSettings.invoiceShowTax,
+    invoiceTaxRate:  generalSettings.invoiceTaxRate,
+    invoiceFooter:   generalSettings.invoiceFooter,
   })
   const set = key => val => setLocal(p=>({...p,[key]:val}))
-  const save = () => { updateMany(local); showToast('Invoice settings saved'); onBack() }
+  const save = () => { updateManyGeneralSettings(local); showToast('Invoice settings saved'); onBack() }
   return (
     <FullModal title="Invoice Settings" onBack={onBack} onSave={save}>
       <div>

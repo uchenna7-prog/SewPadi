@@ -1,12 +1,13 @@
 // src/pages/Profile/Profile.jsx
 
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useSettings } from '../../contexts/SettingsContext'
+import { useProfileSettings } from '../../contexts/ProfileSettingsContext'
 import { useAuth } from '../../contexts/AuthContext'
 import { updateProfile } from 'firebase/auth'
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import { storage } from '../../firebase'
+import { saveOwnerToFirestore, loadOwnerFromFirestore } from '../../services/ownerService'
 import Header from '../../components/Header/Header'
 import Toast from '../../components/Toast/Toast'
 import ConfirmSheet from '../../components/ConfirmSheet/ConfirmSheet'
@@ -19,8 +20,6 @@ import BottomNav from '../../components/BottomNav/BottomNav'
 // Nigerian States
 // ─────────────────────────────────────────────────────────────
 
-const SERVICE_AREA_SPECIAL = ['Nationwide', 'International']
-
 const NIGERIAN_STATES = [
   'Abia','Adamawa','Akwa Ibom','Anambra','Bauchi','Bayelsa','Benue','Borno',
   'Cross River','Delta','Ebonyi','Edo','Ekiti','Enugu','FCT – Abuja','Gombe',
@@ -30,7 +29,7 @@ const NIGERIAN_STATES = [
 ]
 
 // ─────────────────────────────────────────────────────────────
-// Country Code Picker (from Signup)
+// Country Code Picker
 // ─────────────────────────────────────────────────────────────
 
 const DEFAULT_COUNTRY = { name: 'Nigeria', dial_code: '+234', flag: '🇳🇬' }
@@ -40,7 +39,6 @@ function CountryCodePicker({ selected, onSelect }) {
   const [search, setSearch]       = useState('')
   const [countries, setCountries] = useState([])
   const [loading, setLoading]     = useState(false)
-  // dropdownPos stores { top, left, width } for fixed positioning
   const [dropdownPos, setDropdownPos] = useState(null)
   const btnRef      = useRef(null)
   const dropdownRef = useRef(null)
@@ -73,9 +71,7 @@ function CountryCodePicker({ selected, onSelect }) {
     const handler = e => {
       const clickedBtn      = btnRef.current?.contains(e.target)
       const clickedDropdown = dropdownRef.current?.contains(e.target)
-      if (!clickedBtn && !clickedDropdown) {
-        setOpen(false); setSearch('')
-      }
+      if (!clickedBtn && !clickedDropdown) { setOpen(false); setSearch('') }
     }
     document.addEventListener('mousedown', handler)
     document.addEventListener('touchstart', handler)
@@ -87,14 +83,9 @@ function CountryCodePicker({ selected, onSelect }) {
 
   const handleOpen = () => {
     if (open) { setOpen(false); return }
-    // Calculate position of button to anchor dropdown below it using fixed coords
     if (btnRef.current) {
       const rect = btnRef.current.getBoundingClientRect()
-      setDropdownPos({
-        top:   rect.bottom + 6,
-        left:  rect.left,
-        width: Math.max(rect.width, 280),
-      })
+      setDropdownPos({ top: rect.bottom + 6, left: rect.left, width: Math.max(rect.width, 280) })
     }
     setOpen(true)
   }
@@ -116,13 +107,7 @@ function CountryCodePicker({ selected, onSelect }) {
         <div
           ref={dropdownRef}
           className={styles.ccDropdown}
-          style={{
-            position: 'fixed',
-            top:      dropdownPos.top,
-            left:     dropdownPos.left,
-            width:    dropdownPos.width,
-            zIndex:   99999,
-          }}
+          style={{ position: 'fixed', top: dropdownPos.top, left: dropdownPos.left, width: dropdownPos.width, zIndex: 99999 }}
         >
           <div className={styles.ccSearchWrap}>
             <span className="mi" style={{ fontSize: '1rem', color: 'var(--text3)' }}>search</span>
@@ -158,7 +143,7 @@ function CountryCodePicker({ selected, onSelect }) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Phone helpers (from Signup)
+// Phone helpers
 // ─────────────────────────────────────────────────────────────
 
 function buildPhoneNumber(localNumber, dialCode) {
@@ -199,9 +184,7 @@ function InfoRow({ icon, label, value, placeholder, divider = true }) {
       </div>
       <div className={styles.rowText}>
         <div className={styles.rowLabel}>{label}</div>
-        <div className={value ? styles.rowValue : styles.rowPlaceholder}>
-          {value || placeholder}
-        </div>
+        <div className={value ? styles.rowValue : styles.rowPlaceholder}>{value || placeholder}</div>
       </div>
     </div>
   )
@@ -214,10 +197,7 @@ function TappableRow({ icon, label, sub, value, onClick, chevron = true, divider
       className={`${styles.row} ${styles.rowTappable} ${!divider ? styles.noDivider : ''}`}
       onClick={onClick}
     >
-      <div
-        className={styles.rowIcon}
-        style={isEdit ? { background: 'var(--text)', color: 'var(--bg)' } : undefined}
-      >
+      <div className={styles.rowIcon} style={isEdit ? { background: 'var(--text)', color: 'var(--bg)' } : undefined}>
         <span className="mi" style={{ fontSize: '1.15rem', color: danger ? '#ef4444' : undefined }}>{icon}</span>
       </div>
       <div className={styles.rowText}>
@@ -246,9 +226,7 @@ function FullModal({ title, onBack, onSave, children }) {
         customActions={onSave ? [{ label: 'Save', onClick: onSave }] : []}
       />
       <div className={styles.fullContent}>
-        <div className={styles.fullContentInner}>
-          {children}
-        </div>
+        <div className={styles.fullContentInner}>{children}</div>
       </div>
     </div>
   )
@@ -296,7 +274,6 @@ function Textarea({ value, onChange, placeholder, rows = 3 }) {
   )
 }
 
-// Phone field with country code picker
 function PhoneField({ label, hint, localValue, onLocalChange, country, onCountryChange }) {
   const phoneHint = getPhoneHint(localValue)
   return (
@@ -324,7 +301,7 @@ function PhoneField({ label, hint, localValue, onLocalChange, country, onCountry
 }
 
 // ─────────────────────────────────────────────────────────────
-// MODAL: Edit Personal Info
+// Personal info helpers
 // ─────────────────────────────────────────────────────────────
 
 const PERSONAL_KEY = 'tailorflow_personal'
@@ -341,53 +318,47 @@ const DAYS_IN_MONTH = {
 
 function loadPersonal(authUser) {
   try {
-    const raw = localStorage.getItem(PERSONAL_KEY)
+    const raw    = localStorage.getItem(PERSONAL_KEY)
     const stored = raw ? JSON.parse(raw) : {}
     return {
-      fullName:     stored.fullName     || authUser?.displayName || '',
-      email:        stored.email        || authUser?.email       || '',
-      phone:        stored.phone        || '',
-      city:         stored.city         || '',
-      country:      stored.country      || '',
-      sex:          stored.sex          || '',
-      birthMonth:   stored.birthMonth   || '',
-      birthDay:     stored.birthDay     || '',
+      fullName:   stored.fullName   || authUser?.displayName || '',
+      email:      stored.email      || authUser?.email       || '',
+      phone:      stored.phone      || '',
+      city:       stored.city       || '',
+      country:    stored.country    || '',
+      sex:        stored.sex        || '',
+      birthMonth: stored.birthMonth || '',
+      birthDay:   stored.birthDay   || '',
     }
   } catch {
     return {
-      fullName:   authUser?.displayName || '',
-      email:      authUser?.email       || '',
-      phone:      '',
-      city:       '',
-      country:    '',
-      sex:        '',
-      birthMonth: '',
-      birthDay:   '',
+      fullName: authUser?.displayName || '', email: authUser?.email || '',
+      phone: '', city: '', country: '', sex: '', birthMonth: '', birthDay: '',
     }
   }
 }
 
-function savePersonal(data) {
+function savePersonalLocally(data) {
   try { localStorage.setItem(PERSONAL_KEY, JSON.stringify(data)) } catch { /* ignore */ }
 }
 
-// Parse a stored phone string back into local + country for editing
 function parseStoredPhone(stored) {
   if (!stored) return { local: '', country: DEFAULT_COUNTRY }
-  // Format: "+234 8012345678" → dial_code="+234", local="08012345678"
   const match = stored.match(/^(\+\d+)\s+(.+)$/)
   if (match) {
-    return {
-      local: '0' + match[2].replace(/\D/g, ''),
-      country: { ...DEFAULT_COUNTRY, dial_code: match[1] },
-    }
+    return { local: '0' + match[2].replace(/\D/g, ''), country: { ...DEFAULT_COUNTRY, dial_code: match[1] } }
   }
   return { local: stored, country: DEFAULT_COUNTRY }
 }
 
+// ─────────────────────────────────────────────────────────────
+// MODAL: Edit Personal Info
+// ─────────────────────────────────────────────────────────────
+
 function PersonalModal({ personal, onBack, onSave, authUser }) {
-  const parsed = parseStoredPhone(personal.phone)
-  const [local, setLocal] = useState({
+  const parsed  = parseStoredPhone(personal.phone)
+  const [saving, setSaving] = useState(false)
+  const [local, setLocal]   = useState({
     fullName:   personal.fullName   || '',
     email:      personal.email      || '',
     city:       personal.city       || '',
@@ -401,16 +372,11 @@ function PersonalModal({ personal, onBack, onSave, authUser }) {
 
   const set = key => val => setLocal(p => ({ ...p, [key]: val }))
 
-  // When month changes, reset day if it exceeds the new month's max days
   const handleMonthChange = month => {
     setLocal(p => {
-      const maxDay = DAYS_IN_MONTH[month] || 31
+      const maxDay     = DAYS_IN_MONTH[month] || 31
       const currentDay = parseInt(p.birthDay)
-      return {
-        ...p,
-        birthMonth: month,
-        birthDay: currentDay > maxDay ? '' : p.birthDay,
-      }
+      return { ...p, birthMonth: month, birthDay: currentDay > maxDay ? '' : p.birthDay }
     })
   }
 
@@ -419,18 +385,37 @@ function PersonalModal({ personal, onBack, onSave, authUser }) {
     : Array.from({ length: 31 }, (_, i) => String(i + 1))
 
   const handleSave = async () => {
-    const builtPhone = buildPhoneNumber(phoneLocal, phoneCountry.dial_code) || phoneLocal
-    const updated = { ...personal, ...local, phone: builtPhone }
-    savePersonal(updated)
-    if (authUser && local.fullName && local.fullName !== authUser.displayName) {
-      try { await updateProfile(authUser, { displayName: local.fullName.trim() }) } catch { /* ignore */ }
+    if (saving) return
+    setSaving(true)
+    try {
+      const builtPhone = buildPhoneNumber(phoneLocal, phoneCountry.dial_code) || phoneLocal
+      const updated    = { ...personal, ...local, phone: builtPhone }
+
+      // 1. Save to localStorage immediately
+      savePersonalLocally(updated)
+
+      // 2. Update Firebase Auth display name if changed
+      if (authUser && local.fullName && local.fullName !== authUser.displayName) {
+        try { await updateProfile(authUser, { displayName: local.fullName.trim() }) } catch { /* ignore */ }
+      }
+
+      // 3. Persist to Firestore
+      if (authUser?.uid) {
+        await saveOwnerToFirestore(authUser.uid, updated)
+      }
+
+      onSave(updated)
+      onBack()
+    } catch (err) {
+      console.error('[PersonalModal] save failed:', err)
+      onBack() // localStorage already saved — still close
+    } finally {
+      setSaving(false)
     }
-    onSave(updated)
-    onBack()
   }
 
   return (
-    <FullModal title="Personal Info" onBack={onBack} onSave={handleSave}>
+    <FullModal title="Personal Info" onBack={onBack} onSave={saving ? undefined : handleSave}>
       <FieldGroup>
         <Field label="Full Name">
           <TextInput value={local.fullName} onChange={set('fullName')} placeholder="e.g. Amara Okonkwo" />
@@ -470,25 +455,13 @@ function PersonalModal({ personal, onBack, onSave, authUser }) {
         </Field>
         <Field label="Birthday">
           <div className={styles.turnaroundRow}>
-            <select
-              className={styles.turnaroundSelect}
-              value={local.birthMonth}
-              onChange={e => handleMonthChange(e.target.value)}
-            >
+            <select className={styles.turnaroundSelect} value={local.birthMonth} onChange={e => handleMonthChange(e.target.value)}>
               <option value="">Month</option>
-              {MONTHS.map(m => (
-                <option key={m} value={m}>{m}</option>
-              ))}
+              {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
             </select>
-            <select
-              className={styles.turnaroundSelect}
-              value={local.birthDay}
-              onChange={e => set('birthDay')(e.target.value)}
-            >
+            <select className={styles.turnaroundSelect} value={local.birthDay} onChange={e => set('birthDay')(e.target.value)}>
               <option value="">Day</option>
-              {dayOptions.map(d => (
-                <option key={d} value={d}>{d}</option>
-              ))}
+              {dayOptions.map(d => <option key={d} value={d}>{d}</option>)}
             </select>
           </div>
         </Field>
@@ -502,64 +475,64 @@ function PersonalModal({ personal, onBack, onSave, authUser }) {
 // ─────────────────────────────────────────────────────────────
 
 function BrandModal({ onBack, showToast }) {
-  const { settings, updateMany } = useSettings()
+  const { profileSettings, updateManyProfileSettings } = useProfileSettings()
   const { user } = useAuth()
-  const logoInputRef = useRef()
+  const logoInputRef    = useRef()
   const [logoUploading, setLogoUploading] = useState(false)
 
   const [local, setLocal] = useState({
-    brandName:              settings.brandName              || '',
-    brandTagline:           settings.brandTagline           || '',
-    brandColourId:          (settings.brandColourId && !settings.brandColourId.startsWith('#'))
-                              ? settings.brandColourId
+    brandName:              profileSettings.brandName              || '',
+    brandTagline:           profileSettings.brandTagline           || '',
+    brandColourId:          (profileSettings.brandColourId && !profileSettings.brandColourId.startsWith('#'))
+                              ? profileSettings.brandColourId
                               : DEFAULT_COLOUR_ID,
-    brandLogo:              settings.brandLogo              || null,
-    brandMilestone:         settings.brandMilestone         || '',
-    brandFeaturedTechnique: settings.brandFeaturedTechnique || '',
+    brandLogo:              profileSettings.brandLogo              || null,
+    brandMilestone:         profileSettings.brandMilestone         || '',
+    brandFeaturedTechnique: profileSettings.brandFeaturedTechnique || '',
   })
 
   const set = key => val => setLocal(p => ({ ...p, [key]: val }))
 
-  const handleLogoChange = useCallback(async e => {
+  const handleLogoChange = async (e) => {
     const file = e.target.files?.[0]
-    if (!file || !user?.uid) return
+    if (!file) return
+    if (!user?.uid) { showToast('Not logged in — cannot upload logo'); return }
+    if (!file.type.startsWith('image/')) { showToast('Please select an image file'); return }
+    if (file.size > 5 * 1024 * 1024) { showToast('Image must be under 5MB'); return }
+
     setLogoUploading(true)
     try {
       const storageRef = ref(storage, `users/${user.uid}/brandLogo`)
-      await uploadBytes(storageRef, file)
-      const url = await getDownloadURL(storageRef)
+      const snapshot   = await uploadBytes(storageRef, file)
+      const url        = await getDownloadURL(snapshot.ref)
       setLocal(p => ({ ...p, brandLogo: url }))
+      showToast('Logo uploaded')
     } catch (err) {
       console.error('[BrandModal] logo upload failed:', err)
-      showToast('Logo upload failed — try again')
+      showToast(`Upload failed: ${err.message || 'Unknown error'}`)
     } finally {
       setLogoUploading(false)
+      if (logoInputRef.current) logoInputRef.current.value = ''
     }
-  }, [user?.uid, showToast])
+  }
 
-  const handleLogoRemove = useCallback(async () => {
+  const handleLogoRemove = async () => {
     if (!user?.uid) return
     setLocal(p => ({ ...p, brandLogo: null }))
     try {
-      const storageRef = ref(storage, `users/${user.uid}/brandLogo`)
-      await deleteObject(storageRef)
-    } catch { /* file may not exist — ignore */ }
-  }, [user?.uid])
+      await deleteObject(ref(storage, `users/${user.uid}/brandLogo`))
+    } catch { /* file may not exist */ }
+  }
 
   const save = () => {
     const entry = getPaletteById(local.brandColourId)
-    updateMany({
-      ...local,
-      brandColour: entry?.tokens.primary || '#D4AF37',
-    })
+    updateManyProfileSettings({ ...local, brandColour: entry?.tokens.primary || '#1C1814' })
     showToast('Brand info saved')
     onBack()
   }
 
   return (
     <FullModal title="Brand Identity" onBack={onBack} onSave={logoUploading ? undefined : save}>
-
-      {/* Logo */}
       <FieldGroup>
         <Field label="Brand Logo" hint="PNG or JPG. Appears on invoice headers and portfolio. Ideally square.">
           {logoUploading ? (
@@ -580,17 +553,9 @@ function BrandModal({ onBack, showToast }) {
               Upload Logo
             </button>
           )}
-          <input
-            ref={logoInputRef}
-            type="file"
-            accept="image/*"
-            style={{ display: 'none' }}
-            onChange={handleLogoChange}
-          />
+          <input ref={logoInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleLogoChange} />
         </Field>
       </FieldGroup>
-
-      {/* Name + tagline */}
       <FieldGroup>
         <Field label="Shop / Brand Name">
           <TextInput value={local.brandName} onChange={set('brandName')} placeholder="e.g. Stitched by Amara" />
@@ -599,21 +564,11 @@ function BrandModal({ onBack, showToast }) {
           <TextInput value={local.brandTagline} onChange={set('brandTagline')} placeholder="e.g. Crafted with love, fitted for you" />
         </Field>
       </FieldGroup>
-
-      {/* Brand Colour */}
       <FieldGroup>
-        <Field
-          label="Brand Colour"
-          hint="Choose your brand colour. We've curated shades that look great on your portfolio and invoices."
-        >
-          <BrandColourPicker
-            value={local.brandColourId}
-            onChange={set('brandColourId')}
-          />
+        <Field label="Brand Colour" hint="Choose your brand colour. We've curated shades that look great on your portfolio and invoices.">
+          <BrandColourPicker value={local.brandColourId} onChange={set('brandColourId')} />
         </Field>
       </FieldGroup>
-
-      {/* Milestone + Signature Style */}
       <FieldGroup>
         <Field label="Milestone" hint="A proud achievement shown on your portfolio. e.g. 500+ happy clients">
           <TextInput value={local.brandMilestone} onChange={set('brandMilestone')} placeholder="e.g. 500+ happy clients" />
@@ -622,7 +577,6 @@ function BrandModal({ onBack, showToast }) {
           <TextInput value={local.brandFeaturedTechnique} onChange={set('brandFeaturedTechnique')} placeholder="e.g. Hand-embroidered agbada" />
         </Field>
       </FieldGroup>
-
     </FullModal>
   )
 }
@@ -632,13 +586,13 @@ function BrandModal({ onBack, showToast }) {
 // ─────────────────────────────────────────────────────────────
 
 function BusinessContactModal({ onBack, showToast }) {
-  const { settings, updateMany } = useSettings()
+  const { profileSettings, updateManyProfileSettings } = useProfileSettings()
+  const parsedBrandPhone = parseStoredPhone(profileSettings.brandPhone)
 
-  const parsedBrandPhone = parseStoredPhone(settings.brandPhone)
   const [local, setLocal] = useState({
-    brandEmail:   settings.brandEmail   || '',
-    brandAddress: settings.brandAddress || '',
-    brandWebsite: settings.brandWebsite || '',
+    brandEmail:   profileSettings.brandEmail   || '',
+    brandAddress: profileSettings.brandAddress || '',
+    brandWebsite: profileSettings.brandWebsite || '',
   })
   const [phoneLocal,   setPhoneLocal]   = useState(parsedBrandPhone.local)
   const [phoneCountry, setPhoneCountry] = useState(parsedBrandPhone.country)
@@ -647,7 +601,7 @@ function BusinessContactModal({ onBack, showToast }) {
 
   const save = () => {
     const builtPhone = buildPhoneNumber(phoneLocal, phoneCountry.dial_code) || phoneLocal
-    updateMany({ ...local, brandPhone: builtPhone })
+    updateManyProfileSettings({ ...local, brandPhone: builtPhone })
     showToast('Business contact saved')
     onBack()
   }
@@ -681,18 +635,18 @@ function BusinessContactModal({ onBack, showToast }) {
 // ─────────────────────────────────────────────────────────────
 
 function AccountDetailsModal({ onBack, showToast }) {
-  const { settings, updateMany } = useSettings()
+  const { profileSettings, updateManyProfileSettings } = useProfileSettings()
 
   const [local, setLocal] = useState({
-    accountBank:   settings.accountBank   || '',
-    accountNumber: settings.accountNumber || '',
-    accountName:   settings.accountName   || '',
+    accountBank:   profileSettings.accountBank   || '',
+    accountNumber: profileSettings.accountNumber || '',
+    accountName:   profileSettings.accountName   || '',
   })
 
   const set = key => val => setLocal(p => ({ ...p, [key]: val }))
 
   const save = () => {
-    updateMany(local)
+    updateManyProfileSettings(local)
     showToast('Account details saved')
     onBack()
   }
@@ -730,38 +684,27 @@ function ServiceAreaPicker({ value, onChange }) {
   const hasNationwide    = selected.includes('Nationwide')
   const hasInternational = selected.includes('International')
   const hasStates        = selected.some(s => NIGERIAN_STATES.includes(s))
-
-  // Nationwide and individual states are mutually exclusive.
-  // International is always independent — can pair with anything.
   const isNationwideDisabled = hasStates
   const isStatesDisabled     = hasNationwide
 
   const toggleSpecial = opt => {
     if (opt === 'Nationwide') {
       if (isNationwideDisabled) return
-      const next = hasNationwide
-        ? selected.filter(s => s !== 'Nationwide')
-        : [...selected, 'Nationwide']
+      const next = hasNationwide ? selected.filter(s => s !== 'Nationwide') : [...selected, 'Nationwide']
       onChange(next.join(', '))
     } else {
-      const next = hasInternational
-        ? selected.filter(s => s !== 'International')
-        : [...selected, 'International']
+      const next = hasInternational ? selected.filter(s => s !== 'International') : [...selected, 'International']
       onChange(next.join(', '))
     }
   }
 
   const toggleState = state => {
     if (isStatesDisabled) return
-    const next = selected.includes(state)
-      ? selected.filter(s => s !== state)
-      : [...selected, state]
+    const next = selected.includes(state) ? selected.filter(s => s !== state) : [...selected, state]
     onChange(next.join(', '))
   }
 
-  const removeChip = item => {
-    onChange(selected.filter(s => s !== item).join(', '))
-  }
+  const removeChip = item => onChange(selected.filter(s => s !== item).join(', '))
 
   const filteredStates = search.trim()
     ? NIGERIAN_STATES.filter(s => s.toLowerCase().includes(search.toLowerCase()))
@@ -769,30 +712,21 @@ function ServiceAreaPicker({ value, onChange }) {
 
   return (
     <div className={styles.serviceAreaWrap}>
-
-      {/* Conflict hint */}
       {(isNationwideDisabled || isStatesDisabled) && (
         <div className={styles.serviceAreaHint}>
           <span className="mi" style={{ fontSize: '0.85rem' }}>info</span>
-          {isStatesDisabled
-            ? 'Remove Nationwide to select specific states'
-            : 'Remove your selected states to choose Nationwide'}
+          {isStatesDisabled ? 'Remove Nationwide to select specific states' : 'Remove your selected states to choose Nationwide'}
         </div>
       )}
-
-      {/* Selected chips */}
       {selected.length > 0 && (
         <div className={styles.serviceAreaSelected}>
           {selected.map(s => (
             <button key={s} type="button" className={styles.serviceAreaChip} onClick={() => removeChip(s)}>
-              {s}
-              <span className="mi" style={{ fontSize: '0.75rem' }}>close</span>
+              {s}<span className="mi" style={{ fontSize: '0.75rem' }}>close</span>
             </button>
           ))}
         </div>
       )}
-
-      {/* Special options */}
       <div className={styles.serviceAreaSpecial}>
         <button
           type="button"
@@ -814,8 +748,6 @@ function ServiceAreaPicker({ value, onChange }) {
           {hasInternational && <span className="mi" style={{ fontSize: '0.85rem', marginLeft: 2 }}>check</span>}
         </button>
       </div>
-
-      {/* Search + state list */}
       <div className={`${styles.serviceAreaSearch} ${isStatesDisabled ? styles.serviceAreaSearchDisabled : ''}`}>
         <span className="mi" style={{ fontSize: '1rem', color: 'var(--text3)' }}>search</span>
         <input
@@ -836,9 +768,7 @@ function ServiceAreaPicker({ value, onChange }) {
             className={`${styles.serviceAreaOption} ${selected.includes(state) ? styles.serviceAreaOptionActive : ''} ${isStatesDisabled ? styles.serviceAreaOptionDisabled : ''}`}
             onClick={() => toggleState(state)}
           >
-            {selected.includes(state) && (
-              <span className="mi" style={{ fontSize: '0.9rem' }}>check</span>
-            )}
+            {selected.includes(state) && <span className="mi" style={{ fontSize: '0.9rem' }}>check</span>}
             {state}
           </button>
         ))}
@@ -848,39 +778,25 @@ function ServiceAreaPicker({ value, onChange }) {
 }
 
 function TurnaroundPicker({ value, onChange }) {
-  // value is like "2 weeks" or "5 days"
   const parse = v => {
     if (!v) return { num: '1', unit: 'weeks' }
     const match = v.match(/^(\d+)\s+(days|weeks)$/)
     return match ? { num: match[1], unit: match[2] } : { num: '1', unit: 'weeks' }
   }
   const { num, unit } = parse(value)
-
-  const maxNum = unit === 'days' ? 30 : 12
+  const maxNum     = unit === 'days' ? 30 : 12
   const numOptions = Array.from({ length: maxNum }, (_, i) => String(i + 1))
-
   const handleNum  = n => onChange(`${n} ${unit}`)
   const handleUnit = u => {
     const safeNum = u === 'days' ? Math.min(parseInt(num), 30) : Math.min(parseInt(num), 12)
     onChange(`${safeNum} ${u}`)
   }
-
   return (
     <div className={styles.turnaroundRow}>
-      <select
-        className={styles.turnaroundSelect}
-        value={num}
-        onChange={e => handleNum(e.target.value)}
-      >
-        {numOptions.map(n => (
-          <option key={n} value={n}>{n}</option>
-        ))}
+      <select className={styles.turnaroundSelect} value={num} onChange={e => handleNum(e.target.value)}>
+        {numOptions.map(n => <option key={n} value={n}>{n}</option>)}
       </select>
-      <select
-        className={styles.turnaroundSelect}
-        value={unit}
-        onChange={e => handleUnit(e.target.value)}
-      >
+      <select className={styles.turnaroundSelect} value={unit} onChange={e => handleUnit(e.target.value)}>
         <option value="days">Days</option>
         <option value="weeks">Weeks</option>
       </select>
@@ -888,13 +804,11 @@ function TurnaroundPicker({ value, onChange }) {
   )
 }
 
-// Signature pad
 function SignaturePad({ value, onChange }) {
-  const canvasRef  = useRef(null)
-  const drawing    = useRef(false)
-  const hasStroke  = useRef(false)
+  const canvasRef = useRef(null)
+  const drawing   = useRef(false)
+  const hasStroke = useRef(false)
 
-  // Draw existing signature on mount
   useEffect(() => {
     if (!value || !canvasRef.current) return
     const img = new Image()
@@ -907,79 +821,48 @@ function SignaturePad({ value, onChange }) {
   }, [])
 
   const getPos = e => {
-    const rect = canvasRef.current.getBoundingClientRect()
+    const rect   = canvasRef.current.getBoundingClientRect()
     const scaleX = canvasRef.current.width  / rect.width
     const scaleY = canvasRef.current.height / rect.height
-    if (e.touches) {
-      return {
-        x: (e.touches[0].clientX - rect.left) * scaleX,
-        y: (e.touches[0].clientY - rect.top)  * scaleY,
-      }
-    }
-    return {
-      x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top)  * scaleY,
-    }
+    if (e.touches) return { x: (e.touches[0].clientX - rect.left) * scaleX, y: (e.touches[0].clientY - rect.top) * scaleY }
+    return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY }
   }
 
   const startDraw = e => {
-    e.preventDefault()
-    drawing.current = true
+    e.preventDefault(); drawing.current = true
     const ctx = canvasRef.current.getContext('2d')
     const pos = getPos(e)
-    ctx.beginPath()
-    ctx.moveTo(pos.x, pos.y)
+    ctx.beginPath(); ctx.moveTo(pos.x, pos.y)
   }
-
   const draw = e => {
-    e.preventDefault()
-    if (!drawing.current) return
+    e.preventDefault(); if (!drawing.current) return
     const ctx = canvasRef.current.getContext('2d')
-    ctx.lineWidth   = 2.5
-    ctx.lineCap     = 'round'
-    ctx.strokeStyle = 'var(--text)'
-    const pos = getPos(e)
-    ctx.lineTo(pos.x, pos.y)
-    ctx.stroke()
+    ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.strokeStyle = 'var(--text)'
+    const pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke()
     hasStroke.current = true
   }
-
   const endDraw = e => {
-    e?.preventDefault()
-    if (!drawing.current) return
+    e?.preventDefault(); if (!drawing.current) return
     drawing.current = false
-    if (hasStroke.current) {
-      onChange(canvasRef.current.toDataURL('image/png'))
-    }
+    if (hasStroke.current) onChange(canvasRef.current.toDataURL('image/png'))
   }
-
   const clear = () => {
     const ctx = canvasRef.current.getContext('2d')
     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
-    hasStroke.current = false
-    onChange(null)
+    hasStroke.current = false; onChange(null)
   }
 
   return (
     <div className={styles.sigWrap}>
       <canvas
-        ref={canvasRef}
-        width={600}
-        height={200}
-        className={styles.sigCanvas}
-        onMouseDown={startDraw}
-        onMouseMove={draw}
-        onMouseUp={endDraw}
-        onMouseLeave={endDraw}
-        onTouchStart={startDraw}
-        onTouchMove={draw}
-        onTouchEnd={endDraw}
+        ref={canvasRef} width={600} height={200} className={styles.sigCanvas}
+        onMouseDown={startDraw} onMouseMove={draw} onMouseUp={endDraw} onMouseLeave={endDraw}
+        onTouchStart={startDraw} onTouchMove={draw} onTouchEnd={endDraw}
       />
       <div className={styles.sigFooter}>
         <span className={styles.sigHint}>Draw your signature above</span>
         <button type="button" className={styles.sigClearBtn} onClick={clear}>
-          <span className="mi" style={{ fontSize: '0.9rem' }}>refresh</span>
-          Clear
+          <span className="mi" style={{ fontSize: '0.9rem' }}>refresh</span>Clear
         </button>
       </div>
     </div>
@@ -987,33 +870,31 @@ function SignaturePad({ value, onChange }) {
 }
 
 function BusinessInfoModal({ onBack, showToast }) {
-  const { settings, updateMany } = useSettings()
+  const { profileSettings, updateManyProfileSettings } = useProfileSettings()
   const { user } = useAuth()
   const [sigUploading, setSigUploading] = useState(false)
 
   const [local, setLocal] = useState({
-    brandAvailability:   settings.brandAvailability   || 'open',
-    brandAvailableUntil: settings.brandAvailableUntil || '',
-    brandTurnaround:     settings.brandTurnaround     || '1 weeks',
-    brandServiceArea:    settings.brandServiceArea     || '',
-    brandStyleStatement: settings.brandStyleStatement || '',
-    brandPaymentTerms:   settings.brandPaymentTerms   || '',
-    brandSignature:      settings.brandSignature      || null,
+    brandAvailability:   profileSettings.brandAvailability   || 'open',
+    brandAvailableUntil: profileSettings.brandAvailableUntil || '',
+    brandTurnaround:     profileSettings.brandTurnaround     || '1 weeks',
+    brandServiceArea:    profileSettings.brandServiceArea    || '',
+    brandStyleStatement: profileSettings.brandStyleStatement || '',
+    brandPaymentTerms:   profileSettings.brandPaymentTerms   || '',
+    brandSignature:      profileSettings.brandSignature      || null,
   })
 
   const set = key => val => setLocal(p => ({ ...p, [key]: val }))
 
   const save = async () => {
     let signatureUrl = local.brandSignature
-
-    // If signature is a new base64 drawing (not already a URL), upload it
     if (local.brandSignature && local.brandSignature.startsWith('data:') && user?.uid) {
       setSigUploading(true)
       try {
-        const blob      = await (await fetch(local.brandSignature)).blob()
+        const blob       = await (await fetch(local.brandSignature)).blob()
         const storageRef = ref(storage, `users/${user.uid}/signature`)
-        await uploadBytes(storageRef, blob)
-        signatureUrl = await getDownloadURL(storageRef)
+        const snapshot   = await uploadBytes(storageRef, blob)
+        signatureUrl     = await getDownloadURL(snapshot.ref)
       } catch (err) {
         console.error('[BusinessInfoModal] signature upload failed:', err)
         showToast('Signature upload failed — try again')
@@ -1022,16 +903,13 @@ function BusinessInfoModal({ onBack, showToast }) {
       }
       setSigUploading(false)
     }
-
-    updateMany({ ...local, brandSignature: signatureUrl })
+    updateManyProfileSettings({ ...local, brandSignature: signatureUrl })
     showToast('Business info saved')
     onBack()
   }
 
   return (
     <FullModal title="Business Info" onBack={onBack} onSave={sigUploading ? undefined : save}>
-
-      {/* Availability */}
       <FieldGroup>
         <Field label="Availability">
           <div className={styles.availabilityRow}>
@@ -1052,30 +930,20 @@ function BusinessInfoModal({ onBack, showToast }) {
         </Field>
         {local.brandAvailability === 'booked' && (
           <Field label="Available From" hint="When will you start accepting orders again?">
-            <TextInput
-              value={local.brandAvailableUntil}
-              onChange={set('brandAvailableUntil')}
-              placeholder="e.g. January 2025"
-            />
+            <TextInput value={local.brandAvailableUntil} onChange={set('brandAvailableUntil')} placeholder="e.g. January 2025" />
           </Field>
         )}
       </FieldGroup>
-
-      {/* Turnaround */}
       <FieldGroup>
         <Field label="Standard Turnaround Time" hint="How long does it typically take to complete an order?">
           <TurnaroundPicker value={local.brandTurnaround} onChange={set('brandTurnaround')} />
         </Field>
       </FieldGroup>
-
-      {/* Service Area */}
       <FieldGroup>
         <Field label="Service Area" hint="Select all states you deliver or offer services to.">
           <ServiceAreaPicker value={local.brandServiceArea} onChange={set('brandServiceArea')} />
         </Field>
       </FieldGroup>
-
-      {/* Style Statement */}
       <FieldGroup>
         <Field label="Style Statement" hint="Describe your craft style. Shown on your portfolio.">
           <Textarea
@@ -1086,8 +954,6 @@ function BusinessInfoModal({ onBack, showToast }) {
           />
         </Field>
       </FieldGroup>
-
-      {/* Payment Terms */}
       <FieldGroup>
         <Field label="Payment Terms" hint="Your standard terms printed on invoices.">
           <Textarea
@@ -1098,14 +964,11 @@ function BusinessInfoModal({ onBack, showToast }) {
           />
         </Field>
       </FieldGroup>
-
-      {/* Signature */}
       <FieldGroup>
         <Field label="Signature" hint="Draw your signature. It will appear on your invoices.">
           <SignaturePad value={local.brandSignature} onChange={set('brandSignature')} />
         </Field>
       </FieldGroup>
-
     </FullModal>
   )
 }
@@ -1116,48 +979,15 @@ function BusinessInfoModal({ onBack, showToast }) {
 
 function SocialIcon({ platformId, size = 20 }) {
   const icons = {
-    instagram: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
-      </svg>
-    ),
-    tiktok: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.31 6.31 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.2 8.2 0 004.79 1.53V6.76a4.85 4.85 0 01-1.02-.07z"/>
-      </svg>
-    ),
-    facebook: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-      </svg>
-    ),
-    twitter: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-      </svg>
-    ),
-    youtube: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-      </svg>
-    ),
-    pinterest: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/>
-      </svg>
-    ),
-    threads: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.028-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.589 12c.027 3.086.718 5.496 2.057 7.164 1.43 1.783 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.886 1.102-2.14 1.704-3.73 1.79-1.202.065-2.361-.218-3.259-.801-1.063-.689-1.685-1.74-1.752-2.964-.065-1.19.408-2.285 1.33-3.082.88-.76 2.119-1.207 3.583-1.291a13.853 13.853 0 012.581.185v-.:369c0-1.207-.334-2.134-.993-2.755-.64-.6-1.59-.905-2.816-.905-2.153 0-3.412.974-3.87 2.977l-1.943-.526C7.1 5.82 8.914 4.323 12.023 4.323c1.736 0 3.133.457 4.149 1.357 1.032.913 1.554 2.228 1.554 3.91v6.41a.51.51 0 00.509.51h.001a.51.51 0 00.509-.51V9.59c0-2.007-.615-3.626-1.826-4.806l1.438-1.45C19.874 4.58 20.7 6.63 20.7 9.59v6.41c0 1.38-1.12 2.5-2.5 2.5h-.001a2.501 2.501 0 01-2.499-2.5v-.643c-.984 1.448-2.531 2.271-4.514 2.371zm.278-8.67c-.9.05-1.669.29-2.237.695-.548.392-.829.924-.798 1.496.033.606.38 1.117.975 1.498.635.41 1.472.604 2.293.56 1.147-.062 2.026-.489 2.612-1.268.552-.733.84-1.768.854-3.076a11.888 11.888 0 00-1.699-.205c-.66-.04-1.34-.01-2-.3z"/>
-      </svg>
-    ),
+    instagram: (<svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>),
+    tiktok:    (<svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.31 6.31 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.2 8.2 0 004.79 1.53V6.76a4.85 4.85 0 01-1.02-.07z"/></svg>),
+    facebook:  (<svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>),
+    twitter:   (<svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>),
+    youtube:   (<svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>),
+    pinterest: (<svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>),
+    threads:   (<svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.028-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.589 12c.027 3.086.718 5.496 2.057 7.164 1.43 1.783 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.886 1.102-2.14 1.704-3.73 1.79-1.202.065-2.361-.218-3.259-.801-1.063-.689-1.685-1.74-1.752-2.964-.065-1.19.408-2.285 1.33-3.082.88-.76 2.119-1.207 3.583-1.291a13.853 13.853 0 012.581.185v-.369c0-1.207-.334-2.134-.993-2.755-.64-.6-1.59-.905-2.816-.905-2.153 0-3.412.974-3.87 2.977l-1.943-.526C7.1 5.82 8.914 4.323 12.023 4.323c1.736 0 3.133.457 4.149 1.357 1.032.913 1.554 2.228 1.554 3.91v6.41a.51.51 0 00.509.51h.001a.51.51 0 00.509-.51V9.59c0-2.007-.615-3.626-1.826-4.806l1.438-1.45C19.874 4.58 20.7 6.63 20.7 9.59v6.41c0 1.38-1.12 2.5-2.5 2.5h-.001a2.501 2.501 0 01-2.499-2.5v-.643c-.984 1.448-2.531 2.271-4.514 2.371zm.278-8.67c-.9.05-1.669.29-2.237.695-.548.392-.829.924-.798 1.496.033.606.38 1.117.975 1.498.635.41 1.472.604 2.293.56 1.147-.062 2.026-.489 2.612-1.268.552-.733.84-1.768.854-3.076a11.888 11.888 0 00-1.699-.205c-.66-.04-1.34-.01-2-.3z"/></svg>),
   }
-
-  return icons[platformId] || (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-      <circle cx="12" cy="12" r="10" opacity="0.3"/>
-    </svg>
-  )
+  return icons[platformId] || (<svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" opacity="0.3"/></svg>)
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1175,12 +1005,12 @@ const SOCIAL_PLATFORMS = [
 ]
 
 function SocialsModal({ onBack, showToast }) {
-  const { settings, updateMany } = useSettings()
+  const { profileSettings, updateManyProfileSettings } = useProfileSettings()
 
   const toMap = arr => Object.fromEntries((arr || []).map(s => [s.platform, s.handle]))
-  const [handles, setHandles] = useState(() => toMap(settings.brandSocials || []))
+  const [handles,  setHandles]  = useState(() => toMap(profileSettings.brandSocials || []))
   const [expanded, setExpanded] = useState(() => {
-    const active = new Set((settings.brandSocials || []).map(s => s.platform))
+    const active = new Set((profileSettings.brandSocials || []).map(s => s.platform))
     return Object.fromEntries(SOCIAL_PLATFORMS.map(p => [p.id, active.has(p.id)]))
   })
 
@@ -1196,7 +1026,7 @@ function SocialsModal({ onBack, showToast }) {
     const brandSocials = SOCIAL_PLATFORMS
       .filter(p => expanded[p.id] && handles[p.id]?.trim())
       .map(p => ({ platform: p.id, handle: handles[p.id].trim() }))
-    updateMany({ brandSocials })
+    updateManyProfileSettings({ brandSocials })
     showToast('Social links saved')
     onBack()
   }
@@ -1251,8 +1081,7 @@ function PlanBadge({ isPremium }) {
     <span className={isPremium ? styles.badgePro : styles.badgeFree}>
       {isPremium
         ? <><span className="mi" style={{ fontSize: '0.75rem' }}>workspace_premium</span> PRO</>
-        : 'FREE'
-      }
+        : 'FREE'}
     </span>
   )
 }
@@ -1261,27 +1090,12 @@ function Avatar({ name, logo, size = 72 }) {
   const initials = name
     ? name.trim().split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase()
     : '?'
-
-  if (logo) {
-    return (
-      <img
-        src={logo}
-        alt="Avatar"
-        className={styles.avatarImg}
-        style={{ width: size, height: size }}
-      />
-    )
-  }
-
-  return (
-    <div className={styles.avatarInitials} style={{ width: size, height: size, fontSize: size * 0.35 }}>
-      {initials}
-    </div>
-  )
+  if (logo) return <img src={logo} alt="Avatar" className={styles.avatarImg} style={{ width: size, height: size }} />
+  return <div className={styles.avatarInitials} style={{ width: size, height: size, fontSize: size * 0.35 }}>{initials}</div>
 }
 
 function getOrSetJoinDate() {
-  const key = 'tailorflow_joined'
+  const key      = 'tailorflow_joined'
   const existing = localStorage.getItem(key)
   if (existing) return existing
   const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -1294,18 +1108,38 @@ function getOrSetJoinDate() {
 // ─────────────────────────────────────────────────────────────
 
 export default function Profile({ onMenuClick, isPremium = false, onUpgrade = () => {} }) {
-  const { settings } = useSettings()
-  const { user, logout } = useAuth()
-  const navigate = useNavigate()
+  const { profileSettings } = useProfileSettings()
+  const { user, logout }    = useAuth()
+  const navigate            = useNavigate()
 
-  const [personal,        setPersonal]        = useState(() => loadPersonal(user))
-  const [activeModal,     setActiveModal]     = useState(null)
-  const [logoutConfirm,   setLogoutConfirm]   = useState(false)
-  const [deleteConfirm,   setDeleteConfirm]   = useState(false)
-  const [toastMsg,        setToastMsg]        = useState('')
+  const [personal,      setPersonal]      = useState(() => loadPersonal(user))
+  const [activeModal,   setActiveModal]   = useState(null)
+  const [logoutConfirm, setLogoutConfirm] = useState(false)
+  const [deleteConfirm, setDeleteConfirm] = useState(false)
+  const [toastMsg,      setToastMsg]      = useState('')
   const toastTimer = useRef(null)
 
   const joinDate = getOrSetJoinDate()
+
+  // On mount, hydrate personal info from Firestore (syncs across devices)
+  useEffect(() => {
+    if (!user?.uid) return
+    loadOwnerFromFirestore(user.uid).then(data => {
+      if (!data) return
+      const merged = {
+        fullName:   data.fullName   || personal.fullName   || '',
+        email:      data.email      || personal.email      || user?.email || '',
+        phone:      data.phone      || personal.phone      || '',
+        city:       data.city       || personal.city       || '',
+        country:    data.country    || personal.country    || '',
+        sex:        data.sex        || personal.sex        || '',
+        birthMonth: data.birthMonth || personal.birthMonth || '',
+        birthDay:   data.birthDay   || personal.birthDay   || '',
+      }
+      setPersonal(merged)
+      savePersonalLocally(merged)
+    }).catch(console.error)
+  }, [user?.uid])
 
   const showToast = useCallback(msg => {
     setToastMsg(msg)
@@ -1325,7 +1159,6 @@ export default function Profile({ onMenuClick, isPremium = false, onUpgrade = ()
       await user.delete()
       navigate('/login', { replace: true })
     } catch (err) {
-      // If requires recent login, log out and let them re-authenticate
       if (err.code === 'auth/requires-recent-login') {
         showToast('Please log out and log in again to delete your account')
       } else {
@@ -1334,11 +1167,11 @@ export default function Profile({ onMenuClick, isPremium = false, onUpgrade = ()
     }
   }
 
-  const hasBrand          = !!(settings.brandName || settings.brandLogo)
-  const hasAccountDetails = !!(settings.accountBank || settings.accountNumber)
-  const hasBusinessContact = !!(settings.brandPhone || settings.brandEmail || settings.brandAddress)
+  const hasBrand           = !!(profileSettings.brandName || profileSettings.brandLogo)
+  const hasAccountDetails  = !!(profileSettings.accountBank || profileSettings.accountNumber)
+  const hasBusinessContact = !!(profileSettings.brandPhone || profileSettings.brandEmail || profileSettings.brandAddress)
 
-  const brandColourHex = getPaletteById(settings.brandColourId)?.tokens.primary
+  const brandColourHex = getPaletteById(profileSettings.brandColourId)?.tokens.primary
     || getPaletteById(DEFAULT_COLOUR_ID)?.tokens.primary
     || null
 
@@ -1347,18 +1180,13 @@ export default function Profile({ onMenuClick, isPremium = false, onUpgrade = ()
       <Header title="Account" onMenuClick={onMenuClick} />
 
       <div className={styles.scrollArea}>
+        {/* Hero card */}
         <div className={styles.heroCard}>
           <div className={styles.heroCardGlow} />
           <div className={styles.heroTop}>
-            <Avatar
-              name={personal.fullName || settings.brandName}
-              logo={settings.brandLogo}
-              size={72}
-            />
+            <Avatar name={personal.fullName || profileSettings.brandName} logo={profileSettings.brandLogo} size={72} />
             <div className={styles.heroInfo}>
-              <div className={styles.heroName}>
-                {personal.fullName || 'Your Name'}
-              </div>
+              <div className={styles.heroName}>{personal.fullName || 'Your Name'}</div>
               {(personal.city || personal.country) && (
                 <div className={styles.heroLocation}>
                   <span className="mi" style={{ fontSize: '0.75rem' }}>location_on</span>
@@ -1388,35 +1216,26 @@ export default function Profile({ onMenuClick, isPremium = false, onUpgrade = ()
         <InfoRow icon="mail"   label="Email"     value={personal.email || user?.email} placeholder="Not set" />
         <InfoRow icon="call"   label="Phone"     value={personal.phone}     placeholder="Not set" />
         <InfoRow icon="public" label="Location"  value={[personal.city, personal.country].filter(Boolean).join(', ')} placeholder="Not set" />
-        {personal.sex && (
-          <InfoRow icon="person_outline" label="Sex" value={personal.sex} placeholder="Not set" />
-        )}
+        {personal.sex && <InfoRow icon="person_outline" label="Sex" value={personal.sex} placeholder="Not set" />}
         {(personal.birthMonth && personal.birthDay) && (
           <InfoRow icon="cake" label="Birthday" value={`${personal.birthDay} ${personal.birthMonth}`} placeholder="Not set" />
         )}
-        <TappableRow
-          icon="edit"
-          label="Edit Personal Info"
-          onClick={() => setActiveModal('personal')}
-          divider={false}
-        />
+        <TappableRow icon="edit" label="Edit Personal Info" onClick={() => setActiveModal('personal')} divider={false} />
 
         {/* ── Brand Identity ── */}
         <SectionHeader icon="storefront" label="Brand Identity" />
         {hasBrand ? (
           <div className={`${styles.row} ${styles.brandPreview}`}>
-            {settings.brandLogo && (
-              <img src={settings.brandLogo} alt="Brand logo" className={styles.brandPreviewLogo} />
+            {profileSettings.brandLogo && (
+              <img src={profileSettings.brandLogo} alt="Brand logo" className={styles.brandPreviewLogo} />
             )}
             <div className={styles.brandPreviewInfo}>
-              <div className={styles.brandPreviewName}>{settings.brandName || '—'}</div>
-              {settings.brandTagline && (
-                <div className={styles.brandPreviewTagline}>{settings.brandTagline}</div>
+              <div className={styles.brandPreviewName}>{profileSettings.brandName || '—'}</div>
+              {profileSettings.brandTagline && (
+                <div className={styles.brandPreviewTagline}>{profileSettings.brandTagline}</div>
               )}
             </div>
-            {brandColourHex && (
-              <div className={styles.brandColourDot} style={{ background: brandColourHex }} />
-            )}
+            {brandColourHex && <div className={styles.brandColourDot} style={{ background: brandColourHex }} />}
           </div>
         ) : (
           <div className={`${styles.row} ${styles.brandEmpty}`}>
@@ -1424,24 +1243,18 @@ export default function Profile({ onMenuClick, isPremium = false, onUpgrade = ()
             <span className={styles.brandEmptyText}>No brand set up yet</span>
           </div>
         )}
-        <InfoRow icon="store"        label="Brand Name"      value={settings.brandName}              placeholder="Not set" />
-        <InfoRow icon="emoji_events" label="Milestone"       value={settings.brandMilestone}         placeholder="Not set" />
-        <InfoRow icon="auto_fix_high" label="Signature Style" value={settings.brandFeaturedTechnique} placeholder="Not set" />
-        <TappableRow
-          icon="edit"
-          label="Edit Brand Identity"
-          sub="Logo, colours, milestone, signature style"
-          onClick={() => setActiveModal('brand')}
-          divider={false}
-        />
+        <InfoRow icon="store"         label="Brand Name"      value={profileSettings.brandName}              placeholder="Not set" />
+        <InfoRow icon="emoji_events"  label="Milestone"       value={profileSettings.brandMilestone}         placeholder="Not set" />
+        <InfoRow icon="auto_fix_high" label="Signature Style" value={profileSettings.brandFeaturedTechnique} placeholder="Not set" />
+        <TappableRow icon="edit" label="Edit Brand Identity" sub="Logo, colours, milestone, signature style" onClick={() => setActiveModal('brand')} divider={false} />
 
         {/* ── Business Contact ── */}
         <SectionHeader icon="contact_phone" label="Business Contact" />
         {hasBusinessContact ? (
           <>
-            {settings.brandPhone   && <InfoRow icon="call"     label="Business Phone"   value={settings.brandPhone}   placeholder="Not set" />}
-            {settings.brandEmail   && <InfoRow icon="mail"     label="Business Email"   value={settings.brandEmail}   placeholder="Not set" />}
-            {settings.brandAddress && <InfoRow icon="location_on" label="Address"       value={settings.brandAddress} placeholder="Not set" />}
+            {profileSettings.brandPhone   && <InfoRow icon="call"        label="Business Phone" value={profileSettings.brandPhone}   placeholder="Not set" />}
+            {profileSettings.brandEmail   && <InfoRow icon="mail"        label="Business Email" value={profileSettings.brandEmail}   placeholder="Not set" />}
+            {profileSettings.brandAddress && <InfoRow icon="location_on" label="Address"        value={profileSettings.brandAddress} placeholder="Not set" />}
           </>
         ) : (
           <div className={`${styles.row} ${styles.brandEmpty}`}>
@@ -1449,53 +1262,39 @@ export default function Profile({ onMenuClick, isPremium = false, onUpgrade = ()
             <span className={styles.brandEmptyText}>No business contact set yet</span>
           </div>
         )}
-        <TappableRow
-          icon="edit"
-          label="Edit Business Contact"
-          sub="Phone, email, address, website used on invoices"
-          onClick={() => setActiveModal('businessContact')}
-          divider={false}
-        />
+        <TappableRow icon="edit" label="Edit Business Contact" sub="Phone, email, address, website used on invoices" onClick={() => setActiveModal('businessContact')} divider={false} />
 
         {/* ── Business Info ── */}
         <SectionHeader icon="business_center" label="Business Info" />
-        <InfoRow icon="schedule"     label="Turnaround Time" value={settings.brandTurnaround}    placeholder="Not set" />
-        <InfoRow icon="public"       label="Service Area"    value={settings.brandServiceArea}   placeholder="Not set" />
+        <InfoRow icon="schedule" label="Turnaround Time" value={profileSettings.brandTurnaround}  placeholder="Not set" />
+        <InfoRow icon="public"   label="Service Area"    value={profileSettings.brandServiceArea}  placeholder="Not set" />
         <InfoRow
-          icon={settings.brandAvailability === 'booked' ? 'block' : 'check_circle'}
+          icon={profileSettings.brandAvailability === 'booked' ? 'block' : 'check_circle'}
           label="Availability"
-          value={settings.brandAvailability === 'booked'
-            ? `Fully Booked${settings.brandAvailableUntil ? ` · Available from ${settings.brandAvailableUntil}` : ''}`
+          value={profileSettings.brandAvailability === 'booked'
+            ? `Fully Booked${profileSettings.brandAvailableUntil ? ` · Available from ${profileSettings.brandAvailableUntil}` : ''}`
             : 'Accepting Orders'}
           placeholder="Not set"
         />
-        {settings.brandPaymentTerms && (
+        {profileSettings.brandPaymentTerms && (
           <InfoRow icon="receipt_long" label="Payment Terms" value="Set" placeholder="Not set" />
         )}
-        {settings.brandSignature && (
-          <div className={`${styles.row}`}>
-            <div className={styles.rowIcon}>
-              <span className="mi" style={{ fontSize: '1.15rem' }}>draw</span>
-            </div>
+        {profileSettings.brandSignature && (
+          <div className={styles.row}>
+            <div className={styles.rowIcon}><span className="mi" style={{ fontSize: '1.15rem' }}>draw</span></div>
             <div className={styles.rowText}>
               <div className={styles.rowLabel}>Signature</div>
-              <img src={settings.brandSignature} alt="Signature" className={styles.sigPreview} />
+              <img src={profileSettings.brandSignature} alt="Signature" className={styles.sigPreview} />
             </div>
           </div>
         )}
-        <TappableRow
-          icon="edit"
-          label="Edit Business Info"
-          sub="Availability, turnaround, service area, payment terms, signature"
-          onClick={() => setActiveModal('businessInfo')}
-          divider={false}
-        />
+        <TappableRow icon="edit" label="Edit Business Info" sub="Availability, turnaround, service area, payment terms, signature" onClick={() => setActiveModal('businessInfo')} divider={false} />
 
         {/* ── Social Media ── */}
         <SectionHeader icon="share" label="Social Media" />
-        {settings.brandSocials?.length > 0 ? (
+        {profileSettings.brandSocials?.length > 0 ? (
           <div className={styles.socialsPreview}>
-            {settings.brandSocials.map(s => {
+            {profileSettings.brandSocials.map(s => {
               const p = SOCIAL_PLATFORMS.find(pl => pl.id === s.platform)
               return p ? (
                 <div key={s.platform} className={styles.socialPreviewChip}>
@@ -1511,21 +1310,15 @@ export default function Profile({ onMenuClick, isPremium = false, onUpgrade = ()
             <span className={styles.brandEmptyText}>No social links yet</span>
           </div>
         )}
-        <TappableRow
-          icon="edit"
-          label="Edit Social Links"
-          sub="Instagram, TikTok, Facebook and more"
-          onClick={() => setActiveModal('socials')}
-          divider={false}
-        />
+        <TappableRow icon="edit" label="Edit Social Links" sub="Instagram, TikTok, Facebook and more" onClick={() => setActiveModal('socials')} divider={false} />
 
         {/* ── Account Details ── */}
         <SectionHeader icon="account_balance" label="Account Details" />
         {hasAccountDetails ? (
           <>
-            <InfoRow icon="account_balance" label="Bank"           value={settings.accountBank}   placeholder="Not set" />
-            <InfoRow icon="tag"             label="Account Number" value={settings.accountNumber} placeholder="Not set" />
-            <InfoRow icon="badge"           label="Account Name"   value={settings.accountName}   placeholder="Not set" />
+            <InfoRow icon="account_balance" label="Bank"           value={profileSettings.accountBank}   placeholder="Not set" />
+            <InfoRow icon="tag"             label="Account Number" value={profileSettings.accountNumber} placeholder="Not set" />
+            <InfoRow icon="badge"           label="Account Name"   value={profileSettings.accountName}   placeholder="Not set" />
           </>
         ) : (
           <div className={`${styles.row} ${styles.brandEmpty}`}>
@@ -1533,13 +1326,7 @@ export default function Profile({ onMenuClick, isPremium = false, onUpgrade = ()
             <span className={styles.brandEmptyText}>No account details yet</span>
           </div>
         )}
-        <TappableRow
-          icon="edit"
-          label="Edit Account Details"
-          sub="Bank info printed on invoices for client payments"
-          onClick={() => setActiveModal('accountDetails')}
-          divider={false}
-        />
+        <TappableRow icon="edit" label="Edit Account Details" sub="Bank info printed on invoices for client payments" onClick={() => setActiveModal('accountDetails')} divider={false} />
 
         {/* ── My Plan ── */}
         <SectionHeader icon="workspace_premium" label="My Plan" />
@@ -1565,32 +1352,12 @@ export default function Profile({ onMenuClick, isPremium = false, onUpgrade = ()
             <span className="mi" style={{ fontSize: '1rem', color: 'var(--accent)' }}>chevron_right</span>
           </div>
         )}
+        <TappableRow icon="payments" label="Billing History" sub="See past payments, plan renewals & expiry dates" onClick={() => {}} divider={false} />
 
-        <TappableRow
-          icon="payments"
-          label="Billing History"
-          sub="See past payments, plan renewals & expiry dates"
-          onClick={() => {}}
-          divider={false}
-        />
-
-        {/* ── Account ── */}
+        {/* ── Danger Zone ── */}
         <SectionHeader icon="warning" label="Danger Zone" />
-        <TappableRow
-          icon="logout"
-          label="Log Out"
-          sub="You can always log back in"
-          onClick={() => setLogoutConfirm(true)}
-          danger
-        />
-        <TappableRow
-          icon="delete_forever"
-          label="Delete Account"
-          sub="Permanently remove your account and all data"
-          onClick={() => setDeleteConfirm(true)}
-          divider={false}
-          danger
-        />
+        <TappableRow icon="logout" label="Log Out" sub="You can always log back in" onClick={() => setLogoutConfirm(true)} danger />
+        <TappableRow icon="delete_forever" label="Delete Account" sub="Permanently remove your account and all data" onClick={() => setDeleteConfirm(true)} divider={false} danger />
 
         <div style={{ height: 40 }} />
       </div>
@@ -1604,28 +1371,13 @@ export default function Profile({ onMenuClick, isPremium = false, onUpgrade = ()
           onSave={data => { setPersonal(data); showToast('Personal info saved') }}
         />
       )}
-      {activeModal === 'brand' && (
-        <BrandModal onBack={() => setActiveModal(null)} showToast={showToast} />
-      )}
-      {activeModal === 'businessContact' && (
-        <BusinessContactModal onBack={() => setActiveModal(null)} showToast={showToast} />
-      )}
-      {activeModal === 'accountDetails' && (
-        <AccountDetailsModal onBack={() => setActiveModal(null)} showToast={showToast} />
-      )}
-      {activeModal === 'businessInfo' && (
-        <BusinessInfoModal onBack={() => setActiveModal(null)} showToast={showToast} />
-      )}
-      {activeModal === 'socials' && (
-        <SocialsModal onBack={() => setActiveModal(null)} showToast={showToast} />
-      )}
+      {activeModal === 'brand'           && <BrandModal           onBack={() => setActiveModal(null)} showToast={showToast} />}
+      {activeModal === 'businessContact' && <BusinessContactModal onBack={() => setActiveModal(null)} showToast={showToast} />}
+      {activeModal === 'accountDetails'  && <AccountDetailsModal  onBack={() => setActiveModal(null)} showToast={showToast} />}
+      {activeModal === 'businessInfo'    && <BusinessInfoModal    onBack={() => setActiveModal(null)} showToast={showToast} />}
+      {activeModal === 'socials'         && <SocialsModal         onBack={() => setActiveModal(null)} showToast={showToast} />}
 
-      <ConfirmSheet
-        open={logoutConfirm}
-        title="Log Out?"
-        onConfirm={handleLogout}
-        onCancel={() => setLogoutConfirm(false)}
-      />
+      <ConfirmSheet open={logoutConfirm} title="Log Out?" onConfirm={handleLogout} onCancel={() => setLogoutConfirm(false)} />
       <ConfirmSheet
         open={deleteConfirm}
         title="Delete Account?"
@@ -1636,7 +1388,7 @@ export default function Profile({ onMenuClick, isPremium = false, onUpgrade = ()
         onCancel={() => setDeleteConfirm(false)}
       />
       <Toast message={toastMsg} />
-      <BottomNav></BottomNav>
+      <BottomNav />
     </div>
   )
 }

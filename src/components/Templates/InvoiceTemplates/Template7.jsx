@@ -3,9 +3,9 @@ import { getDueDate,calcTax } from "../utils/invoiceUtils"
 import { formatCurrency } from "../../../utils/formatCurrency"
 
 export function InvoiceTemplate7({ invoice, customer, brand }) {
-  const dueDate = getDueDate(invoice, brand.dueDays)
-  const accentColor = brand.colour || '#0057D7'
-  const { currency, showTax, taxRate: brandTaxRate } = brand
+  const dueDate = getDueDate(invoice, brand.invoiceDueDays)
+  const accentColor = brand.colour || '#1C1814'
+  const { currency, showTax, invoiceTaxRate: brandTaxRate } = brand
 
   const subtotal = invoice.items?.length > 0
     ? invoice.items.reduce((sum, item) => sum + ((item.qty ?? 1) * (parseFloat(item.price) || 0)), 0)
@@ -205,9 +205,9 @@ export function InvoiceTemplate7({ invoice, customer, brand }) {
         </div>
       )}
 
-      {brand.footer && (
+      {brand.invoiceFooter && (
         <div className={styles.footerRight}>
-          <h3 className={styles.footerLabel} style={{color :"var(--brand-primary-dark)"}}>Notes:</h3>{brand.footer}
+          <h3 className={styles.footerLabel} style={{color :"var(--brand-primary-dark)"}}>Notes:</h3>{brand.invoiceFooter}
         </div>
       )}
 

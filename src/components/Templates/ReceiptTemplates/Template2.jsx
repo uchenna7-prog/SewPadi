@@ -72,7 +72,7 @@ export function ReceiptTemplate2({ receipt, customer, brand }) {
             </div>
         </div>
       )}
-      <div className={styles.footerCenteredText}>{brand.footer || 'Thank you!'}</div>
+      <div className={styles.footerCenteredText}>{brand.receiptFooter || 'Thank you!'}</div>
     </div>
   )
 }

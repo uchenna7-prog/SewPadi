@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
-import { useSettings } from '../../contexts/SettingsContext'
+import { useGeneralSettings } from '../../contexts/GeneralSettingsContext'
 import { useBrand } from '../../contexts/BrandContext'
 
 import Header from '../../components/Header/Header'
@@ -19,7 +19,7 @@ import styles from './Settings.module.css'
 
 
 export default function Settings({ onMenuClick }) {
-  const { settings, updateSetting, updateMany, resetSettings } = useSettings()
+  const { generalSettings,updateGeneralSetting,updateManyGeneralSettings,resetGeneralSettings } = useGeneralSettings()
   const { brand } = useBrand()
 
   // ── Toast ──────────────────────────────────────────────────────────────────
@@ -42,11 +42,11 @@ export default function Settings({ onMenuClick }) {
   const [isResetSettingsConfirmOpen, setIsResetSettingsConfirmOpen] = useState(false)
 
   // ── Derived values ─────────────────────────────────────────────────────────
-  const isDarkMode = settings.theme === 'dark'
+  const isDarkMode = generalSettings.theme === 'dark'
 
   // ── Handlers ──────────────────────────────────────────────────────────────
   function handleTemplateSelect(selectedTemplates) {
-    updateMany({
+    updateManyGeneralSettings({
       invoiceTemplate: selectedTemplates.invoiceTemplate,
       receiptTemplate: selectedTemplates.receiptTemplate,
     })
@@ -60,15 +60,15 @@ export default function Settings({ onMenuClick }) {
   }
 
   function handleResetAllSettings() {
-    resetSettings()
+    resetGeneralSettings()
     setIsResetSettingsConfirmOpen(false)
     showToast('Settings reset')
   }
 
   const getSelectedTemplates = () => {
 
-    const invoiceTemplate = settings.invoiceTemplate
-    const receiptTemplate = settings.receiptTemplate
+    const invoiceTemplate = generalSettings.invoiceTemplate
+    const receiptTemplate = generalSettings.receiptTemplate
     const invoiceTemplateNumber = invoiceTemplate.replace("invoiceTemplate","")
     const receiptTemplateNumber = receiptTemplate.replace("receiptTemplate","")
 
@@ -97,7 +97,7 @@ export default function Settings({ onMenuClick }) {
         >
           <Toggle
             value={isDarkMode}
-            onChange={isOn => updateSetting('theme', isOn ? 'dark' : 'light')}
+            onChange={isOn => updateGeneralSetting('theme', isOn ? 'dark' : 'light')}
           />
         </SettingRow>
 
@@ -107,7 +107,7 @@ export default function Settings({ onMenuClick }) {
         <SettingRow
           icon="tune"
           label="Invoice Settings"
-          sub={`${settings.invoiceCurrency} · ${settings.invoicePrefix} · Due ${settings.invoiceDueDays}d`}
+          sub={`${generalSettings.invoiceCurrency} · ${generalSettings.invoicePrefix} · Due ${generalSettings.invoiceDueDays}d`}
           onClick={() => setIsInvoiceModalOpen(true)}
           chevron
         />
@@ -138,8 +138,8 @@ export default function Settings({ onMenuClick }) {
           sub="Alert when tasks pass their due date"
         >
           <Toggle
-            value={settings.notifyOverdueTasks}
-            onChange={isOn => updateSetting('notifyOverdueTasks', isOn)}
+            value={generalSettings.notifyOverdueTasks}
+            onChange={isOn => updateGeneralSetting('notifyOverdueTasks', isOn)}
           />
         </SettingRow>
 
@@ -149,8 +149,8 @@ export default function Settings({ onMenuClick }) {
           sub="Remind you a day before"
         >
           <Toggle
-            value={settings.notifyUpcomingBirthdays}
-            onChange={isOn => updateSetting('notifyUpcomingBirthdays', isOn)}
+            value={generalSettings.notifyUpcomingBirthdays}
+            onChange={isOn => updateGeneralSetting('notifyUpcomingBirthdays', isOn)}
           />
         </SettingRow>
 
@@ -160,8 +160,8 @@ export default function Settings({ onMenuClick }) {
           sub="Alert for invoices past due date"
         >
           <Toggle
-            value={settings.notifyUnpaidInvoices}
-            onChange={isOn => updateSetting('notifyUnpaidInvoices', isOn)}
+            value={generalSettings.notifyUnpaidInvoices}
+            onChange={isOn => updateGeneralSetting('notifyUnpaidInvoices', isOn)}
           />
         </SettingRow>
 
@@ -193,8 +193,8 @@ export default function Settings({ onMenuClick }) {
 
       <TemplateModal
         isOpen={isTemplateModalOpen}
-        currentInvoiceTemplate={settings.invoiceTemplate || 'invoiceTemplate1'}
-        currentReceiptTemplate={settings.receiptTemplate || 'receiptTemplate1'}
+        currentInvoiceTemplate={generalSettings.invoiceTemplate || 'invoiceTemplate1'}
+        currentReceiptTemplate={generalSettings.receiptTemplate || 'receiptTemplate1'}
         colourId={brand.colourId}
         onClose={() => setIsTemplateModalOpen(false)}
         onSelect={handleTemplateSelect}

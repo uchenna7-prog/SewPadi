@@ -3,7 +3,7 @@ import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 import { useOrders }   from '../../../../contexts/OrdersContext'
 import { useAuth }     from '../../../../contexts/AuthContext'
-import { useSettings } from '../../../../contexts/SettingsContext'
+import { useGeneralSettings } from '../../../../contexts/GeneralSettingsContext'
 import ConfirmSheet    from '../../../../components/ConfirmSheet/ConfirmSheet'
 import Header          from '../../../../components/Header/Header'
 import styles          from './OrdersTab.module.css'
@@ -917,10 +917,10 @@ function OrderDetail({ order, measurements, onClose, onDelete, onStatusChange, o
 export default function OrdersTab({ customerId, orders, loading, measurements, showToast, onGenerateInvoice }) {
   const { addOrder, deleteOrder, updateOrderStatus, updateOrderStage } = useOrders()
   const { user } = useAuth()
-  const { settings } = useSettings()
+  const { generalSettings } = useGeneralSettings()
 
-  const taxEnabled = settings.invoiceShowTax ?? false
-  const taxRate    = settings.invoiceTaxRate ?? 0
+  const taxEnabled = generalSettings.invoiceShowTax ?? false
+  const taxRate    = generalSettings.invoiceTaxRate ?? 0
 
   const [isModalOpen,   setIsModalOpen]   = useState(false)
   const [selectedOrder, setSelectedOrder] = useState(null)

@@ -5,10 +5,10 @@ import { formatCurrency } from "../../../utils/formatCurrency"
 
 export function InvoiceTemplate3({ invoice, customer, brand }) {
 
-  const dueDate  = getDueDate(invoice, brand.dueDays)
-  const barColor = brand.colour || '#0057D7'
+  const dueDate  = getDueDate(invoice, brand.invoiceDueDays)
+  const barColor = brand.colour || '#1C1814'
 
-  const { currency, showTax, taxRate: brandTaxRate } = brand
+  const { currency, showTax, invoiceTaxRate: brandTaxRate } = brand
 
   const subtotal = invoice.items?.length > 0
     ? invoice.items.reduce((sum, item) => sum + ((item.qty ?? 1) * (parseFloat(item.price) || 0)), 0)
@@ -168,23 +168,23 @@ export function InvoiceTemplate3({ invoice, customer, brand }) {
               <div>
 
                 {brand.accountBank && (
-                  <div>Bank Name : {brand.accountBank}</div>
+                  <div>Bank Name: {brand.accountBank}</div>
                 )}
 
                 {brand.accountNumber && (
-                  <div>Account Number : {brand.accountNumber}</div>
+                  <div>Account Number: {brand.accountNumber}</div>
                 )}
 
                 {brand.accountName && (
-                  <div>Account Name : {brand.accountName}</div>
+                  <div>Account Name: {brand.accountName}</div>
                 )}
                 
               </div>
               
             </div>
-            {brand.footer && (
+            {brand.invoiceFooter && (
               <div className={styles.footerSection}>
-                <strong style={{fontWeight :900,color :"var(--brand-primary-dark)"}}>Notes :</strong><br />{brand.footer}
+                <strong style={{fontWeight :900,color :"var(--brand-primary-dark)"}}>Notes :</strong><br />{brand.invoiceFooter}
               </div>
             )}
           </div>

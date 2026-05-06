@@ -22,8 +22,8 @@ function capitalize(str) {
 
 export function ReceiptTemplate6({ receipt, customer, brand }) {
 
-  const accentColor = brand.colour || '#0057D7'
-  const { currency, showTax, taxRate: brandTaxRate } = brand
+  const accentColor = brand.colour || '#1C1814'
+  const { currency, showTax, receiptTaxRate: brandTaxRate } = brand
   
     const subtotal = receipt.items?.length > 0
       ? receipt.items.reduce((sum, item) => sum + ((item.qty ?? 1) * (parseFloat(item.price) || 0)), 0)
@@ -236,7 +236,7 @@ export function ReceiptTemplate6({ receipt, customer, brand }) {
       <div className={styles.divider} />
       <div className={styles.bottom}>
         <div style={{ flex : 1 }}>
-          <div className={styles.thankYou}>{brand.footer || 'Thank you for your business'}</div>
+          <div className={styles.thankYou}>{brand.receiptFooter || 'Thank you for your business'}</div>
           {brand.accountBank && (
             <>
               <div className={styles.paymentLabel}>Payment Details:</div>

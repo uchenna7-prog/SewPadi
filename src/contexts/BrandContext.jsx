@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import { useSettings } from './SettingsContext'
+import { useProfileSettings } from './ProfileSettingsContext'
+import { useGeneralSettings } from './GeneralSettingsContext'
 import { DEFAULT_COLOUR_ID } from '../config/brandPalette'
 
 
@@ -7,7 +8,7 @@ import { DEFAULT_COLOUR_ID } from '../config/brandPalette'
 // Personal info loader (mirrors Profile.jsx)
 // ─────────────────────────────────────────────────────────────
 
-const PERSONAL_KEY = 'tailorbook_personal'
+const PERSONAL_KEY = 'tailorflow_personal'
 
 function loadPersonal() {
   try {
@@ -16,18 +17,19 @@ function loadPersonal() {
   } catch { return {} }
 }
 
-// ─────────────────────────────────────────────────────────────
-// Context
-// ─────────────────────────────────────────────────────────────
 
 const BrandContext = createContext(null)
 
 export function BrandProvider({ children }) {
-  const { settings } = useSettings()
+
+
+  const { profileSettings } = useProfileSettings()
+  const { generalSettings } = useGeneralSettings()
   const [personal, setPersonal] = useState(loadPersonal)
 
   // Re-read personal info whenever the window gains focus
   useEffect(() => {
+
     const refresh = () => setPersonal(loadPersonal())
     window.addEventListener('focus', refresh)
     return () => window.removeEventListener('focus', refresh)
@@ -35,49 +37,57 @@ export function BrandProvider({ children }) {
 
   const refreshPersonal = useCallback(() => setPersonal(loadPersonal()), [])
 
-  // ── Derived brand object used by invoice templates & portfolio ──
+
   const brand = {
-    // ── Core brand (from SettingsContext) ──
-    name:       settings.brandName     || '',
-    tagline:    settings.brandTagline  || '',
-    colourId:   settings.brandColourId || DEFAULT_COLOUR_ID,  // ← palette ID for useBrandTokens
-    colour:     settings.brandColour   || '#D4AF37',          // ← hex fallback for legacy templates
-    logo:       settings.brandLogo     || null,
-    phone:      settings.brandPhone    || '',
-    email:      settings.brandEmail    || '',
-    address:    settings.brandAddress  || '',
-    website:    settings.brandWebsite  || '',
 
-    // ── Business info ──
-    foundedYear:       settings.brandFoundedYear       || '',
-    turnaround:        settings.brandTurnaround        || '',
-    serviceArea:       settings.brandServiceArea       || '',
-    availability:      settings.brandAvailability      || 'open',
-    availableUntil:    settings.brandAvailableUntil    || '',
-    styleStatement:    settings.brandStyleStatement    || '',
-    featuredTechnique: settings.brandFeaturedTechnique || '',
-    milestone:         settings.brandMilestone         || '',
-    socials:           settings.brandSocials           || [],
+    name:       profileSettings.brandName     || '',
+    tagline:    profileSettings.brandTagline  || '',
+    colourId:   profileSettings.brandColourId || DEFAULT_COLOUR_ID,  
+    colour:     profileSettings.brandColour   || '#1C1814',
+    logo:       profileSettings.brandLogo     || null,
+    phone:      profileSettings.brandPhone    || '',
+    email:      profileSettings.brandEmail    || '',
+    address:    profileSettings.brandAddress  || '',
+    website:    profileSettings.brandWebsite  || '',
 
-    // ── Invoice settings ──
-    currency:   settings.invoiceCurrency || '₦',
-    prefix:     settings.invoicePrefix   || 'INV',
-    dueDays:    settings.invoiceDueDays  || 7,
-    showTax:    settings.invoiceShowTax  || false,
-    taxRate:    settings.invoiceTaxRate  || 0,
-    footer:     settings.invoiceFooter   || 'Thank you for your patronage 🙏',
-    invoiceTemplate:   settings.invoiceTemplate || 'invoiceTemplate1',
-    receiptTemplate:   settings.receiptTemplate || 'receiptTemplate1',
 
-    // ── Account / payment details ──
-    accountBank:   settings.accountBank   || '',
-    accountNumber: settings.accountNumber || '',
-    accountName:   settings.accountName   || '',
+    foundedYear:       profileSettings.brandFoundedYear       || '',
+    turnaround:        profileSettings.brandTurnaround        || '',
+    serviceArea:       profileSettings.brandServiceArea       || '',
+    availability:      profileSettings.brandAvailability      || 'open',
+    availableUntil:    profileSettings.brandAvailableUntil    || '',
+    styleStatement:    profileSettings.brandStyleStatement    || '',
+    featuredTechnique: profileSettings.brandFeaturedTechnique || '',
+    milestone:         profileSettings.brandMilestone         || '',
+    socials:           profileSettings.brandSocials           || [],
 
-    // ── Personal info fallback ──
+
+    accountBank:   profileSettings.accountBank   || '',
+    accountNumber: profileSettings.accountNumber || '',
+    accountName:   profileSettings.accountName   || '',
+
+
     ownerName:  personal.fullName  || '',
     ownerEmail: personal.email     || '',
     ownerPhone: personal.phone     || '',
+
+
+    invoiceCurrency:   generalSettings.invoiceCurrency || '₦',
+    invoicePrefix:     generalSettings.invoicePrefix   || 'INV',
+    invoiceDueDays:    generalSettings.invoiceDueDays  || 7,
+    invoiceShowTax:    generalSettings.invoiceShowTax  || false,
+    invoiceTaxRate:    generalSettings.invoiceTaxRate  || 0,
+    invoiceFooter:     generalSettings.invoiceFooter   || 'Thank you for your patronage 🙏',
+    invoiceTemplate:  generalSettings.invoiceTemplate || 'invoiceTemplate1',
+
+    receiptCurrency:   generalSettings.receiptCurrency || '₦',
+    receiptPrefix:     generalSettings.receiptPrefix   || 'RCP',
+    receiptShowTax:    generalSettings.receiptShowTax  || false,
+    receiptTaxRate:    generalSettings.receiptTaxRate  || 0,
+    receiptFooter:     generalSettings.receiptFooter   || 'Thank you for your patronage 🙏',
+    receiptTemplate:  generalSettings.receiptTemplate || 'receiptTemplate1',
+  
+
   }
 
   return (

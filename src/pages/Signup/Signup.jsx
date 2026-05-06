@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { updateProfile } from 'firebase/auth'
-import { DEFAULTS } from '../../contexts/SettingsContext'
+import { DEFAULTS } from '../../contexts/ProfileSettingsContext'
 import styles from './Signup.module.css'
 
 const STEPS = [
@@ -526,9 +526,9 @@ export default function Signup() {
 
       // Save brand + account settings to localStorage — SettingsContext reads this on mount
       try {
-        const existingRaw = localStorage.getItem('tailorbook_settings')
+        const existingRaw = localStorage.getItem('tailorflow_profile_settings')
         const existing    = existingRaw ? JSON.parse(existingRaw) : { ...DEFAULTS }
-        localStorage.setItem('tailorbook_settings', JSON.stringify({
+        localStorage.setItem('tailorflow_profile_settings', JSON.stringify({
           ...existing,
           brandName:       finalData.brandName.trim(),
           brandTagline:    finalData.brandTagline.trim(),

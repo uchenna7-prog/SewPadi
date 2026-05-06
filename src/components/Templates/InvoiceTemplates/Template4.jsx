@@ -5,8 +5,8 @@ import { LogoOrName } from "../components/LogoOrBrandName/LogoOrBrandName"
 
 export function InvoiceTemplate4({ invoice, customer, brand }) {
 
-  const bannerBg = brand.colour || '#0057D7'
-  const dueDate  = getDueDate(invoice, brand.dueDays)
+  const bannerBg = brand.colour || '#1C1814'
+  const dueDate  = getDueDate(invoice, brand.invoiceDueDays)
 
   return (
 
@@ -91,7 +91,7 @@ export function InvoiceTemplate4({ invoice, customer, brand }) {
       </div>
 
       <div className={styles.footer}>
-        <div className={styles.footerText} >{brand.footer || 'Thank you for your patronage'}</div>
+        <div className={styles.footerText} >{brand.invoiceFooter || 'Thank you for your patronage'}</div>
       </div>
 
     </div>

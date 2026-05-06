@@ -4,8 +4,8 @@ import { ReceiptPaymentSummary } from "../components/ReceiptPaymentSummary/Recei
 import { formatCurrency } from "../../../utils/formatCurrency"
 
 export function ReceiptTemplate7({ receipt, customer, brand }) {
-  const accentColor = brand.colour || '#0057D7'
-   const { currency, showTax, taxRate: brandTaxRate } = brand
+  const accentColor = brand.colour || '#1C1814'
+  const { currency, showTax, receiptTaxRate: brandTaxRate } = brand
 
   const subtotal = receipt.items?.length > 0
     ? receipt.items.reduce((sum, item) => sum + ((item.qty ?? 1) * (parseFloat(item.price) || 0)), 0)
@@ -206,9 +206,9 @@ export function ReceiptTemplate7({ receipt, customer, brand }) {
         </div>
       )}
 
-      {brand.footer && (
+      {brand.receiptFooter && (
         <div className={styles.footerRight}>
-          <h3 className={styles.footerLabel} style={{color :"var(--brand-primary-dark)"}}>Notes:</h3>{brand.footer}
+          <h3 className={styles.footerLabel} style={{color :"var(--brand-primary-dark)"}}>Notes:</h3>{brand.receiptFooter}
         </div>
       )}
 

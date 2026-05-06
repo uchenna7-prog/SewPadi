@@ -7,7 +7,7 @@ import { useInvoices }      from '../../contexts/InvoiceContext'
 import { useAppointments }  from '../../contexts/AppointmentContext'
 import { useAuth }          from '../../contexts/AuthContext'
 import { useNotifications } from '../../contexts/NotificationContext'
-import { useSettings }      from '../../contexts/SettingsContext'
+import { useGeneralSettings }      from '../../contexts/GeneralSettingsContext'
 import { usePayments }      from '../../contexts/PaymentContext'
 import Header    from '../../components/Header/Header'
 import BottomNav from '../../components/BottomNav/BottomNav'
@@ -610,7 +610,7 @@ function Home({ onMenuClick }) {
     upcoming, todayAppointments, recent: recentAppts, missedCount, upcomingThisWeek,
   } = useAppointments()
   const { pushEnabled, requestPushPermission } = useNotifications()
-  const { settings }    = useSettings()
+  const { generalSettings }    = useGeneralSettings()
   const { allPayments } = usePayments()
 
   // ── Loading state ─────────────────────────────────────────
@@ -748,7 +748,7 @@ function Home({ onMenuClick }) {
     else if (typeof ca === 'string')              ms = new Date(ca).getTime()
     else if (ca instanceof Date)                  ms = ca.getTime()
     if (!ms || isNaN(ms)) return null
-    const dueDays = settings.invoiceDueDays ?? 7
+    const dueDays = generalSettings.invoiceDueDays ?? 7
     return new Date(ms + dueDays * 86400000).toISOString().slice(0, 10)
   }
   const isInvOverdue = (i) => {

@@ -21,8 +21,8 @@ function capitalize(str) {
 
 export function ReceiptTemplate8({ receipt, customer, brand }) {
 
-    const accentColor = brand.colour || '#0057D7'
-    const { currency, showTax, taxRate: brandTaxRate } = brand
+    const accentColor = brand.colour || '#1C1814'
+    const { currency, showTax, receiptTaxRate: brandTaxRate } = brand
     
       const subtotal = receipt.items?.length > 0
         ? receipt.items.reduce((sum, item) => sum + ((item.qty ?? 1) * (parseFloat(item.price) || 0)), 0)
@@ -257,10 +257,10 @@ export function ReceiptTemplate8({ receipt, customer, brand }) {
       </div>
 
 
-      {brand.footer && (
+      {brand.receiptFooter && (
         <div className={styles.thankYouFooter}>
           <div className={styles.thankYouLine} />
-          <div className={styles.thankYouText}>{brand.footer}</div>
+          <div className={styles.thankYouText}>{brand.receiptFooter}</div>
           <div className={styles.thankYouLine} />
         </div>
       )}

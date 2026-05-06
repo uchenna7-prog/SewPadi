@@ -7,7 +7,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth }      from '../../contexts/AuthContext'
 import { useCustomers } from '../../contexts/CustomerContext'
-import { useSettings }  from '../../contexts/SettingsContext'
+import { useGeneralSettings }  from '../../contexts/GeneralSettingsContext'
 import { useOrders }    from '../../contexts/OrdersContext'
 import { subscribeToInvoices, updateInvoiceStatus, deleteInvoice } from '../../services/invoiceService'
 import InvoiceView from '../../components/InvoiceViewer/InvoiceViewer'
@@ -182,9 +182,9 @@ function InvoiceCard({ invoice, currency, onTap, isLast, orderItems }) {
 export default function Invoices({ onMenuClick }) {
   const { user }      = useAuth()
   const { customers } = useCustomers()
-  const { settings }  = useSettings()
+  const { generalSettings }  = useGeneralSettings()
   const { allOrders } = useOrders()
-  const currency      = settings.invoiceCurrency || '₦'
+  const currency      = generalSettings.invoiceCurrency || '₦'
 
   const [allInvoices, setAllInvoices] = useState([])
   const [activeTab,   setActiveTab]   = useState('all')

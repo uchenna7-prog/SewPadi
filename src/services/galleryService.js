@@ -1,12 +1,3 @@
-// src/services/galleryService.js
-// ─────────────────────────────────────────────────────────────
-// Data paths:
-//   Photos:      users/{uid}/galleryPhotos/{photoId}
-//   DressTypes:  users/{uid}/galleryDressTypes/{tabId}
-//     tabId is one of: 'completed_works' | 'designs' | 'inspiration'
-//     Each doc stores: { tabId, types: [{ id, label }] }
-// ─────────────────────────────────────────────────────────────
-
 import {
   collection,
   doc,
@@ -45,15 +36,7 @@ const DEFAULT_DRESS_TYPES = {
   inspiration:     [{ id: 'styles', label: 'Styles' }, { id: 'fabrics', label: 'Fabrics' }],
 }
 
-// ── Photos CRUD ───────────────────────────────────────────────
 
-/**
- * Add a single photo document.
- * @param {string} uid
- * @param {object} data - { category, caption, clothingType, clothingTypeLabel,
- *                          customerId, customerName, storageUrl, storagePath }
- * @returns {string} new Firestore doc ID
- */
 export async function addPhoto(uid, data) {
   const ref = await addDoc(photosRef(uid), {
     ...data,

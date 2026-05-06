@@ -1,4 +1,3 @@
-// src/pages/Login/Login.jsx
 import { useState } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
@@ -23,9 +22,11 @@ export default function Login() {
     try {
       await login(email.trim(), password)
       navigate(from, { replace: true })
-    } catch (err) {
+    } 
+    catch (err) {
       setError(friendlyError(err.code))
-    } finally {
+    } 
+    finally {
       setLoading(false)
     }
   }

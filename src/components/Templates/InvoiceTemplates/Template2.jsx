@@ -6,7 +6,7 @@ import { LogoOrName } from "../components/LogoOrBrandName/LogoOrBrandName"
 
 export function InvoiceTemplate2({ invoice, customer, brand }) {
 
-  const dueDate = getDueDate(invoice, brand.dueDays)
+  const dueDate = getDueDate(invoice, brand.invoiceDueDays)
 
   return (
 
@@ -48,8 +48,8 @@ export function InvoiceTemplate2({ invoice, customer, brand }) {
         <div className={styles.gridBox}>
 
           <strong>DETAILS</strong><br />
-          Date : {invoice.date}<br />
-          Due : {dueDate}
+          Date: {invoice.date}<br />
+          Due: {dueDate}
 
         </div>
 
@@ -59,7 +59,7 @@ export function InvoiceTemplate2({ invoice, customer, brand }) {
 
       {brand.accountBank && (
         <div className={styles.paymentInfo}>
-          <strong style={{fontWeight :900,color :"var(--brand-primary-dark)"}}>Payment Information :</strong><br/>
+          <strong style={{fontWeight :900,color :"var(--brand-primary-dark)"}}>Payment Information:</strong><br/>
 
             <div>
 
@@ -81,7 +81,7 @@ export function InvoiceTemplate2({ invoice, customer, brand }) {
             </div>
         </div>
       )}
-      <div className={styles.footerCenteredText}>{brand.footer || 'Thank you!'}</div>
+      <div className={styles.footerCenteredText}>{brand.invoiceFooter || 'Thank you!'}</div>
     </div>
   )
 }

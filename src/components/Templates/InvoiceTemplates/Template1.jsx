@@ -7,9 +7,8 @@ import { getDueDate } from "../utils/invoiceUtils"
 export function InvoiceTemplate1({ invoice, customer, brand }) {
 
 
-  const dueDate   = getDueDate(invoice, brand.dueDays)
-  const lineColor = brand.colour || '#0057D7'
-
+  const dueDate   = getDueDate(invoice, brand.invoiceDueDays)
+  const lineColor = brand.colour || '#1C1814'
 
 
   return (
@@ -65,7 +64,7 @@ export function InvoiceTemplate1({ invoice, customer, brand }) {
 
       <ItemsTable invoice={invoice} brand={brand} />
 
-      {(brand.accountBank || brand.phone || brand.email || brand.footer) && (
+      {(brand.accountBank || brand.phone || brand.email || brand.invoiceFooter) && (
 
         <div className={styles.footer}>
 
@@ -80,15 +79,15 @@ export function InvoiceTemplate1({ invoice, customer, brand }) {
                 <div>
 
                   {brand.accountBank && (
-                    <div>Bank Name : {brand.accountBank}</div>
+                    <div>Bank Name: {brand.accountBank}</div>
                   )}
 
                   {brand.accountNumber && (
-                    <div>Account Number : {brand.accountNumber}</div>
+                    <div>Account Number: {brand.accountNumber}</div>
                   )}
 
                   {brand.accountName && (
-                    <div>Account Name : {brand.accountName}</div>
+                    <div>Account Name: {brand.accountName}</div>
                   )}
                   
                 </div>
@@ -99,14 +98,14 @@ export function InvoiceTemplate1({ invoice, customer, brand }) {
 
           )}
 
-          {(brand.phone || brand.email || brand.footer) && (
+          {(brand.phone || brand.email || brand.invoiceFooter) && (
 
             <div className={styles.footRight}>
 
-              <strong style={{fontWeight :900,color :"var(--brand-primary-dark)"}}>Notes :</strong><br />
+              <strong style={{fontWeight :900,color :"var(--brand-primary-dark)"}}>Notes: </strong><br />
               {brand.phone   && <span>{brand.phone}<br /></span>}
               {brand.email   && <span>{brand.email}<br /></span>}
-              {brand.footer  && <span>{brand.footer}</span>}
+              {brand.invoiceFooter  && <span>{brand.invoiceFooter}</span>}
 
             </div>
 

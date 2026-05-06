@@ -5,8 +5,8 @@ import { formatCurrency } from "../../../utils/formatCurrency"
 
 export function ReceiptTemplate3({ receipt, customer, brand }) {
 
-  const barColor = brand.colour || '#0057D7'
-  const { currency, showTax, taxRate: brandTaxRate } = brand
+  const barColor = brand.colour || '#1C1814'
+  const { currency, showTax, receiptTaxRate: brandTaxRate } = brand
 
   const subtotal = receipt.items?.length > 0
     ? receipt.items.reduce((sum, item) => sum + ((item.qty ?? 1) * (parseFloat(item.price) || 0)), 0)
@@ -179,9 +179,9 @@ export function ReceiptTemplate3({ receipt, customer, brand }) {
               </div>
               
             </div>
-            {brand.footer && (
+            {brand.receiptFooter && (
               <div className={styles.footerSection}>
-                <strong style={{fontWeight :900,color :"var(--brand-primary-dark)"}}>Notes :</strong><br />{brand.footer}
+                <strong style={{fontWeight :900,color :"var(--brand-primary-dark)"}}>Notes :</strong><br />{brand.receiptFooter}
               </div>
             )}
           </div>

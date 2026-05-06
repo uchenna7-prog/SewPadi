@@ -6,9 +6,9 @@ import { formatCurrency } from "../../../utils/formatCurrency"
 
 export function ReceiptTemplate11({ receipt, customer, brand }) {
  
-  const accentColor = brand.colour || '#0057D7'
+  const accentColor = brand.colour || '#1C1814'
   const barBg       = '#dbeeff'
-   const { currency, showTax, taxRate: brandTaxRate } = brand
+  const { currency, showTax, receiptTaxRate: brandTaxRate } = brand
 
   const subtotal = receipt.items?.length > 0
     ? receipt.items.reduce((sum, item) => sum + ((item.qty ?? 1) * (parseFloat(item.price) || 0)), 0)
@@ -17,7 +17,7 @@ export function ReceiptTemplate11({ receipt, customer, brand }) {
   // Prefer frozen values from the receipt object; fall back to brand/calc
   const shippingFee    = parseFloat(receipt.shippingFee)    || 0
   const discountAmount = parseFloat(receipt.discountAmount) || 0
-  const discountType   = receipt.discountType   || null   // 'percent' | 'flat' | null
+  const discountType   = receipt.discountType   || null   
   const discountValue  = parseFloat(receipt.discountValue)  || 0
   const useTax         = receipt.taxRate != null ? receipt.taxRate > 0 : (showTax && brandTaxRate > 0)
   const taxRate        = receipt.taxRate != null ? receipt.taxRate : brandTaxRate
@@ -207,7 +207,7 @@ export function ReceiptTemplate11({ receipt, customer, brand }) {
           </div>
         </>
       )}
-      <div className={styles.thankYou} style={{ color : accentColor }}>{brand.footer || 'THANK YOU!'}</div>
+      <div className={styles.thankYou} style={{ color : accentColor }}>{brand.receiptFooter || 'THANK YOU!'}</div>
     </div>
   )
 }

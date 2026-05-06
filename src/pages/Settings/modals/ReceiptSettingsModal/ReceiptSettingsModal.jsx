@@ -1,6 +1,6 @@
 import styles from "./ReceiptSettingsModal.module.css"
 import { useState } from "react"
-import { useSettings } from "../../../../contexts/SettingsContext"
+import { useGeneralSettings } from "../../../../contexts/GeneralSettingsContext"
 import { Field,FieldGroup} from "../../components/FormField/FormField"
 import { Textarea,TextInput } from "../../components/FormInput/FormInput"
 import { Toggle } from "../../components/Toggle/Toggle"
@@ -9,16 +9,16 @@ import { FullModal } from "../../components/FullModal/FullModal"
 
 export function ReceiptSettingsModal({ onBack, showToast }) {
   
-  const { settings, updateMany } = useSettings()
+  const { generalSettings, updateManyGeneralSettings } = useGeneralSettings()
 
   const [local, setLocal] = useState({
-    receiptPrefix:  settings.receiptPrefix  ?? 'RCP',
-    receiptFooter:  settings.receiptFooter  ?? '',
-    receiptShowTax: settings.receiptShowTax ?? false,
-    receiptTaxRate: settings.receiptTaxRate ?? 0,
+    receiptPrefix:  generalSettings.receiptPrefix  ?? 'RCP',
+    receiptFooter:  generalSettings.receiptFooter  ?? '',
+    receiptShowTax: generalSettings.receiptShowTax ?? false,
+    receiptTaxRate: generalSettings.receiptTaxRate ?? 0,
   })
   const set = key => val => setLocal(p=>({...p,[key]:val}))
-  const save = () => { updateMany(local); showToast('Receipt settings saved'); onBack() }
+  const save = () => { updateManyGeneralSettings(local); showToast('Receipt settings saved'); onBack() }
   return (
     <FullModal title="Receipt Settings" onBack={onBack} onSave={save}>
       <div>

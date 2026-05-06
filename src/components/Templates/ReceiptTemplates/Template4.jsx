@@ -6,7 +6,7 @@ import { calcTax} from "../utils/receiptUtils"
 
 export function ReceiptTemplate4({ receipt, customer, brand }) {
 
-  const bannerBg = brand.colour || '#0057D7'
+  const bannerBg = brand.colour || '#1C1814'
   const { currency, showTax, taxRate: brandTaxRate } = brand
   
     const subtotal = receipt.items?.length > 0
@@ -102,7 +102,7 @@ export function ReceiptTemplate4({ receipt, customer, brand }) {
       </div>
 
       <div className={styles.footer}>
-        <div className={styles.footerText} >{brand.footer || 'Thank you for your patronage'}</div>
+        <div className={styles.footerText} >{brand.receiptFooter || 'Thank you for your patronage'}</div>
       </div>
 
     </div>

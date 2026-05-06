@@ -4,9 +4,9 @@ import { formatCurrency } from "../../../utils/formatCurrency"
 
 
 export function InvoiceTemplate6({ invoice, customer, brand }) {
-  const dueDate     = getDueDate(invoice, brand.dueDays)
-  const accentColor = brand.colour || '#0057D7'
-   const { currency, showTax, taxRate: brandTaxRate } = brand
+  const dueDate     = getDueDate(invoice, brand.invoiceDueDays)
+  const accentColor = brand.colour || '#1C1814'
+  const { currency, showTax, invoiceTaxRate: brandTaxRate } = brand
 
   const subtotal = invoice.items?.length > 0
     ? invoice.items.reduce((sum, item) => sum + ((item.qty ?? 1) * (parseFloat(item.price) || 0)), 0)
@@ -107,7 +107,7 @@ export function InvoiceTemplate6({ invoice, customer, brand }) {
       <div className={styles.divider} />
       <div className={styles.bottom}>
         <div style={{ flex : 1 }}>
-          <div className={styles.thankYou}>{brand.footer || 'Thank you for your business'}</div>
+          <div className={styles.thankYou}>{brand.invoiceFooter || 'Thank you for your business'}</div>
           {brand.accountBank && (
             <>
               <div className={styles.paymentLabel}>Payment Information :</div>

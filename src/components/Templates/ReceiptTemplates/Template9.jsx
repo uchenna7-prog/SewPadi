@@ -5,7 +5,7 @@ import { formatCurrency } from "../../../utils/formatCurrency"
 
 export function ReceiptTemplate9({ receipt, customer, brand }) {
 
-   const { currency, showTax, taxRate: brandTaxRate } = brand
+  const { currency, showTax, receiptTaxRate: brandTaxRate } = brand
 
   const subtotal = receipt.items?.length > 0
     ? receipt.items.reduce((sum, item) => sum + ((item.qty ?? 1) * (parseFloat(item.price) || 0)), 0)
@@ -183,7 +183,7 @@ export function ReceiptTemplate9({ receipt, customer, brand }) {
       
        
       
-      <div className={styles.thankYou}>{brand.footer || 'THANK YOU FOR YOUR BUSINESS'}</div>
+      <div className={styles.thankYou}>{brand.receiptFooter || 'THANK YOU FOR YOUR BUSINESS'}</div>
     </div>
   )
 }

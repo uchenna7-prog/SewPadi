@@ -6,9 +6,15 @@ import { FEMALE_BODY_MEASUREMENT_IMAGES } from './datas/femaleBodyMeasurementDat
 
 export function getBodyMeasurementConfig(sex) {
   if (sex === 'Female') {
-    return { fields: FEMALE_BODY_MEASUREMENTS, imgMap: FEMALE_BODY_MEASUREMENT_IMAGES }
+    return { 
+      fields: FEMALE_BODY_MEASUREMENTS, 
+      imgMap: FEMALE_BODY_MEASUREMENT_IMAGES 
+    }
   }
-  return { fields: MALE_BODY_MEASUREMENTS, imgMap: MALE_BODY_MEASUREMENT_IMAGES }
+  return { 
+    fields: MALE_BODY_MEASUREMENTS, 
+    imgMap: MALE_BODY_MEASUREMENT_IMAGES 
+  }
 }
 
 
