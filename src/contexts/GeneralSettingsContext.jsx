@@ -80,6 +80,7 @@ function applyTheme(theme) {
 const GeneralSettingsContext = createContext(null)
 
 export function GeneralSettingsProvider({ children }) {
+  
   const [generalSettings, setGeneralSettings] = useState(loadGeneralSettings)
 
   // Apply theme whenever it changes

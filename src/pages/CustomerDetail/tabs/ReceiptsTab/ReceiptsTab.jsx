@@ -381,7 +381,9 @@ function ReceiptPickerModal({ isOpen, onClose, orders, payments, receipts, onSel
       <div className={styles.pickerScrollBody}>
         <div style={{ padding: '20px' }}>
 
-          <p className={styles.stepHeading}>1. Select Order</p>
+          {ordersNeedingReceipt.length > 0 && (
+              <p className={styles.stepHeading}>1. Select Order</p>
+            )}
 
           {showSearch && (
             <div className={styles.clothSearchBar}>

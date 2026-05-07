@@ -66,7 +66,7 @@ export function InvoiceProvider({ children }) {
         currentInvoice,
         setCurrentInvoice,
         template: profileSettings.invoiceTemplate,
-        brand: {
+        brandInfos: {
           name:    profileSettings.brandName,
           logo:    profileSettings.brandLogo,
           colour:  profileSettings.brandColour,

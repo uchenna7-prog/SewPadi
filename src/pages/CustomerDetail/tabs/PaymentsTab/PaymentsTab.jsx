@@ -1,13 +1,6 @@
 // src/pages/CustomerDetail/tabs/PaymentsTab/PaymentsTab.jsx
 
 import { useState, useEffect, useRef } from 'react'
-import { useAuth } from '../../../../contexts/AuthContext'
-import {
-  subscribeToPayments,
-  createPayment,
-  updatePayment,
-  deletePayment,
-} from '../../../../services/paymentService'
 import ConfirmSheet from '../../../../components/ConfirmSheet/ConfirmSheet'
 import Header from '../../../../components/Header/Header'
 import styles from './PaymentsTab.module.css'
@@ -44,9 +37,7 @@ function getStatusMeta(value) {
 function buildOrderItemsMap(orders) {
   const map = {}
   for (const order of (orders || [])) {
-    if (order.id && order.items?.length > 0) {
-      map[order.id] = order.items
-    }
+    if (order.id && order.items?.length > 0) map[order.id] = order.items
   }
   return map
 }
@@ -72,10 +63,8 @@ function getProgressPercent(totalPaid, fullPrice, status) {
 
 function resolvePaymentStatus(enteredAmount, orderPrice, selectedPaymentType) {
   const entered = parseFloat(enteredAmount) || 0
-  const full    = parseFloat(orderPrice) || 0
-  if (full > 0) {
-    return entered >= full ? 'paid' : 'part'
-  }
+  const full    = parseFloat(orderPrice)    || 0
+  if (full > 0) return entered >= full ? 'paid' : 'part'
   return selectedPaymentType === 'full' ? 'paid' : 'part'
 }
 
@@ -86,18 +75,14 @@ function capitalise(str) {
 
 // ─────────────────────────────────────────────────────────────
 // ORDER MOSAIC THUMBNAIL
-// size="sm" → 38px picker card thumb
-// size="md" → 68px payment list row
-// Matches OrdersTab mosaic structure exactly.
 // ─────────────────────────────────────────────────────────────
 
 function OrderMosaic({ items = [], size = 'md', fallbackIcon = 'payments', fallbackColor }) {
   const images     = items.map(item => item.imgSrc ?? null).filter(Boolean)
   const totalItems = items.length
-  const isSm      = size === 'sm'
-
-  const outerCls = isSm ? styles.mosaicOuter_sm : styles.mosaicOuter
-  const innerCls = isSm ? styles.mosaicInner_sm : styles.mosaicInner
+  const isSm       = size === 'sm'
+  const outerCls   = isSm ? styles.mosaicOuter_sm : styles.mosaicOuter
+  const innerCls   = isSm ? styles.mosaicInner_sm : styles.mosaicInner
 
   if (images.length === 0) {
     return (
@@ -166,9 +151,7 @@ function OrderMosaic({ items = [], size = 'md', fallbackIcon = 'payments', fallb
               ? <img src={images[2]} alt="" className={styles.mosaicPanelImg} />
               : <span className="mi" style={{ fontSize: '0.75rem', color: 'var(--text3)' }}>checkroom</span>
             }
-            {extraCount > 0 && (
-              <div className={styles.mosaicOverlay}>+{extraCount}</div>
-            )}
+            {extraCount > 0 && <div className={styles.mosaicOverlay}>+{extraCount}</div>}
           </div>
         </div>
       </div>
@@ -179,8 +162,6 @@ function OrderMosaic({ items = [], size = 'md', fallbackIcon = 'payments', fallb
 
 // ─────────────────────────────────────────────────────────────
 // INLINE PAYMENT FORM
-// Rendered inside the accordion when an order is selected.
-// Only shown for orders with zero existing payment records.
 // ─────────────────────────────────────────────────────────────
 
 function InlinePaymentForm({ order, onSave, saving }) {
@@ -189,6 +170,7 @@ function InlinePaymentForm({ order, onSave, saving }) {
   const [method,      setMethod]      = useState('cash')
   const [notes,       setNotes]       = useState('')
 
+  // Use grand total for all price display and full/part detection
   const fullPrice = parseFloat(order?.totalAmount ?? order?.price) || 0
 
   function handleAmountChange(value) {
@@ -201,11 +183,11 @@ function InlinePaymentForm({ order, onSave, saving }) {
 
   function handleSave() {
     if (!amount || saving) return
-    const finalStatus = resolvePaymentStatus(amount, order.price, paymentType)
+    const finalStatus = resolvePaymentStatus(amount, fullPrice, paymentType)
     onSave({
       orderId:      order.id,
       orderDesc:    order.desc,
-      orderPrice:   order.totalAmount ?? order.price ?? null,
+      orderPrice:   order.totalAmount ?? order.price ?? null, // grand total saved
       orderItems:   order.items ?? [],
       status:       finalStatus,
       notes:        notes.trim(),
@@ -217,7 +199,6 @@ function InlinePaymentForm({ order, onSave, saving }) {
   return (
     <div className={styles.inlineFormCard}>
 
-      {/* Order price reference */}
       {fullPrice > 0 && (
         <div className={styles.inlineOrderTotal}>
           <span className={styles.inlineOrderTotalLabel}>Order value</span>
@@ -225,30 +206,24 @@ function InlinePaymentForm({ order, onSave, saving }) {
         </div>
       )}
 
-      {/* Payment type chips */}
       <label className={styles.fieldLabel}>Payment Type</label>
       <div className={styles.chipRow} style={{ marginBottom: 20 }}>
         <button
           className={`${styles.typeChip} ${paymentType === 'full' ? styles.typeChipActive : ''}`}
-          style={paymentType === 'full'
-            ? { borderColor: '#22c55e', color: '#22c55e', background: 'rgba(34,197,94,0.12)' }
-            : {}}
+          style={paymentType === 'full' ? { borderColor: '#22c55e', color: '#22c55e', background: 'rgba(34,197,94,0.12)' } : {}}
           onClick={() => setPaymentType('full')}
         >
           Full Payment
         </button>
         <button
           className={`${styles.typeChip} ${paymentType === 'part' ? styles.typeChipActive : ''}`}
-          style={paymentType === 'part'
-            ? { borderColor: '#fb923c', color: '#fb923c', background: 'rgba(251,146,60,0.12)' }
-            : {}}
+          style={paymentType === 'part' ? { borderColor: '#fb923c', color: '#fb923c', background: 'rgba(251,146,60,0.12)' } : {}}
           onClick={() => setPaymentType('part')}
         >
           Part Payment
         </button>
       </div>
 
-      {/* Amount */}
       <label className={styles.fieldLabel}>
         {paymentType === 'part' ? 'Amount Paid (₦)' : 'Amount (₦)'}
       </label>
@@ -262,7 +237,6 @@ function InlinePaymentForm({ order, onSave, saving }) {
         style={{ marginBottom: 20 }}
       />
 
-      {/* Payment method */}
       <label className={styles.fieldLabel}>Payment Method</label>
       <div className={styles.methodChipRow} style={{ marginBottom: 20 }}>
         {['cash', 'transfer', 'card', 'other'].map(m => (
@@ -276,7 +250,6 @@ function InlinePaymentForm({ order, onSave, saving }) {
         ))}
       </div>
 
-      {/* Notes */}
       <label className={styles.fieldLabel}>
         Notes <span className={styles.fieldLabelOptional}>(optional)</span>
       </label>
@@ -289,28 +262,16 @@ function InlinePaymentForm({ order, onSave, saving }) {
         style={{ marginBottom: 20 }}
       />
 
-      {/* Dashed divider — matches orderTotalRow in OrderModal */}
       <div className={styles.inlineFormDivider} />
 
-      {/* Save button */}
       <button
         className={styles.inlineSaveButton}
         onClick={handleSave}
         disabled={!amount || saving}
       >
         {saving
-          ? (
-            <>
-              <div className={styles.inlineSpinner} />
-              Saving…
-            </>
-          )
-          : (
-            <>
-              <span className="material-icons" style={{ fontSize: '1.1rem' }}>payments</span>
-              Record Payment
-            </>
-          )
+          ? <><div className={styles.inlineSpinner} />Saving…</>
+          : <><span className="material-icons" style={{ fontSize: '1.1rem' }}>payments</span>Record Payment</>
         }
       </button>
     </div>
@@ -320,9 +281,6 @@ function InlinePaymentForm({ order, onSave, saving }) {
 
 // ─────────────────────────────────────────────────────────────
 // ADD PAYMENT MODAL
-// Full-screen overlay — single scrollable screen with inline
-// accordion. Only shows orders that have NO payment record at all.
-// Selecting an order expands the payment form inline below it.
 // ─────────────────────────────────────────────────────────────
 
 function AddPaymentModal({ isOpen, onClose, orders, payments, onSave }) {
@@ -331,31 +289,20 @@ function AddPaymentModal({ isOpen, onClose, orders, payments, onSave }) {
   const [saving,          setSaving]          = useState(false)
   const expandedRef                           = useRef(null)
 
-  // Reset when modal closes
   useEffect(() => {
-    if (!isOpen) {
-      setSelectedOrderId(null)
-      setSearch('')
-      setSaving(false)
-    }
+    if (!isOpen) { setSelectedOrderId(null); setSearch(''); setSaving(false) }
   }, [isOpen])
 
-  // Scroll the expanded form into view when an order is selected
   useEffect(() => {
     if (selectedOrderId && expandedRef.current) {
-      setTimeout(() => {
-        expandedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-      }, 60)
+      setTimeout(() => expandedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 60)
     }
   }, [selectedOrderId])
 
-  // Build a set of all order IDs that already have ANY payment record
   const orderIdsWithPayments = new Set(payments.map(p => String(p.orderId)))
+  const eligibleOrders       = orders.filter(order => !orderIdsWithPayments.has(String(order.id)))
+  const showSearch           = eligibleOrders.length > 5
 
-  // Only show orders that have zero payment records
-  const eligibleOrders = orders.filter(order => !orderIdsWithPayments.has(String(order.id)))
-
-  const showSearch     = eligibleOrders.length > 5
   const filteredOrders = eligibleOrders.filter(order => {
     if (!search.trim()) return true
     const q = search.toLowerCase()
@@ -373,17 +320,12 @@ function AddPaymentModal({ isOpen, onClose, orders, payments, onSave }) {
 
   async function handleSave(paymentData) {
     setSaving(true)
-    try {
-      await onSave(paymentData)
-      onClose()
-    } catch {
-      setSaving(false)
-    }
+    try { await onSave(paymentData); onClose() }
+    catch { setSaving(false) }
   }
 
   return (
     <div className={`${styles.pickerOverlay} ${isOpen ? styles.pickerOverlay_open : ''}`}>
-
       <Header
         type="back"
         title="New Payment"
@@ -393,10 +335,11 @@ function AddPaymentModal({ isOpen, onClose, orders, payments, onSave }) {
       <div className={styles.pickerScrollBody}>
         <div style={{ padding: '20px' }}>
 
-          {/* ── Step 1: Select Order ── */}
-          <p className={styles.stepHeading}>1. Select Order</p>
+          {/* Step heading — only when there are eligible orders */}
+          {eligibleOrders.length > 0 && (
+            <p className={styles.stepHeading}>1. Select Order</p>
+          )}
 
-          {/* Search bar — only when more than 5 eligible orders */}
           {showSearch && (
             <div className={styles.clothSearchBar}>
               <span className="mi" style={{ fontSize: '1.1rem', color: 'var(--text3)' }}>search</span>
@@ -418,7 +361,6 @@ function AddPaymentModal({ isOpen, onClose, orders, payments, onSave }) {
             </div>
           )}
 
-          {/* Empty state — all orders already have payments */}
           {eligibleOrders.length === 0 && (
             <div className={styles.pickerEmpty}>
               <span className="mi" style={{ fontSize: '2rem', color: 'var(--text3)' }}>assignment</span>
@@ -427,7 +369,6 @@ function AddPaymentModal({ isOpen, onClose, orders, payments, onSave }) {
             </div>
           )}
 
-          {/* No search results */}
           {eligibleOrders.length > 0 && filteredOrders.length === 0 && (
             <div className={styles.pickerEmpty}>
               <span className="mi" style={{ fontSize: '2rem', color: 'var(--text3)' }}>search_off</span>
@@ -435,14 +376,11 @@ function AddPaymentModal({ isOpen, onClose, orders, payments, onSave }) {
             </div>
           )}
 
-          {/* Order picker list — accordion style */}
           <div className={styles.clothPickerList}>
             {filteredOrders.map(order => {
               const isSelected = selectedOrderId === order.id
-
               return (
                 <div key={order.id}>
-                  {/* ── Selectable order card ── */}
                   <div
                     className={`
                       ${styles.clothPickerItem}
@@ -451,14 +389,7 @@ function AddPaymentModal({ isOpen, onClose, orders, payments, onSave }) {
                     `}
                     onClick={() => !saving && handleToggleOrder(order)}
                   >
-                    {/* Full mosaic thumbnail */}
-                    <OrderMosaic
-                      items={order.items || []}
-                      size="sm"
-                      fallbackIcon="content_cut"
-                    />
-
-                    {/* Order name + due date */}
+                    <OrderMosaic items={order.items || []} size="sm" fallbackIcon="content_cut" />
                     <div className={styles.clothInfo}>
                       <h5>{order.desc || 'Untitled Order'}</h5>
                       {order.due
@@ -466,24 +397,17 @@ function AddPaymentModal({ isOpen, onClose, orders, payments, onSave }) {
                         : <span>No due date</span>
                       }
                     </div>
-
-                    {/* Check circle */}
                     <div className={`${styles.clothCheckCircle} ${isSelected ? styles.clothCheckCircle_checked : ''}`}>
                       {isSelected && <span className="mi" style={{ fontSize: '0.9rem' }}>check</span>}
                     </div>
                   </div>
 
-                  {/* ── Inline expanded payment form ── */}
                   {isSelected && (
                     <div ref={expandedRef} className={styles.accordionBody}>
                       <p className={styles.stepHeading} style={{ marginTop: 0, marginBottom: 16 }}>
                         2. Payment Details
                       </p>
-                      <InlinePaymentForm
-                        order={order}
-                        onSave={handleSave}
-                        saving={saving}
-                      />
+                      <InlinePaymentForm order={order} onSave={handleSave} saving={saving} />
                     </div>
                   )}
                 </div>
@@ -499,7 +423,7 @@ function AddPaymentModal({ isOpen, onClose, orders, payments, onSave }) {
 
 
 // ─────────────────────────────────────────────────────────────
-// ADD INSTALLMENT MODAL — record the next payment on a part-paid order
+// ADD INSTALLMENT MODAL
 // ─────────────────────────────────────────────────────────────
 
 function AddInstallmentModal({ payment, onClose, onSave }) {
@@ -572,7 +496,7 @@ function AddInstallmentModal({ payment, onClose, onSave }) {
 
 
 // ─────────────────────────────────────────────────────────────
-// PAYMENT DETAIL MODAL — full view of a single payment
+// PAYMENT DETAIL MODAL
 // ─────────────────────────────────────────────────────────────
 
 function PaymentDetail({ payment, onClose, onDelete, onStatusChange, onAddInstallment }) {
@@ -581,7 +505,6 @@ function PaymentDetail({ payment, onClose, onDelete, onStatusChange, onAddInstal
   const installments    = payment.installments || []
   const fullPrice       = parseFloat(payment.orderPrice) || 0
   const totalPaid       = getTotalPaid(installments)
-  const remaining       = fullPrice > 0 ? Math.max(0, fullPrice - totalPaid) : 0
   const isPaid          = payment.status === 'paid'
   const isNowFullyPaid  = fullPrice > 0 && totalPaid >= fullPrice
   const hasInstallments = installments.length > 0
@@ -626,7 +549,6 @@ function PaymentDetail({ payment, onClose, onDelete, onStatusChange, onAddInstal
         {fullPrice > 0 && hasInstallments && (
           <div className={styles.breakdownCard}>
             <label className={styles.fieldLabel} style={{ marginBottom: 12, display: 'block' }}>Payment Breakdown</label>
-
             <div className={styles.breakdownRow}>
               <span>Order Value</span>
               <span style={{ fontWeight: 700, color: 'var(--text)' }}>{formatMoney(fullPrice)}</span>
@@ -644,12 +566,7 @@ function PaymentDetail({ payment, onClose, onDelete, onStatusChange, onAddInstal
                     <span style={{ fontSize: '0.62rem', fontWeight: 800, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       Payment {idx + 1}{installments.length > 1 ? ` of ${installments.length}` : ''}{methodLabel ? ` · ${methodLabel}` : ''}{inst.date ? ` · ${inst.date}` : ''}
                     </span>
-                    <span style={{
-                      fontSize: '0.6rem', fontWeight: 800,
-                      background: 'rgba(251,146,60,0.14)', color: '#fb923c',
-                      border: '1px solid rgba(251,146,60,0.3)',
-                      borderRadius: 20, padding: '1px 7px',
-                    }}>
+                    <span style={{ fontSize: '0.6rem', fontWeight: 800, background: 'rgba(251,146,60,0.14)', color: '#fb923c', border: '1px solid rgba(251,146,60,0.3)', borderRadius: 20, padding: '1px 7px' }}>
                       {idx + 1}/{installments.length}
                     </span>
                   </div>
@@ -662,12 +579,10 @@ function PaymentDetail({ payment, onClose, onDelete, onStatusChange, onAddInstal
                       </span>
                     </div>
                   )}
-
                   <div className={styles.breakdownRow} style={{ marginBottom: 4 }}>
                     <span>Amount Paid</span>
                     <span style={{ color: '#22c55e', fontWeight: 700 }}>{formatMoney(inst.amount)}</span>
                   </div>
-
                   <div className={styles.breakdownRow} style={{ marginBottom: 0 }}>
                     <span>Balance After</span>
                     <span style={{ color: balanceAfter > 0 ? '#ef4444' : '#22c55e', fontWeight: 700 }}>
@@ -721,11 +636,7 @@ function PaymentDetail({ payment, onClose, onDelete, onStatusChange, onAddInstal
         <div className={styles.fieldGroup} style={{ marginTop: 18 }}>
           <label className={styles.fieldLabel}>Payment Status</label>
           {hasInstallments && (
-            <div style={{
-              fontSize: '0.7rem', color: 'var(--text3)', marginBottom: 8,
-              background: 'var(--surface)', border: '1px solid var(--border)',
-              borderRadius: 8, padding: '6px 10px',
-            }}>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text3)', marginBottom: 8, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '6px 10px' }}>
               {isNowFullyPaid
                 ? '✓ All payments received — status upgraded to Paid.'
                 : 'Part payments recorded. Only Part Payment is available.'}
@@ -733,9 +644,7 @@ function PaymentDetail({ payment, onClose, onDelete, onStatusChange, onAddInstal
           )}
           <div className={styles.chipRow}>
             {PAYMENT_STATUSES.map(s => {
-              const isLocked = hasInstallments && (
-                isNowFullyPaid ? s.value !== 'paid' : s.value !== 'part'
-              )
+              const isLocked = hasInstallments && (isNowFullyPaid ? s.value !== 'paid' : s.value !== 'part')
               const isActive = isNowFullyPaid ? s.value === 'paid' : payment.status === s.value
               return (
                 <button
@@ -762,8 +671,6 @@ function PaymentDetail({ payment, onClose, onDelete, onStatusChange, onAddInstal
           </button>
         )}
 
-
-
       </div>
 
       {showInstallmentModal && (
@@ -780,35 +687,31 @@ function PaymentDetail({ payment, onClose, onDelete, onStatusChange, onAddInstal
 
 // ─────────────────────────────────────────────────────────────
 // PAYMENTS TAB — main export
+// Data (payments) flows in from CustomerDetail via useCustomerData.
+// No internal subscription — hook owns the Firestore listener.
 // ─────────────────────────────────────────────────────────────
 
-export default function PaymentsTab({ customerId, orders, showToast, onInvoicePaid, onPaymentsChange }) {
-  const { user } = useAuth()
-
-  const [payments,       setPayments]       = useState([])
+export default function PaymentsTab({
+  orders          = [],
+  payments        = [],
+  showToast,
+  onSavePayment,
+  onUpdatePayment,
+  onDeletePayment,
+  onInvoicePaid,
+}) {
   const [modalOpen,      setModalOpen]      = useState(false)
   const [viewingPayment, setViewingPayment] = useState(null)
   const [deleteTarget,   setDeleteTarget]   = useState(null)
 
+  // Keep viewingPayment in sync when payments array updates from Firestore
   useEffect(() => {
-    if (!user || !customerId) return
-    const unsubscribe = subscribeToPayments(
-      user.uid,
-      customerId,
-      (data) => {
-        setPayments(data)
-        onPaymentsChange?.(data)
-        setViewingPayment(prev => {
-          if (!prev) return null
-          return data.find(p => p.id === prev.id) ?? null
-        })
-      },
-      (err) => console.error('[PaymentsTab]', err)
-    )
-    return unsubscribe
-  }, [user, customerId])
+    if (!viewingPayment) return
+    const updated = payments.find(p => p.id === viewingPayment.id)
+    setViewingPayment(updated ?? null)
+  }, [payments])
 
-  // Listen for FAB event
+  // FAB event
   useEffect(() => {
     const handler = () => setModalOpen(true)
     document.addEventListener('openPaymentModal', handler)
@@ -819,15 +722,11 @@ export default function PaymentsTab({ customerId, orders, showToast, onInvoicePa
   const groupedByDate = groupPaymentsByDate(payments)
 
   async function handleSavePayment(paymentData) {
-    if (!user) return
     try {
-      await createPayment(user.uid, customerId, paymentData)
+      await onSavePayment(paymentData)
       showToast('Payment recorded ✓')
-      if (paymentData.status === 'paid') {
-        onInvoicePaid?.(paymentData.orderId, 'paid')
-      } else if (paymentData.status === 'part') {
-        onInvoicePaid?.(paymentData.orderId, 'part_paid')
-      }
+      if (paymentData.status === 'paid')       onInvoicePaid?.(paymentData.orderId, 'paid')
+      else if (paymentData.status === 'part')  onInvoicePaid?.(paymentData.orderId, 'part_paid')
     } catch {
       showToast('Failed to save payment.')
       throw new Error('save failed')
@@ -835,16 +734,14 @@ export default function PaymentsTab({ customerId, orders, showToast, onInvoicePa
   }
 
   async function handleStatusChange(paymentId, newStatus) {
-    if (!user) return
     try {
-      await updatePayment(user.uid, customerId, paymentId, { status: newStatus })
+      await onUpdatePayment(paymentId, { status: newStatus })
     } catch {
       showToast('Failed to update status.')
     }
   }
 
   async function handleAddInstallment(paymentId, amount, method) {
-    if (!user) return
     const payment = payments.find(p => p.id === paymentId)
     if (!payment) return
 
@@ -855,10 +752,7 @@ export default function PaymentsTab({ customerId, orders, showToast, onInvoicePa
     const newStatus           = fullPrice > 0 && totalPaid >= fullPrice ? 'paid' : payment.status
 
     try {
-      await updatePayment(user.uid, customerId, paymentId, {
-        installments: updatedInstallments,
-        status: newStatus,
-      })
+      await onUpdatePayment(paymentId, { installments: updatedInstallments, status: newStatus })
       if (newStatus === 'paid') {
         showToast('Payment complete! Marked as Paid ✓')
         onInvoicePaid?.(payment.orderId, 'paid')
@@ -871,11 +765,10 @@ export default function PaymentsTab({ customerId, orders, showToast, onInvoicePa
     }
   }
 
-
   async function handleConfirmDelete() {
-    if (!deleteTarget || !user) return
+    if (!deleteTarget) return
     try {
-      await deletePayment(user.uid, customerId, deleteTarget.id)
+      await onDeletePayment(deleteTarget.id)
       showToast('Payment deleted')
     } catch {
       showToast('Failed to delete.')
@@ -915,30 +808,19 @@ export default function PaymentsTab({ customerId, orders, showToast, onInvoicePa
                 className={`${styles.paymentRow} ${isLast ? styles.paymentRowLast : ''}`}
                 onClick={() => setViewingPayment(payment)}
               >
-                <OrderMosaic
-                  items={orderItems}
-                  size="md"
-                  fallbackIcon="payments"
-                  fallbackColor={statusMeta.color}
-                />
+                <OrderMosaic items={orderItems} size="md" fallbackIcon="payments" fallbackColor={statusMeta.color} />
 
                 <div className={styles.paymentRowInfo}>
                   <div className={styles.paymentRowTitle}>{payment.orderDesc || 'Payment'}</div>
                   <div className={styles.paymentRowMeta}>
                     <span
                       className={styles.paymentStatusBadge}
-                      style={{
-                        color:       statusMeta.color,
-                        background:  statusMeta.background,
-                        borderColor: statusMeta.borderColor,
-                      }}
+                      style={{ color: statusMeta.color, background: statusMeta.background, borderColor: statusMeta.borderColor }}
                     >
                       {statusMeta.label}
                     </span>
                     {installCount > 1 && (
-                      <span className={styles.installmentCountBadge}>
-                        {installCount} payments
-                      </span>
+                      <span className={styles.installmentCountBadge}>{installCount} payments</span>
                     )}
                   </div>
                 </div>
@@ -952,10 +834,7 @@ export default function PaymentsTab({ customerId, orders, showToast, onInvoicePa
                   )}
                   {fullPrice > 0 && (
                     <div className={styles.miniProgressTrack}>
-                      <div
-                        className={styles.miniProgressFill}
-                        style={{ width: `${progressPct}%`, background: statusMeta.color }}
-                      />
+                      <div className={styles.miniProgressFill} style={{ width: `${progressPct}%`, background: statusMeta.color }} />
                     </div>
                   )}
                 </div>
@@ -980,7 +859,6 @@ export default function PaymentsTab({ customerId, orders, showToast, onInvoicePa
           onDelete={() => setDeleteTarget(viewingPayment)}
           onStatusChange={handleStatusChange}
           onAddInstallment={handleAddInstallment}
-    
         />
       )}
 

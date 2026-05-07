@@ -156,6 +156,7 @@
   height: 100%;
   background: var(--bg);
   z-index: 3500;
+  pointer-events: none;
   display: flex;
   flex-direction: column;
   transform: translateY(100%);
@@ -164,6 +165,7 @@
 
 .pickerOverlay_open {
   transform: translateY(0);
+  pointer-events: all;
 }
 
 .pickerScrollBody {
