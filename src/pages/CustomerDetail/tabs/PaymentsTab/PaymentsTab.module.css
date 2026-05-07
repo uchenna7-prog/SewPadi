@@ -117,13 +117,8 @@
 .installmentCountBadge {
   display: inline-flex;
   align-items: center;
-  font-size: 0.6rem;
+  font-size: 0.65rem;
   font-weight: 800;
-  background: rgba(251, 146, 60, 0.13);
-  color: #c2410c;
-  border: 1px solid rgba(251, 146, 60, 0.28);
-  border-radius: 20px;
-  padding: 1px 7px;
   letter-spacing: 0.02em;
 }
 

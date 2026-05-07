@@ -819,9 +819,7 @@ export default function PaymentsTab({
                     >
                       {statusMeta.label}
                     </span>
-                    {installCount > 1 && (
-                      <span className={styles.installmentCountBadge}>{installCount} payments</span>
-                    )}
+
                   </div>
                 </div>
 
