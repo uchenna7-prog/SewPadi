@@ -13,23 +13,23 @@ const STATUS_LABELS = {
 }
 
 export default function InvoiceViewer({
-  invoice: initialInvoice,
+  invoice: currentInvoice,
   customer,
   onClose,
   onDelete,
   showToast,
 }) {
-  const { brand }  = useBrand()
-  const paperRef   = useRef(null)
-  const [invoice,      setInvoice]      = useState(initialInvoice)
-  const [pdfLoading,   setPdfLoading]   = useState(false)
+  const { brand } = useBrand()
+  const paperRef = useRef(null)
+  const [invoice, setInvoice]      = useState(currentInvoice)
+  const [pdfLoading, setPdfLoading]   = useState(false)
   const [shareLoading, setShareLoading] = useState(false)
 
-  const templateKey    = brand.invoiceTemplate || 'invoiceTemplate1'
-  const Template       = TEMPLATE_MAPPINGS[templateKey] || TEMPLATE_MAPPINGS.invoiceTemplate1
+  const templateKey = invoice.template || brand.invoiceTemplate || 'invoiceTemplate1'
+  const Template = TEMPLATE_MAPPINGS[templateKey] || TEMPLATE_MAPPINGS.invoiceTemplate1
   const effectiveBrand = invoice.brandSnapshot ? { ...brand, ...invoice.brandSnapshot } : brand
-  const brandCSSVars   = getBrandCSSVars(effectiveBrand.colour)
-  const filename       = `Invoice-${invoice.number}-${customer.name.replace(/\s+/g, '_')}.pdf`
+  const brandCSSVars = getBrandCSSVars(effectiveBrand.colour)
+  const filename = `Invoice-${invoice.number}-${customer.name.replace(/\s+/g, '_')}.pdf`
 
   const handleDownload = async () => {
     if (!paperRef.current || pdfLoading) return
@@ -58,7 +58,6 @@ export default function InvoiceViewer({
       showToast?.('Shared ✓')
     } catch (err) {
       if (err?.name !== 'AbortError') {
-        console.error(err)
         showToast?.('Share failed — please try again.')
       }
     } finally {

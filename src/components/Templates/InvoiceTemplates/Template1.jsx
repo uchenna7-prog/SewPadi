@@ -3,11 +3,10 @@ import { ItemsTable } from "../components/InvoiceItemsTable/InvoiceItemsTable"
 import { getDueDate } from "../utils/invoiceUtils"
 
 
-
 export function InvoiceTemplate1({ invoice, customer, brand }) {
 
 
-  const dueDate   = getDueDate(invoice, brand.invoiceDueDays)
+  const dueDate = getDueDate(invoice, brand.invoiceDueDays)
   const lineColor = brand.colour || '#1C1814'
 
 
