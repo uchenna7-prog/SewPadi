@@ -575,7 +575,7 @@ function AddInstallmentModal({ payment, onClose, onSave }) {
 // PAYMENT DETAIL MODAL — full view of a single payment
 // ─────────────────────────────────────────────────────────────
 
-function PaymentDetail({ payment, onClose, onDelete, onStatusChange, onAddInstallment, onGenerateReceipt }) {
+function PaymentDetail({ payment, onClose, onDelete, onStatusChange, onAddInstallment }) {
   const [showInstallmentModal, setShowInstallmentModal] = useState(false)
 
   const installments    = payment.installments || []
@@ -762,10 +762,7 @@ function PaymentDetail({ payment, onClose, onDelete, onStatusChange, onAddInstal
           </button>
         )}
 
-        <button className={styles.generateReceiptBtn} onClick={() => onGenerateReceipt(payment)}>
-          <span className="material-icons" style={{ fontSize: '1.2rem', verticalAlign: 'middle', marginRight: 4 }}>receipt</span>
-          Generate Receipt
-        </button>
+
 
       </div>
 
@@ -785,7 +782,7 @@ function PaymentDetail({ payment, onClose, onDelete, onStatusChange, onAddInstal
 // PAYMENTS TAB — main export
 // ─────────────────────────────────────────────────────────────
 
-export default function PaymentsTab({ customerId, orders, showToast, onGenerateReceipt, onInvoicePaid, onPaymentsChange }) {
+export default function PaymentsTab({ customerId, orders, showToast, onInvoicePaid, onPaymentsChange }) {
   const { user } = useAuth()
 
   const [payments,       setPayments]       = useState([])
@@ -874,10 +871,6 @@ export default function PaymentsTab({ customerId, orders, showToast, onGenerateR
     }
   }
 
-  function handleGenerateReceipt(payment) {
-    setViewingPayment(null)
-    onGenerateReceipt(payment)
-  }
 
   async function handleConfirmDelete() {
     if (!deleteTarget || !user) return
@@ -987,7 +980,7 @@ export default function PaymentsTab({ customerId, orders, showToast, onGenerateR
           onDelete={() => setDeleteTarget(viewingPayment)}
           onStatusChange={handleStatusChange}
           onAddInstallment={handleAddInstallment}
-          onGenerateReceipt={handleGenerateReceipt}
+    
         />
       )}
 

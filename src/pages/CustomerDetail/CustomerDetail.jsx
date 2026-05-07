@@ -883,7 +883,6 @@ export default function CustomerDetail({ onMenuClick }) {
             orders={orders}
             payments={payments}
             showToast={showToast}
-            onGenerateReceipt={handleGenerateReceipt}
             onInvoicePaid={handleInvoicePaid}
             onPaymentsChange={setPayments}
           />
