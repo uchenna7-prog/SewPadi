@@ -1081,7 +1081,7 @@ export default function OrdersTab({ customerId, orders, loading, measurements, s
                   )}
                   {stageInfo && (
                     <div className={styles.orderRowStage}>
-                      <span >{stageInfo.icon}</span>
+                      <span  className="material-icons" >{stageInfo.icon}</span>
                       <span >{stageInfo.label}</span>
                     </div>
                   )}
