@@ -47,7 +47,7 @@ function buildOrderItemsMap(orders) {
 function getPaymentStatus(receipt) {
   const thisPayment  = (receipt.payments || []).reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0)
   const totalPaid    = receipt.cumulativePaid != null ? parseFloat(receipt.cumulativePaid) : thisPayment
-  const orderTotal   = parseFloat(receipt.orderPrice) || totalPaid
+  const orderTotal   = parseFloat(receipt.totalAmount ?? receipt.orderPrice) || totalPaid
   const isPaidInFull = totalPaid >= orderTotal && orderTotal > 0
 
   return {
@@ -425,7 +425,7 @@ function ReceiptPickerModal({ isOpen, onClose, orders, payments, receipts, onSel
               const payment     = payments.find(p => String(p.orderId) === String(order.id))
               const installs    = payment?.installments || []
               const paid        = getTotalPaid(installs)
-              const price       = parseFloat(order.price) || 0
+              const price       = parseFloat(order.totalAmount ?? order.price) || 0
               const isFullyPaid = price > 0 && paid >= price
 
               const receiptedIds = new Set(

@@ -189,7 +189,7 @@ function InlinePaymentForm({ order, onSave, saving }) {
   const [method,      setMethod]      = useState('cash')
   const [notes,       setNotes]       = useState('')
 
-  const fullPrice = parseFloat(order?.price) || 0
+  const fullPrice = parseFloat(order?.totalAmount ?? order?.price) || 0
 
   function handleAmountChange(value) {
     setAmount(value)
@@ -205,7 +205,7 @@ function InlinePaymentForm({ order, onSave, saving }) {
     onSave({
       orderId:      order.id,
       orderDesc:    order.desc,
-      orderPrice:   order.price ?? null,
+      orderPrice:   order.totalAmount ?? order.price ?? null,
       orderItems:   order.items ?? [],
       status:       finalStatus,
       notes:        notes.trim(),

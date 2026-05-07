@@ -81,7 +81,7 @@ function formatMoney(currency = '₦', amount) {
 
 function getCurrency() {
   try {
-    const settings = JSON.parse(localStorage.getItem('tailorbook_settings') || '{}')
+    const settings = JSON.parse(localStorage.getItem('tailorflow_general_settings') || '{}')
     return settings.invoiceCurrency || '₦'
   } catch {
     return '₦'
@@ -108,7 +108,11 @@ function buildOrderItemsMap(orders) {
 }
 
 function getInvoiceTotal(invoice) {
-  if (invoice.items?.length > 0) {
+
+  if (invoice.totalAmount != null && parseFloat(invoice.totalAmount) > 0){
+    return parseFloat(invoice.totalAmount)
+  }
+  else if (invoice.items?.length > 0) {
     return invoice.items.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0)
   }
   return parseFloat(invoice.price) || 0
