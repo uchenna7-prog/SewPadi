@@ -92,11 +92,11 @@
   color: #0a0a0a;
 }
 
-.colSn    { width: 5%; }
-.colDesc  { width: 40%; }
+.colSn    { width: 24px; }
+.colDesc  { width: auto; }
+.colQty   { width: 12%; }
 .colPrice { width: 22%; }
-.colQty   { width: 10%; }
-.colTotal { width: 23%; }
+.colTotal { width: 22%; }
 
 .tableHeader {
   background: var(--brand-surface);

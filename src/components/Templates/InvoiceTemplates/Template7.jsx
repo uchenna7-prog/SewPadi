@@ -112,7 +112,7 @@ export function InvoiceTemplate7({ invoice, customer, brand }) {
         <table className={styles.table}>
           <thead>
             <tr className={styles.tableHeader}>
-              <th className={styles.colSn}>No.</th>
+              <th className={styles.colSn}>SN</th>
               <th className={styles.colDesc}>Item Description</th>
               <th className={styles.colQty}>Qty</th>
               <th className={styles.colPrice}>Unit Price</th>

@@ -100,7 +100,7 @@
   display:     flex;
   align-items: center;
   gap:         4px;
-  font-size:   0.72rem;
+  font-size:   0.65rem;
   font-weight: 600;
   color:       var(--accent);
   margin-top:  3px;

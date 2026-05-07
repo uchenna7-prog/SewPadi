@@ -1081,7 +1081,8 @@ export default function OrdersTab({ customerId, orders, loading, measurements, s
                   )}
                   {stageInfo && (
                     <div className={styles.orderRowStage}>
-                      <span style={{ fontSize: '0.78rem', color: stageInfo.color }}>{stageInfo.label}</span>
+                      <span >{stageInfo.icon}</span>
+                      <span >{stageInfo.label}</span>
                     </div>
                   )}
                 </div>

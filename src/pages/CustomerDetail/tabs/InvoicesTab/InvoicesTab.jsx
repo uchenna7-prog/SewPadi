@@ -291,7 +291,7 @@ function OrderPickerModal({ isOpen, onClose, orders, invoices, onGenerateSelecte
       <Header
         type="back"
         title="New Invoice"
-        onBackClick={isAnyGenerating ? undefined : onClose}
+        onBackClick={onClose}
       />
 
       <div className={styles.pickerScrollBody}>

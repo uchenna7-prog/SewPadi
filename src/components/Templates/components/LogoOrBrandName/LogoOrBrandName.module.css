@@ -1,4 +1,4 @@
 .logoText{
-    border: 1px dashed white;
+    border: 1px dashed var(--brand-on-primary);
     padding: 15px 10px;
 }
