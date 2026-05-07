@@ -293,7 +293,12 @@ function OrderPickerModal({ isOpen, onClose, orders, invoices, onGenerateSelecte
       <div className={styles.pickerScrollBody}>
         <div style={{ padding: '20px' }}>
 
-          <p className={styles.stepHeading}>1. Select Orders</p>
+          {nonInvoicedOrders.length > 0 && (
+
+            <p className={styles.stepHeading}>1. Select Orders</p>
+
+          )}
+          
 
           {showSearch && (
             <div className={styles.clothSearchBar}>
@@ -555,7 +560,7 @@ export default function InvoiceTab({
       )
     }
 
-    setTimeout(() => setPickerOpen(false), 300)
+    setPickerOpen(false)
   }
 
   function handleConfirmDelete() {

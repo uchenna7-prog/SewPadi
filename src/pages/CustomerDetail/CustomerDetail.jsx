@@ -408,7 +408,7 @@ export default function CustomerDetail({ onMenuClick }) {
     if (!order) return
 
     let settingsSnapshot = {}
-    try { settingsSnapshot = JSON.parse(localStorage.getItem('tailorbook_settings') || '{}') } catch {}
+    try { settingsSnapshot = JSON.parse(localStorage.getItem('tailorflow_profile_settings') || '{}') } catch {}
 
     const invNumber   = `INV-${String(data.invoices.length + 1).padStart(3, '0')}`
     const today       = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -444,7 +444,7 @@ export default function CustomerDetail({ onMenuClick }) {
     try {
       await data.saveInvoice(newInvoice)
       showToast(`${invNumber} generated ✓`)
-      setActiveTab('invoice')
+      setActiveTab('invoices')
     } catch {
       showToast('Failed to save invoice. Try again.')
     }
@@ -470,7 +470,7 @@ export default function CustomerDetail({ onMenuClick }) {
     if (!installment) { showToast('No installment selected.'); return }
 
     let settingsSnapshot = {}
-    try { settingsSnapshot = JSON.parse(localStorage.getItem('tailorbook_settings') || '{}') } catch {}
+    try { settingsSnapshot = JSON.parse(localStorage.getItem('tailorflow_personal_settings') || '{}') } catch {}
 
     const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     const allInstalls = payment.installments || []
@@ -532,6 +532,7 @@ export default function CustomerDetail({ onMenuClick }) {
     try {
       await addReceipt(user.uid, id, newReceipt)
       showToast(`${rcptNumber} receipt generated ✓`)
+      setActiveTab("receipts")
     } catch {
       showToast('Failed to generate receipt. Try again.')
       throw new Error('receipt failed')
@@ -549,7 +550,7 @@ export default function CustomerDetail({ onMenuClick }) {
   }, [user, id, showToast])
 
   useEffect(() => {
-    const handleSwitch   = () => setActiveTab('invoice')
+    const handleSwitch   = () => setActiveTab('invoices')
     const handleGenerate = (e) => handleGenerateInvoice(e.detail.orderId)
     document.addEventListener('switchToInvoiceTab', handleSwitch)
     document.addEventListener('generateInvoice',    handleGenerate)
