@@ -1,0 +1,112 @@
+/* src/components/OrderMosaic/OrderMosaic.module.css */
+
+/* ── Outer container ── */
+.outer {
+  border-radius:   12px;
+  background:      var(--surface);
+  border:          1px solid var(--border);
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  flex-shrink:     0;
+}
+
+.outer_md { width: 80px; height: 80px; }
+.outer_sm { width: 56px; height: 56px; border-radius: 10px; }
+
+.outer_overdue {
+  border-color: rgba(239, 68, 68, 0.35);
+  background:   rgba(239, 68, 68, 0.05);
+}
+
+/* ── Inner box ── */
+.inner {
+  border-radius:   10px;
+  background:      var(--surface2);
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  overflow:        hidden;
+}
+
+.inner_md { width: 58px; height: 58px; }
+.inner_sm { width: 40px; height: 40px; border-radius: 8px; }
+
+/* ── Single image ── */
+.singleImg {
+  width:      100%;
+  height:     100%;
+  object-fit: cover;
+}
+
+/* ── Split (mosaic) layout ── */
+.splitInner {
+  padding:        0 !important;
+  display:        flex !important;
+  flex-direction: row !important;
+  align-items:    stretch !important;
+  border-radius:  inherit;
+}
+
+.left {
+  flex:            0 0 60%;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  overflow:        hidden;
+  height:          100%;
+}
+
+.right {
+  flex:           1;
+  display:        flex;
+  flex-direction: column;
+  overflow:       hidden;
+}
+
+.cell {
+  flex:            1;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  overflow:        hidden;
+  position:        relative;
+}
+
+.dividerV {
+  width:       1.5px;
+  flex-shrink: 0;
+  background:  var(--border);
+  align-self:  stretch;
+}
+
+.dividerH {
+  height:      1.5px;
+  flex-shrink: 0;
+  background:  var(--border);
+  width:       100%;
+}
+
+.panelImg {
+  width:      100%;
+  height:     100%;
+  object-fit: cover;
+  display:    block;
+}
+
+/* ── Overflow count overlay ── */
+.cellOverlay { position: relative; }
+
+.overlay {
+  position:        absolute;
+  inset:           0;
+  background:      rgba(0, 0, 0, 0.52);
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  color:           #fff;
+  font-size:       0.62rem;
+  font-weight:     800;
+  letter-spacing:  0.3px;
+  pointer-events:  none;
+}
