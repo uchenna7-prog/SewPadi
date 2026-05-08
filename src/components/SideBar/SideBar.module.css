@@ -60,6 +60,12 @@
   padding: 20px 18px 12px;
   background: var(--surface);
   z-index: 2;
+  box-shadow: none;
+  transition: box-shadow 0.25s ease;
+}
+
+.topScrolled {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 /* ── BRAND ROW ── */
