@@ -241,6 +241,9 @@
   cursor: pointer;
   transition: background 0.15s;
   min-height: 130px;
+  /* prevent card from being stretched by long text */
+  min-width: 0;
+  overflow: hidden;
 }
 .statCard:active { background: var(--surface2); }
 
@@ -276,6 +279,8 @@
   line-height: 1;
   letter-spacing: -1px;
   margin-bottom: 6px;
+  /* never wrap */
+  white-space: nowrap;
 }
 
 .statLabel {
@@ -285,6 +290,11 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   line-height: 1.35;
+  /* single line + ellipsis */
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  width:         100%;
 }
 
 .statSub {
@@ -292,6 +302,11 @@
   font-weight: 700;
   margin-top: 6px;
   line-height: 1.2;
+  /* single line + ellipsis */
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  width:         100%;
 }
 
 /* ── Delta badges ── */
@@ -544,11 +559,15 @@
 .listInfo     { flex: 1; min-width: 0; }
 .listDesc     { font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .listMeta     { display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
-.listMetaText { font-size: 0.75rem; font-weight: 400; color: var(--text2); }
+.listMetaText {
+  font-size: 0.75rem; font-weight: 400; color: var(--text2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 .listDue      { font-size: 0.72rem; font-weight: 600; color: #ef4444; margin-top: 3px; }
 .listStageLine {
   display: flex; align-items: center; gap: 4px;
   font-size: 0.72rem; font-weight: 600; color: var(--accent); margin-top: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
 .listApptToday {
@@ -564,7 +583,6 @@
 .listPrice { font-size: 0.88rem; font-weight: 700; color: var(--text); white-space: nowrap; }
 .listQty   { font-size: 0.65rem; color: var(--text3); margin-top: 2px; }
 
-/* ── Order card due date — compact, red, no year ── */
 .listDueRight {
   font-size: 0.6rem;
   font-weight: 700;
@@ -572,43 +590,6 @@
   margin-top: 4px;
   letter-spacing: 0.1px;
   white-space: nowrap;
-}
-
-/* ══════════════════════════════════════════
-   HOME ORDER MOSAIC
-   ══════════════════════════════════════════ */
-.hmMosaicInner {
-  padding: 0 !important;
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: stretch !important;
-  overflow: hidden;
-  border-radius: 10px;
-}
-
-.hmMosaicLeft {
-  flex: 0 0 60%; display: flex; align-items: center;
-  justify-content: center; overflow: hidden;
-  background: var(--surface2); height: 100%;
-}
-.hmMosaicRight {
-  flex: 1; display: flex; flex-direction: column; overflow: hidden;
-  background: var(--surface2);
-}
-.hmMosaicRightCell {
-  flex: 1; display: flex; align-items: center; justify-content: center;
-  overflow: hidden; position: relative; background: var(--surface2);
-}
-
-.hmMosaicDividerV { width: 1.5px; flex-shrink: 0; background: var(--border); align-self: stretch; }
-.hmMosaicDividerH { height: 1.5px; flex-shrink: 0; background: var(--border); width: 100%; }
-.hmMosaicImg { width: 100%; height: 100%; object-fit: cover; display: block; }
-.hmMosaicOverlayWrap { position: relative; }
-.hmMosaicOverlay {
-  position: absolute; inset: 0; background: rgba(0,0,0,0.52);
-  display: flex; align-items: center; justify-content: center;
-  color: #fff; font-size: 0.6rem; font-weight: 800;
-  letter-spacing: 0.3px; pointer-events: none;
 }
 
 /* ══════════════════════════════════════════
