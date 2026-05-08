@@ -1,4 +1,12 @@
-.logoText{
-    border: 1px dashed var(--brand-on-primary);
-    padding: 15px 10px;
+.logoImg {
+  max-width: 80px;
+  max-height: 55px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.logoText {
+  border: 1px dashed var(--brand-on-primary);
+  padding: 15px 10px;
 }
