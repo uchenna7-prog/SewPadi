@@ -224,6 +224,9 @@ function Section({ title, period, onPeriodChange, children }) {
     </section>
   )
 }
+
+// ── Stat Card ─────────────────────────────────────────────────
+
 function StatCard({ icon, label, value, sub, iconColor }) {
   const bg = iconColor
     ? `color-mix(in srgb, ${iconColor} 15%, transparent)`
@@ -282,9 +285,8 @@ function CollectionBar({ rate }) {
   )
 }
 
-// ── Payment 3-col row ─────────────────────────────────────────
+// ── Payment breakdown ─────────────────────────────────────────
 
-// ── 3. PaymentBreakdown — add coloured dots above each column ─────────────
 function PaymentBreakdown({ partCount, partOutstanding, fullCount, unpaidCount }) {
   return (
     <div className={styles.payRow}>
@@ -430,37 +432,37 @@ export default function Reports({ onMenuClick }) {
         <Section title="Performance" period={perfPeriod} onPeriodChange={setPerfPeriod}>
           <CollectionBar rate={perfStats.collectionRate} />
           <div className={styles.statsGrid}>
-            <StatCard icon="receipt_long"        label="Total Orders"  value={perfStats.totalOrders} sub="in period"       />
-            <StatCard icon="sell"                 label="Order Value"   value={fmt(perfStats.orderValue)} sub="est. revenue" />
-            <StatCard icon="account_balance_wallet" label="Received"   value={fmt(perfStats.payReceived)}                   />
-            <StatCard icon="pending_actions"      label="Outstanding"  value={fmt(perfStats.outstanding)} sub="unpaid balance" />
+            <StatCard icon="receipt_long"           label="Total Orders"  value={perfStats.totalOrders}    sub="in period"        />
+            <StatCard icon="sell"                    label="Order Value"   value={fmt(perfStats.orderValue)} sub="est. revenue"    />
+            <StatCard icon="account_balance_wallet"  label="Received"      value={fmt(perfStats.payReceived)}                      />
+            <StatCard icon="pending_actions"         label="Outstanding"   value={fmt(perfStats.outstanding)} sub="unpaid balance" />
           </div>
         </Section>
 
-  // ── 4. Orders section — coloured donut + matching StatusRow colours ────────
-// Replace the Orders <Section> block with:
-<Section title="Orders" period={orderPeriod} onPeriodChange={setOrderPeriod}>
-  <div className={styles.chartCard}>
-    <div className={styles.chartCardInner}>
-      <DonutChart
-        segments={[
-          { value: orderStats.delivered,  color: '#818cf8' },   // indigo
-          { value: orderStats.inProgress, color: '#fb923c' },   // amber
-          { value: orderStats.completed,  color: '#22c55e' },   // green
-          { value: orderStats.overdue,    color: '#ef4444' },   // red
-        ]}
-        centerLabel={orderStats.total}
-        centerSub="Total"
-      />
-      <div className={styles.statusRows}>
-        <StatusRow label="Delivered"   count={orderStats.delivered}  total={orderStats.total} color="#818cf8" />
-        <StatusRow label="In Progress" count={orderStats.inProgress} total={orderStats.total} color="#fb923c" />
-        <StatusRow label="Completed"   count={orderStats.completed}  total={orderStats.total} color="#22c55e" />
-        <StatusRow label="Overdue"     count={orderStats.overdue}    total={orderStats.total} color="#ef4444" />
-      </div>
-    </div>
-  </div>
-</Section>
+        {/* ── ORDERS ── */}
+        <Section title="Orders" period={orderPeriod} onPeriodChange={setOrderPeriod}>
+          <div className={styles.chartCard}>
+            <div className={styles.chartCardInner}>
+              <DonutChart
+                segments={[
+                  { value: orderStats.delivered,  color: '#818cf8' },
+                  { value: orderStats.inProgress, color: '#fb923c' },
+                  { value: orderStats.completed,  color: '#22c55e' },
+                  { value: orderStats.overdue,    color: '#ef4444' },
+                ]}
+                centerLabel={orderStats.total}
+                centerSub="Total"
+              />
+              <div className={styles.statusRows}>
+                <StatusRow label="Delivered"   count={orderStats.delivered}  total={orderStats.total} color="#818cf8" />
+                <StatusRow label="In Progress" count={orderStats.inProgress} total={orderStats.total} color="#fb923c" />
+                <StatusRow label="Completed"   count={orderStats.completed}  total={orderStats.total} color="#22c55e" />
+                <StatusRow label="Overdue"     count={orderStats.overdue}    total={orderStats.total} color="#ef4444" />
+              </div>
+            </div>
+          </div>
+        </Section>
+
         {/* ── PAYMENTS ── */}
         <Section title="Payments" period={payPeriod} onPeriodChange={setPayPeriod}>
           <div className={styles.chartCard}>
@@ -481,42 +483,41 @@ export default function Reports({ onMenuClick }) {
           </div>
         </Section>
 
-        // ── 5. Tasks section — coloured donut + matching StatusRow colours ─────────
-<Section title="Tasks" period={taskPeriod} onPeriodChange={setTaskPeriod}>
-  <div className={styles.chartCard}>
-    <div className={styles.chartCardInner}>
-      <DonutChart
-        segments={[
-          { value: taskStats.done,    color: '#22c55e' },   // green
-          { value: taskStats.pending, color: '#818cf8' },   // indigo
-          { value: taskStats.overdue, color: '#ef4444' },   // red
-        ]}
-        centerLabel={`${pct(taskStats.done, taskStats.total)}%`}
-        centerSub="Done"
-      />
-      <div className={styles.statusRows}>
-        <StatusRow label="Completed"   count={taskStats.done}    total={taskStats.total} color="#22c55e" />
-        <StatusRow label="In Progress" count={taskStats.pending} total={taskStats.total} color="#818cf8" />
-        <StatusRow label="Overdue"     count={taskStats.overdue} total={taskStats.total} color="#ef4444" />
-      </div>
-    </div>
-  </div>
-</Section>
+        {/* ── TASKS ── */}
+        <Section title="Tasks" period={taskPeriod} onPeriodChange={setTaskPeriod}>
+          <div className={styles.chartCard}>
+            <div className={styles.chartCardInner}>
+              <DonutChart
+                segments={[
+                  { value: taskStats.done,    color: '#22c55e' },
+                  { value: taskStats.pending, color: '#818cf8' },
+                  { value: taskStats.overdue, color: '#ef4444' },
+                ]}
+                centerLabel={`${pct(taskStats.done, taskStats.total)}%`}
+                centerSub="Done"
+              />
+              <div className={styles.statusRows}>
+                <StatusRow label="Completed"   count={taskStats.done}    total={taskStats.total} color="#22c55e" />
+                <StatusRow label="In Progress" count={taskStats.pending} total={taskStats.total} color="#818cf8" />
+                <StatusRow label="Overdue"     count={taskStats.overdue} total={taskStats.total} color="#ef4444" />
+              </div>
+            </div>
+          </div>
+        </Section>
 
         {/* ── CUSTOMERS ── */}
         <Section title="Customers" period={custPeriod} onPeriodChange={setCustPeriod}>
           <div className={styles.statsGrid}>
- // ── 8. Customer stat cards — coloured icons ───────────────────────────────
-<StatCard icon="people"     label="Total Clients"   value={custStats.total}       iconColor="#818cf8" />
-<StatCard icon="person_add" label="New This Period" value={custStats.newClients}  iconColor="#22c55e" />
-<StatCard icon="repeat"     label="Repeat Clients"  value={custStats.repeatCount} sub="2+ orders"  iconColor="#06b6d4" />
-<StatCard icon="bar_chart"  label="Avg Orders"      value={custStats.avgOrders}   sub="per client" iconColor="#fb923c" />
+            <StatCard icon="people"     label="Total Clients"   value={custStats.total}       iconColor="#818cf8" />
+            <StatCard icon="person_add" label="New This Period" value={custStats.newClients}  iconColor="#22c55e" />
+            <StatCard icon="repeat"     label="Repeat Clients"  value={custStats.repeatCount} sub="2+ orders"  iconColor="#06b6d4" />
+            <StatCard icon="bar_chart"  label="Avg Orders"      value={custStats.avgOrders}   sub="per client" iconColor="#fb923c" />
           </div>
         </Section>
 
         <div style={{ height: 40 }} />
       </div>
-      <BottomNav></BottomNav>
+      <BottomNav />
     </div>
   )
 }
