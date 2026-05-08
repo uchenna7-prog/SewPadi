@@ -87,9 +87,9 @@ function SideBar({ isOpen, onClose }) {
   const { allInvoices }                  = useInvoices()
   const { allReceipts }                  = useReceipts()
 
-  const pendingOrders  = allOrders.filter(o => o.status === 'pending' || o.status === 'new').length
+  const pendingOrders   = allOrders.filter(o => o.status === 'pending' || o.status === 'new').length
   const incompleteTasks = tasks.filter(t => !t.done && !t.completed).length
-  const unpaidInvoices = allInvoices.filter(inv =>
+  const unpaidInvoices  = allInvoices.filter(inv =>
     inv.status === 'unpaid' || inv.status === 'overdue' || inv.status === 'sent'
   ).length
 
@@ -121,8 +121,17 @@ function SideBar({ isOpen, onClose }) {
       <nav className={`${styles.sidebar} ${isOpen ? styles.open : ''}`}>
 
         <div className={styles.top}>
-          <div className={styles.brand}>Tailor<span>Flow</span></div>
-          <div className={styles.tagline}>Smart tailoring workflow</div>
+          <div className={styles.brand}>
+            <img
+              src="/icons/icon192.png"
+              alt="Sew Padi"
+              className={styles.brandIcon}
+            />
+            <div className={styles.brandText}>
+              <span className={styles.brandName}>Sew Padi</span>
+              <span className={styles.tagline}>For tailors who mean business</span>
+            </div>
+          </div>
           <div className={styles.user}>
             <div className={styles.avatar}>{initials}</div>
             <div className={styles.userInfo}>
@@ -156,7 +165,7 @@ function SideBar({ isOpen, onClose }) {
           </div>
 
           <div className={styles.footer}>
-            <button className={styles.footerLink}>Terms & Conditions</button>
+            <button className={styles.footerLink}>Terms &amp; Conditions</button>
             <button className={styles.footerLink}>Refund / Cancellation Policy</button>
             <button className={styles.footerLink}>Privacy Policy</button>
           </div>
