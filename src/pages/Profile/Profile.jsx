@@ -5,9 +5,8 @@ import { useNavigate } from 'react-router-dom'
 import { useProfileSettings } from '../../contexts/ProfileSettingsContext'
 import { useAuth } from '../../contexts/AuthContext'
 import { updateProfile } from 'firebase/auth'
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
-import { storage } from '../../firebase'
 import { saveOwnerToFirestore, loadOwnerFromFirestore } from '../../services/ownerService'
+import { uploadToCloudinary } from '../../services/cloudinaryService'
 import Header from '../../components/Header/Header'
 import Toast from '../../components/Toast/Toast'
 import ConfirmSheet from '../../components/ConfirmSheet/ConfirmSheet'
@@ -391,15 +390,12 @@ function PersonalModal({ personal, onBack, onSave, authUser }) {
       const builtPhone = buildPhoneNumber(phoneLocal, phoneCountry.dial_code) || phoneLocal
       const updated    = { ...personal, ...local, phone: builtPhone }
 
-      // 1. Save to localStorage immediately
       savePersonalLocally(updated)
 
-      // 2. Update Firebase Auth display name if changed
       if (authUser && local.fullName && local.fullName !== authUser.displayName) {
         try { await updateProfile(authUser, { displayName: local.fullName.trim() }) } catch { /* ignore */ }
       }
 
-      // 3. Persist to Firestore
       if (authUser?.uid) {
         await saveOwnerToFirestore(authUser.uid, updated)
       }
@@ -408,7 +404,7 @@ function PersonalModal({ personal, onBack, onSave, authUser }) {
       onBack()
     } catch (err) {
       console.error('[PersonalModal] save failed:', err)
-      onBack() // localStorage already saved — still close
+      onBack()
     } finally {
       setSaving(false)
     }
@@ -471,14 +467,14 @@ function PersonalModal({ personal, onBack, onSave, authUser }) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// MODAL: Brand Identity
+// MODAL: Brand Identity  ← Logo now uses Cloudinary
 // ─────────────────────────────────────────────────────────────
 
 function BrandModal({ onBack, showToast }) {
   const { profileSettings, updateManyProfileSettings } = useProfileSettings()
-  const { user } = useAuth()
   const logoInputRef    = useRef()
   const [logoUploading, setLogoUploading] = useState(false)
+  const [logoProgress,  setLogoProgress]  = useState(0)
 
   const [local, setLocal] = useState({
     brandName:              profileSettings.brandName              || '',
@@ -493,35 +489,34 @@ function BrandModal({ onBack, showToast }) {
 
   const set = key => val => setLocal(p => ({ ...p, [key]: val }))
 
+  // ── Logo upload → Cloudinary ──────────────────────────────
   const handleLogoChange = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (!user?.uid) { showToast('Not logged in — cannot upload logo'); return }
     if (!file.type.startsWith('image/')) { showToast('Please select an image file'); return }
-    if (file.size > 5 * 1024 * 1024) { showToast('Image must be under 5MB'); return }
+    if (file.size > 10 * 1024 * 1024)   { showToast('Image must be under 10MB');    return }
 
     setLogoUploading(true)
+    setLogoProgress(0)
+
     try {
-      const storageRef = ref(storage, `users/${user.uid}/brandLogo`)
-      const snapshot   = await uploadBytes(storageRef, file)
-      const url        = await getDownloadURL(snapshot.ref)
+      const url = await uploadToCloudinary(file, 'invoices', setLogoProgress)
       setLocal(p => ({ ...p, brandLogo: url }))
-      showToast('Logo uploaded')
+      showToast('Logo uploaded ✓')
     } catch (err) {
       console.error('[BrandModal] logo upload failed:', err)
-      showToast(`Upload failed: ${err.message || 'Unknown error'}`)
+      showToast('Upload failed — please try again')
     } finally {
       setLogoUploading(false)
+      setLogoProgress(0)
       if (logoInputRef.current) logoInputRef.current.value = ''
     }
   }
 
-  const handleLogoRemove = async () => {
-    if (!user?.uid) return
+  const handleLogoRemove = () => {
     setLocal(p => ({ ...p, brandLogo: null }))
-    try {
-      await deleteObject(ref(storage, `users/${user.uid}/brandLogo`))
-    } catch { /* file may not exist */ }
+    // Note: Cloudinary deletion requires a Cloud Function (signed request).
+    // The image stays on Cloudinary but is dereferenced from the user's data.
   }
 
   const save = () => {
@@ -536,9 +531,14 @@ function BrandModal({ onBack, showToast }) {
       <FieldGroup>
         <Field label="Brand Logo" hint="PNG or JPG. Appears on invoice headers and portfolio. Ideally square.">
           {logoUploading ? (
-            <div className={styles.logoUploadBtn} style={{ opacity: 0.6, pointerEvents: 'none' }}>
-              <span className="mi">hourglass_top</span>
-              Uploading…
+            <div className={styles.logoUploadBtn} style={{ opacity: 0.7, pointerEvents: 'none', flexDirection: 'column', gap: 8 }}>
+              {/* Progress bar */}
+              <div style={{ width: '100%', height: 4, background: 'var(--border)', borderRadius: 2, overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${logoProgress}%`, background: 'var(--accent)', borderRadius: 2, transition: 'width 0.2s' }} />
+              </div>
+              <span style={{ fontSize: '0.78rem', color: 'var(--accent)', fontWeight: 700 }}>
+                Uploading… {logoProgress}%
+              </span>
             </div>
           ) : local.brandLogo ? (
             <div className={styles.logoPreviewWrap}>
@@ -869,10 +869,12 @@ function SignaturePad({ value, onChange }) {
   )
 }
 
+// ── BusinessInfoModal — signature upload now uses Cloudinary ──
+
 function BusinessInfoModal({ onBack, showToast }) {
   const { profileSettings, updateManyProfileSettings } = useProfileSettings()
-  const { user } = useAuth()
   const [sigUploading, setSigUploading] = useState(false)
+  const [sigProgress,  setSigProgress]  = useState(0)
 
   const [local, setLocal] = useState({
     brandAvailability:   profileSettings.brandAvailability   || 'open',
@@ -888,13 +890,17 @@ function BusinessInfoModal({ onBack, showToast }) {
 
   const save = async () => {
     let signatureUrl = local.brandSignature
-    if (local.brandSignature && local.brandSignature.startsWith('data:') && user?.uid) {
+
+    // If signature is a fresh canvas drawing (base64), upload it to Cloudinary
+    if (local.brandSignature && local.brandSignature.startsWith('data:')) {
       setSigUploading(true)
+      setSigProgress(0)
       try {
-        const blob       = await (await fetch(local.brandSignature)).blob()
-        const storageRef = ref(storage, `users/${user.uid}/signature`)
-        const snapshot   = await uploadBytes(storageRef, blob)
-        signatureUrl     = await getDownloadURL(snapshot.ref)
+        // Convert base64 data URL → Blob → File
+        const res  = await fetch(local.brandSignature)
+        const blob = await res.blob()
+        const file = new File([blob], 'signature.png', { type: 'image/png' })
+        signatureUrl = await uploadToCloudinary(file, 'signatures', setSigProgress)
       } catch (err) {
         console.error('[BusinessInfoModal] signature upload failed:', err)
         showToast('Signature upload failed — try again')
@@ -902,7 +908,9 @@ function BusinessInfoModal({ onBack, showToast }) {
         return
       }
       setSigUploading(false)
+      setSigProgress(0)
     }
+
     updateManyProfileSettings({ ...local, brandSignature: signatureUrl })
     showToast('Business info saved')
     onBack()
@@ -966,7 +974,18 @@ function BusinessInfoModal({ onBack, showToast }) {
       </FieldGroup>
       <FieldGroup>
         <Field label="Signature" hint="Draw your signature. It will appear on your invoices.">
-          <SignaturePad value={local.brandSignature} onChange={set('brandSignature')} />
+          {sigUploading ? (
+            <div style={{ padding: '16px 0' }}>
+              <div style={{ height: 4, background: 'var(--border)', borderRadius: 2, overflow: 'hidden', marginBottom: 8 }}>
+                <div style={{ height: '100%', width: `${sigProgress}%`, background: 'var(--accent)', borderRadius: 2, transition: 'width 0.2s' }} />
+              </div>
+              <span style={{ fontSize: '0.78rem', color: 'var(--accent)', fontWeight: 700 }}>
+                Saving signature… {sigProgress}%
+              </span>
+            </div>
+          ) : (
+            <SignaturePad value={local.brandSignature} onChange={set('brandSignature')} />
+          )}
         </Field>
       </FieldGroup>
     </FullModal>
@@ -1121,7 +1140,6 @@ export default function Profile({ onMenuClick, isPremium = false, onUpgrade = ()
 
   const joinDate = getOrSetJoinDate()
 
-  // On mount, hydrate personal info from Firestore (syncs across devices)
   useEffect(() => {
     if (!user?.uid) return
     loadOwnerFromFirestore(user.uid).then(data => {
