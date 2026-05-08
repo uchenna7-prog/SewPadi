@@ -23,12 +23,70 @@ import styles from './CustomerDetail.module.css'
 
 
 function getInitials(name) {
-
   if (!name) return ""
-  const parts = name.trim().split(/\s+/)
-  return parts.length === 1
-    ? parts[0][0].toUpperCase()
-    : (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+
+  // Common titles to ignore
+  const titles = [
+    "mr",
+    "mrs",
+    "miss",
+    "ms",
+    "master",
+    "mistress",
+    "dr",
+    "doctor",
+    "chief",
+    "prof",
+    "professor",
+    "sir",
+    "madam",
+    "mister",
+    "rev",
+    "reverend",
+    "hon",
+    "honorable",
+    "alhaji",
+    "alhaja",
+    "pastor",
+    "bishop",
+    "prince",
+    "princess",
+    "capt",
+    "captain",
+    "eng",
+    "engineer",
+  ]
+
+  // Clean and split name
+  const parts = name
+    .toLowerCase()
+    .replace(/\./g, "") // remove dots
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+
+  // Remove titles
+  const filtered = parts.filter(word => !titles.includes(word))
+
+  if (filtered.length === 0) return ""
+
+  // If only one real name remains
+  if (filtered.length === 1) {
+    const single = filtered[0].replace(/-/g, "")
+
+    // Return first 2 letters if possible
+    return single.slice(0, 2).toUpperCase()
+  }
+
+  // Get first and last real names
+  const first = filtered[0]
+  const last = filtered[filtered.length - 1]
+
+  // Handle hyphenated names like Mary-Jane
+  const firstInitial = first.replace(/-/g, "")[0]
+  const lastInitial = last.replace(/-/g, "")[0]
+
+  return (firstInitial + lastInitial).toUpperCase()
 }
 
 function formatLastOrderDate(dateStr) {
