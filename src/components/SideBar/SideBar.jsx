@@ -1,5 +1,5 @@
+import { useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useAuth }         from '../../contexts/AuthContext'
 import { useReviews }      from '../../contexts/ReviewContext'
 import { useCustomers }    from '../../contexts/CustomerContext'
 import { useOrders }       from '../../contexts/OrdersContext'
@@ -86,6 +86,13 @@ function SideBar({ isOpen, onClose }) {
   const { allInvoices }                  = useInvoices()
   const { allReceipts }                  = useReceipts()
 
+  const [scrolled, setScrolled] = useState(false)
+  const scrollRef = useRef(null)
+
+  const handleScroll = () => {
+    setScrolled(scrollRef.current?.scrollTop > 0)
+  }
+
   const pendingOrders   = allOrders.filter(o => o.status === 'pending' || o.status === 'new').length
   const incompleteTasks = tasks.filter(t => !t.done && !t.completed).length
   const unpaidInvoices  = allInvoices.filter(inv =>
@@ -115,7 +122,7 @@ function SideBar({ isOpen, onClose }) {
       />
       <nav className={`${styles.sidebar} ${isOpen ? styles.open : ''}`}>
 
-        <div className={styles.top}>
+        <div className={`${styles.top} ${scrolled ? styles.topScrolled : ''}`}>
           <div className={styles.brand}>
             <img
               src="/icons/icon192.png"
@@ -129,7 +136,11 @@ function SideBar({ isOpen, onClose }) {
           </div>
         </div>
 
-        <div className={styles.scrollArea}>
+        <div
+          className={styles.scrollArea}
+          ref={scrollRef}
+          onScroll={handleScroll}
+        >
           <div className={styles.nav}>
             {NAV_SECTIONS.map((section, i) => (
               <div key={section.key} className={`${styles.section} ${i > 0 ? styles.sectionBordered : ''}`}>
