@@ -11,6 +11,8 @@ import { useGeneralSettings }      from '../../contexts/GeneralSettingsContext'
 import { usePayments }      from '../../contexts/PaymentContext'
 import Header    from '../../components/Header/Header'
 import BottomNav from '../../components/BottomNav/BottomNav'
+import OrderMosaic      from '../../components/OrderMosaic/OrderMosaic'
+import OrderDetailModal from '../../components/OrderDetailModal/OrderDetailModal'
 import styles    from './Home.module.css'
 
 // ─────────────────────────────────────────────────────────────
@@ -33,7 +35,6 @@ function formatDate(dateStr) {
   return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-// Short format without year — used on order cards to save space
 function formatDateShort(dateStr) {
   if (!dateStr) return ''
   return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
@@ -172,16 +173,12 @@ function Bone({ w, h, radius, style }) {
 function SkeletonPage() {
   return (
     <div className={styles.skeletonPage}>
-
-      {/* Hero */}
       <div className={styles.skHero}>
         <Bone w="80px" h="12px" radius={4} />
         <Bone w="160px" h="32px" radius={6} style={{ marginTop: 6 }} />
         <Bone w="240px" h="11px" radius={4} style={{ marginTop: 8 }} />
         <Bone w="100px" h="10px" radius={4} style={{ marginTop: 6, opacity: 0.5 }} />
       </div>
-
-      {/* Stat cards grid */}
       <div className={styles.skStatsGrid}>
         {[0,1,2,3].map(i => (
           <div key={i} className={styles.skStatCard}>
@@ -192,8 +189,6 @@ function SkeletonPage() {
           </div>
         ))}
       </div>
-
-      {/* Revenue card */}
       <div className={styles.skFullCard}>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
           <Bone w="90px" h="10px" radius={4} />
@@ -202,8 +197,6 @@ function SkeletonPage() {
         </div>
         <Bone w="88px" h="88px" radius={44} />
       </div>
-
-      {/* Customer card */}
       <div className={styles.skFullCard} style={{ flexDirection: 'column', gap: 12 }}>
         <Bone w="110px" h="10px" radius={4} />
         <Bone w="80px" h="36px" radius={5} />
@@ -217,8 +210,6 @@ function SkeletonPage() {
           <Bone w="24px" h="11px" radius={4} />
         </div>
       </div>
-
-      {/* List section — Appointments */}
       <div className={styles.skSection}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
           <Bone w="140px" h="11px" radius={4} />
@@ -236,8 +227,6 @@ function SkeletonPage() {
           </div>
         ))}
       </div>
-
-      {/* List section — Orders */}
       <div className={styles.skSection}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
           <Bone w="110px" h="11px" radius={4} />
@@ -259,7 +248,6 @@ function SkeletonPage() {
           </div>
         ))}
       </div>
-
     </div>
   )
 }
@@ -444,7 +432,6 @@ function StatCard({ card, navigate }) {
           </div>
         )}
       </div>
-      {/* Value — grayed out when 0 */}
       <div
         className={styles.statValue}
         style={{
@@ -456,7 +443,6 @@ function StatCard({ card, navigate }) {
         {card.value}
       </div>
       <div className={styles.statLabel}>{card.label}</div>
-      {/* Sub message */}
       {card.sub && (
         <div className={styles.statSub} style={{ color: card.subColor }}>{card.sub}</div>
       )}
@@ -511,95 +497,9 @@ function periodLabel(period) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// HOME ORDER MOSAIC THUMBNAIL
-// ─────────────────────────────────────────────────────────────
-function HomeMosaic({ items }) {
-  const covers = (items || [])
-    .map(item => item.imgSrc ?? null)
-    .filter(Boolean)
-
-  const total     = items?.length ?? 0
-  const hasImages = covers.length > 0
-
-  if (!hasImages) {
-    return (
-      <div className={styles.listOuter}>
-        <div className={styles.listInner}>
-          <span className="mi" style={{ fontSize: '1.3rem', color: 'var(--text3)' }}>content_cut</span>
-        </div>
-      </div>
-    )
-  }
-
-  if (total === 1) {
-    return (
-      <div className={styles.listOuter}>
-        <div className={styles.listInner}>
-          <img src={covers[0]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '6px' }} />
-        </div>
-      </div>
-    )
-  }
-
-  if (total === 2) {
-    return (
-      <div className={styles.listOuter}>
-        <div className={`${styles.listInner} ${styles.hmMosaicInner}`}>
-          <div className={styles.hmMosaicLeft}>
-            <img src={covers[0]} alt="" className={styles.hmMosaicImg} />
-          </div>
-          <div className={styles.hmMosaicDividerV} />
-          <div className={styles.hmMosaicRight}>
-            <div className={styles.hmMosaicRightCell}>
-              {covers[1]
-                ? <img src={covers[1]} alt="" className={styles.hmMosaicImg} />
-                : <span className="mi" style={{ fontSize: '0.7rem', color: 'var(--text3)' }}>checkroom</span>
-              }
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  const extra = total > 3 ? total - 3 : 0
-  return (
-    <div className={styles.listOuter}>
-      <div className={`${styles.listInner} ${styles.hmMosaicInner}`}>
-        <div className={styles.hmMosaicLeft}>
-          {covers[0]
-            ? <img src={covers[0]} alt="" className={styles.hmMosaicImg} />
-            : <span className="mi" style={{ fontSize: '0.8rem', color: 'var(--text3)' }}>checkroom</span>
-          }
-        </div>
-        <div className={styles.hmMosaicDividerV} />
-        <div className={styles.hmMosaicRight}>
-          <div className={styles.hmMosaicRightCell}>
-            {covers[1]
-              ? <img src={covers[1]} alt="" className={styles.hmMosaicImg} />
-              : <span className="mi" style={{ fontSize: '0.7rem', color: 'var(--text3)' }}>checkroom</span>
-            }
-          </div>
-          <div className={styles.hmMosaicDividerH} />
-          <div className={`${styles.hmMosaicRightCell} ${extra > 0 ? styles.hmMosaicOverlayWrap : ''}`}>
-            {covers[2]
-              ? <img src={covers[2]} alt="" className={styles.hmMosaicImg} />
-              : <span className="mi" style={{ fontSize: '0.7rem', color: 'var(--text3)' }}>checkroom</span>
-            }
-            {extra > 0 && (
-              <div className={styles.hmMosaicOverlay}>+{extra}</div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ─────────────────────────────────────────────────────────────
 // MAIN COMPONENT
 // ─────────────────────────────────────────────────────────────
-function Home({ onMenuClick }) {
+function Home({ onMenuClick, onGoToCustomer }) {
   const navigate = useNavigate()
   const { user }          = useAuth()
   const { customers, loading: loadingCustomers } = useCustomers()
@@ -614,19 +514,10 @@ function Home({ onMenuClick }) {
   const { allPayments } = usePayments()
 
   // ── Loading state ─────────────────────────────────────────
-  // CustomerContext + TaskContext expose a real `loading` flag.
-  // OrdersContext, InvoiceContext, AppointmentContext, PaymentContext
-  // have no loading flag — they start as [] and populate async from
-  // Firestore. We consider them "settled" once they've produced data,
-  // OR once we know the user has no customers (so nothing will arrive).
-  //
-  // A ref latches true the first time everything is settled so the
-  // skeleton never re-appears on subsequent re-renders.
   const noCustomersYet  = !loadingCustomers && customers.length === 0
   const ordersSettled   = allOrders.length   > 0 || noCustomersYet
   const invoicesSettled = allInvoices.length  > 0 || noCustomersYet
   const paymentsSettled = allPayments.length  > 0 || noCustomersYet
-  // Appointments don't depend on customers — settle once core loading is done
   const apptsSettled    =
     upcoming.length > 0 ||
     recentAppts.length > 0 ||
@@ -641,7 +532,6 @@ function Home({ onMenuClick }) {
     paymentsSettled   &&
     apptsSettled
 
-  // Latch: once fully settled, never show skeleton again this session
   const settledRef = useRef(false)
   if (allSettled) settledRef.current = true
   const isLoading = !settledRef.current
@@ -654,6 +544,7 @@ function Home({ onMenuClick }) {
     catch { return null }
   })
   const [showGoalModal, setShowGoalModal] = useState(false)
+  const [detailOrder,   setDetailOrder]   = useState(null)
 
   const greetingRef   = useRef(getGreeting())
   const greetEmojiRef = useRef(getGreetingEmoji())
@@ -861,7 +752,7 @@ function Home({ onMenuClick }) {
   const recentAppointments = upcoming.slice(0, 4)
   const pastAppointments   = recentAppts.slice(0, 4)
 
-  // ── Stat card sub messages (priority: today > this week > empty message) ──
+  // ── Stat card sub messages ────────────────────────────────
   const ordersSub = (() => {
     if (pendingOrders.length === 0) return { text: 'All orders sent', color: '#22c55e' }
     if (ordersDueToday > 0) return { text: `${ordersDueToday} due today`, color: '#ef4444' }
@@ -986,7 +877,7 @@ function Home({ onMenuClick }) {
               ))}
             </section>
 
-            {/* 2. REVENUE CARD — full width ── */}
+            {/* 2. REVENUE CARD ── */}
             {!revenueGoal ? (
               <div className={styles.revenueCard} onClick={() => setShowGoalModal(true)}
                 style={{ justifyContent: 'flex-start', gap: '20px' }}>
@@ -1029,7 +920,7 @@ function Home({ onMenuClick }) {
               </div>
             )}
 
-            {/* 3. CUSTOMER INSIGHTS CARD — full width ── */}
+            {/* 3. CUSTOMER INSIGHTS CARD ── */}
             <div className={styles.customerCard} onClick={() => navigate('/customers')}>
               <div className={styles.customerCardHeader}>
                 <span className={styles.customerCardSectionLabel}>Customer Insights</span>
@@ -1159,7 +1050,7 @@ function Home({ onMenuClick }) {
               </section>
             )}
 
-            {/* ── QUICK ACTIONS — desktop only (CSS hides on mobile) ── */}
+            {/* ── QUICK ACTIONS — desktop only ── */}
             <section className={styles.quickActionsDesktop}>
               <h3 className={styles.sectionTitle}>Quick Actions</h3>
               <div className={styles.statsGrid}>
@@ -1181,7 +1072,7 @@ function Home({ onMenuClick }) {
               </div>
             </section>
 
-            {/* ── RECENT ORDERS — hidden when empty ── */}
+            {/* ── RECENT ORDERS ── */}
             {recentOrders.length > 0 && (
               <section className={styles.section}>
                 <div className={styles.sectionHeader}>
@@ -1191,21 +1082,20 @@ function Home({ onMenuClick }) {
                 <div className={styles.listSection}>
                   <div className={styles.listDivider} />
                   {recentOrders.map((order, idx) => {
-                    const isLast   = idx === recentOrders.length - 1
-                    const priceStr = order.price != null ? `₦${Number(order.price).toLocaleString()}` : '—'
-                    const itemsList = order.items || []
-                    const stageObj = STAGES.find(s => s.value === order.stage)
-                    // Resolve the raw due date string → short format (no year)
+                    const isLast     = idx === recentOrders.length - 1
+                    const priceStr   = order.price != null ? `₦${Number(order.price).toLocaleString()}` : '—'
+                    const itemsList  = order.items || []
+                    const stageObj   = STAGES.find(s => s.value === order.stage)
                     const dueDateRaw = order.dueRaw || order.dueDate
-                    const dueDateShort = dueDateRaw
-                      ? `Due ${formatDateShort(dueDateRaw)}`
-                      : order.due
-                      ? `Due ${order.due}`
-                      : null
+                    const dueDateShort = dueDateRaw ? `Due ${formatDateShort(dueDateRaw)}`
+                      : order.due ? `Due ${order.due}` : null
                     return (
-                      <div key={order.id} className={`${styles.listItem} ${isLast ? styles.listItemLast : ''}`}>
-                        <HomeMosaic items={itemsList} />
-                        {/* LEFT: title, customer, stage */}
+                      <div
+                        key={order.id}
+                        className={`${styles.listItem} ${isLast ? styles.listItemLast : ''}`}
+                        onClick={() => setDetailOrder(order)}
+                      >
+                        <OrderMosaic items={itemsList} />
                         <div className={styles.listInfo}>
                           <div className={styles.listDesc}>{order.desc ?? 'Order'}</div>
                           <div className={styles.listMeta}>
@@ -1219,7 +1109,6 @@ function Home({ onMenuClick }) {
                             </div>
                           )}
                         </div>
-                        {/* RIGHT: price, qty, status pill, due date */}
                         <div className={styles.listRight}>
                           <div className={styles.listPrice}>{priceStr}</div>
                           {order.qty > 1 && <div className={styles.listQty}>{order.qty} items</div>}
@@ -1235,7 +1124,7 @@ function Home({ onMenuClick }) {
               </section>
             )}
 
-            {/* ── RECENT TASKS — hidden when empty ── */}
+            {/* ── RECENT TASKS ── */}
             {recentTasks.length > 0 && (
               <section className={styles.section}>
                 <div className={styles.sectionHeader}>
@@ -1286,12 +1175,21 @@ function Home({ onMenuClick }) {
                 </div>
               </section>
             )}
+
+            {/* ── ORDER DETAIL MODAL ── */}
+            {detailOrder && (
+              <OrderDetailModal
+                order={detailOrder}
+                onClose={() => setDetailOrder(null)}
+                onGoToCustomer={onGoToCustomer}
+                noBlur
+              />
+            )}
           </>
         )}
 
       </main>
 
-      {/* ── BOTTOM NAV — CSS shows on mobile only, hidden on desktop ── */}
       <BottomNav />
     </div>
   )
