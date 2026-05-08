@@ -1,154 +1,203 @@
 .page {
-  min-height: 100dvh; 
+  min-height: 100dvh;
   background: var(--bg);
-  display: flex; 
-  align-items: center; 
+  display: flex;
+  align-items: center;
   justify-content: center;
   padding: 20px;
 }
+
 .card {
-  width: 100%; 
+  width: 100%;
   max-width: 400px;
-  background: var(--surface); 
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 20px; 
+  border-radius: 20px;
   padding: 32px 24px;
-  display: flex; 
-  flex-direction: column; 
+  display: flex;
+  flex-direction: column;
   gap: 6px;
 }
-.logo { 
-  display: flex; 
-  align-items: center; 
-  gap: 8px; 
-  margin-bottom: 8px; 
-}
-.logoText { 
-  font-size: 1.2rem; 
-  font-weight: 900; 
-  color: var(--text); 
-}
-.title { 
-  font-size: 1.4rem; 
-  font-weight: 900; 
-  color: var(--text); 
-  margin: 0; 
-}
-.sub { 
-  font-size: 0.85rem; 
-  color: var(--text3); 
-  margin: 0 0 8px; 
+
+/* ── LOGO ── */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
 }
 
+.logoIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.logoText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.logoName {
+  font-size: 1.25rem;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+.logoTagline {
+  font-size: 0.65rem;
+  color: var(--text3);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* ── DIVIDER ── */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+  margin: 10px 0 6px;
+}
+
+/* ── HEADINGS ── */
+.title {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--text);
+  margin: 0;
+}
+
+.sub {
+  font-size: 0.85rem;
+  color: var(--text3);
+  margin: 0 0 8px;
+}
+
+/* ── ERROR ── */
 .errorBanner {
-  display: flex; 
-  align-items: center; 
+  display: flex;
+  align-items: center;
   gap: 8px;
-  background: #fee2e2; 
-  color: #991b1b; 
+  background: #fee2e2;
+  color: #991b1b;
   border-radius: 10px;
-  padding: 10px 14px; 
-  font-size: 0.82rem; 
+  padding: 10px 14px;
+  font-size: 0.82rem;
   font-weight: 600;
 }
 
-.form { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 14px; 
-  margin-top: 8px; 
-}
-.field { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 5px; 
-}
-.label { 
-  font-size: 0.72rem; 
-  font-weight: 800; 
-  color: var(--text2); 
-  text-transform: uppercase; 
-  letter-spacing: 0.05em; 
+/* ── FORM ── */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 8px;
 }
 
-.inputWrap { 
-  position: relative; 
-  display: flex; 
-  align-items: center; 
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.inputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .input {
-  width: 100%; 
+  width: 100%;
   padding: 12px 14px 12px 40px;
-  background: var(--surface2); 
+  background: var(--surface2);
   border: 1.5px solid var(--border);
-  border-radius: 12px; 
-  font-size: 0.92rem; 
+  border-radius: 12px;
+  font-size: 0.92rem;
   color: var(--text);
-  font-family: inherit; 
-  box-sizing: border-box; 
+  font-family: inherit;
+  box-sizing: border-box;
   outline: none;
   transition: border-color 0.15s;
 }
-.input:focus { 
-  border-color: var(--accent); 
+
+.input:focus {
+  border-color: var(--accent);
 }
 
 .eyeBtn {
-  position: absolute; 
+  position: absolute;
   right: 12px;
-  background: none; 
-  border: none; 
+  background: none;
+  border: none;
   cursor: pointer;
-  display: flex; 
-  align-items: center; 
+  display: flex;
+  align-items: center;
   padding: 4px;
 }
 
 .forgotLink {
-  font-size: 0.78rem; 
-  color: var(--accent); 
+  font-size: 0.78rem;
+  color: var(--accent);
   text-align: right;
-  text-decoration: none; 
+  text-decoration: none;
   font-weight: 700;
 }
-.forgotLink:hover { 
-  text-decoration: underline; 
+
+.forgotLink:hover {
+  text-decoration: underline;
 }
 
 .submitBtn {
-  width: 100%; 
+  width: 100%;
   padding: 14px;
-  background: var(--accent); 
-  border: none; 
+  background: var(--accent);
+  border: none;
   border-radius: 12px;
-  font-size: 0.95rem; 
-  font-weight: 900; 
+  font-size: 0.95rem;
+  font-weight: 900;
   color: var(--bg);
-  cursor: pointer; 
-  font-family: inherit; 
+  cursor: pointer;
+  font-family: inherit;
   margin-top: 4px;
   transition: opacity 0.15s;
 }
-.submitBtn:disabled { 
-  opacity: 0.6; 
-  cursor: not-allowed; 
-}
-.submitBtn:active:not(:disabled) { 
-  opacity: 0.85; 
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.switchPrompt { 
-  font-size: 0.82rem; 
-  color: var(--text3); 
-  text-align: center; 
-  margin: 8px 0 0; 
+.submitBtn:active:not(:disabled) {
+  opacity: 0.85;
 }
-.switchLink { 
-  color: var(--accent); 
-  font-weight: 800; 
-  text-decoration: none; 
+
+/* ── SWITCH PROMPT ── */
+.switchPrompt {
+  font-size: 0.82rem;
+  color: var(--text3);
+  text-align: center;
+  margin: 8px 0 0;
 }
-.switchLink:hover { 
-  text-decoration: underline; 
+
+.switchLink {
+  color: var(--accent);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.switchLink:hover {
+  text-decoration: underline;
 }
