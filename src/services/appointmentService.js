@@ -51,5 +51,5 @@ export async function updateAppointment(uid, id, updates) {
 
 
 export async function deleteAppointment(uid, id) {
-  return deleteDoc(apptDoc(uid, id))
+  return deleteDoc(appointmentDoc(uid, id))
 }
