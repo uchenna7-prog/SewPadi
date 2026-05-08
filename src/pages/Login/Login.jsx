@@ -36,9 +36,18 @@ export default function Login() {
       <div className={styles.card}>
 
         <div className={styles.logo}>
-          <span className="mi" style={{ fontSize: '2rem', color: 'var(--accent)' }}>content_cut</span>
-          <span className={styles.logoText}>TailorFlow</span>
+          <img
+            src="/icons/icon192.png"
+            alt="Sew Padi"
+            className={styles.logoIcon}
+          />
+          <div className={styles.logoText}>
+            <span className={styles.logoName}>Sew Padi</span>
+            <span className={styles.logoTagline}>For tailors who mean business</span>
+          </div>
         </div>
+
+        <div className={styles.divider} />
 
         <h1 className={styles.title}>Welcome back</h1>
         <p className={styles.sub}>Log in to your account</p>
@@ -102,7 +111,7 @@ export default function Login() {
         </form>
 
         <p className={styles.switchPrompt}>
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link to="/signup" className={styles.switchLink}>Sign up</Link>
         </p>
       </div>
