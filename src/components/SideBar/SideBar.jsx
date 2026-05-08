@@ -1,24 +1,24 @@
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useAuth } from '../../contexts/AuthContext'
-import { useReviews } from '../../contexts/ReviewContext'
-import { useCustomers } from '../../contexts/CustomerContext'
-import { useOrders } from '../../contexts/OrdersContext'
+import { useAuth }         from '../../contexts/AuthContext'
+import { useReviews }      from '../../contexts/ReviewContext'
+import { useCustomers }    from '../../contexts/CustomerContext'
+import { useOrders }       from '../../contexts/OrdersContext'
 import { useAppointments } from '../../contexts/AppointmentContext'
-import { useTasks } from '../../contexts/TaskContext'
-import { useInvoices } from '../../contexts/InvoiceContext'
+import { useTasks }        from '../../contexts/TaskContext'
+import { useInvoices }     from '../../contexts/InvoiceContext'
+import { useReceipts }     from '../../contexts/ReceiptContext'
 import styles from './SideBar.module.css'
-
 
 const NAV_SECTIONS = [
   {
     key: 'workspace',
     label: 'Workspace',
     items: [
-      { path: '/',           label: 'Dashboard', icon: 'dashboard'     },
-      { path: '/customers',  label: 'Customers', icon: 'groups',        badgeKey: 'customers'  },
-      { path: '/orders',     label: 'Orders',    icon: 'shopping_cart', badgeKey: 'orders'     },
-      { path: '/inventory',  label: 'Inventory', icon: 'inventory_2'   },
-      { path: '/gallery',    label: 'Gallery',   icon: 'photo_library' },
+      { path: '/',          label: 'Dashboard', icon: 'dashboard'     },
+      { path: '/customers', label: 'Customers', icon: 'groups',        badgeKey: 'customers'  },
+      { path: '/orders',    label: 'Orders',    icon: 'shopping_cart', badgeKey: 'orders'     },
+      { path: '/inventory', label: 'Inventory', icon: 'inventory_2'   },
+      { path: '/gallery',   label: 'Gallery',   icon: 'photo_library' },
     ],
   },
   {
@@ -33,8 +33,9 @@ const NAV_SECTIONS = [
     key: 'finance',
     label: 'Finance',
     items: [
-      { path: '/payments', label: 'Payments', icon: 'payments'     },
-      { path: '/invoices', label: 'Invoices', icon: 'receipt_long', badgeKey: 'invoices' },
+      { path: '/payments',  label: 'Payments',  icon: 'payments'                              },
+      { path: '/invoices',  label: 'Invoices',  icon: 'receipt_long', badgeKey: 'invoices'   },
+      { path: '/receipts',  label: 'Receipts',  icon: 'receipt',      badgeKey: 'receipts'   },
     ],
   },
   {
@@ -57,17 +58,12 @@ const NAV_SECTIONS = [
     key: 'account',
     label: 'Account',
     items: [
-      { path: '/settings', label: 'Settings', icon: 'settings' },
-      { path: '/profile',  label: 'Account',  icon: 'person'   },
-      { path: '/login',    label: 'Log out',  icon: 'logout', danger: true },
+      { path: '/settings', label: 'Settings', icon: 'settings'              },
+      { path: '/profile',  label: 'Account',  icon: 'person'                },
+      { path: '/login',    label: 'Log out',  icon: 'logout', danger: true  },
     ],
   },
 ]
-
-// Badge variant drives color:
-//   'pending'  → amber/orange  (needs action)
-//   'info'     → blue          (today / time-sensitive info)
-//   'neutral'  → muted gray    (just a count)
 
 function NavBadge({ count, variant = 'neutral' }) {
   if (!count || count === 0) return null
@@ -83,35 +79,30 @@ function SideBar({ isOpen, onClose }) {
   const navigate = useNavigate()
   const { user } = useAuth()
 
-  // ── Context data ──────────────────────────────────────────
-  const { pendingCount: reviewsPending }         = useReviews()
-  const { customers }                            = useCustomers()
-  const { allOrders }                            = useOrders()
-  const { todayAppointments }                    = useAppointments()
-  const { tasks }                                = useTasks()
-  const { allInvoices }                          = useInvoices()
+  const { pendingCount: reviewsPending } = useReviews()
+  const { customers }                    = useCustomers()
+  const { allOrders }                    = useOrders()
+  const { todayAppointments }            = useAppointments()
+  const { tasks }                        = useTasks()
+  const { allInvoices }                  = useInvoices()
+  const { allReceipts }                  = useReceipts()
 
-  // ── Derived badge values ──────────────────────────────────
-  const pendingOrders    = allOrders.filter(o =>
-    o.status === 'pending' || o.status === 'new'
-  ).length
-
-  const incompleteTasks  = tasks.filter(t => !t.done && !t.completed).length
-
-  const unpaidInvoices   = allInvoices.filter(inv =>
+  const pendingOrders  = allOrders.filter(o => o.status === 'pending' || o.status === 'new').length
+  const incompleteTasks = tasks.filter(t => !t.done && !t.completed).length
+  const unpaidInvoices = allInvoices.filter(inv =>
     inv.status === 'unpaid' || inv.status === 'overdue' || inv.status === 'sent'
   ).length
 
   const badgeMap = {
-    customers:    { count: customers.length,        variant: 'neutral' },
-    orders:       { count: pendingOrders,            variant: 'pending' },
-    appointments: { count: todayAppointments.length, variant: 'info'    },
-    tasks:        { count: incompleteTasks,          variant: 'pending' },
-    invoices:     { count: unpaidInvoices,           variant: 'pending' },
-    reviews:      { count: reviewsPending,           variant: 'pending' },
+    customers:    { count: customers.length,         variant: 'neutral' },
+    orders:       { count: pendingOrders,             variant: 'pending' },
+    appointments: { count: todayAppointments.length,  variant: 'info'    },
+    tasks:        { count: incompleteTasks,           variant: 'pending' },
+    invoices:     { count: unpaidInvoices,            variant: 'pending' },
+    receipts:     { count: allReceipts.length,        variant: 'neutral' },
+    reviews:      { count: reviewsPending,            variant: 'pending' },
   }
 
-  // ── User display ──────────────────────────────────────────
   const fullName    = user?.displayName || user?.email?.split('@')[0] || 'User'
   const displayName = fullName.split(' ').slice(0, 2).join(' ')
   const initials    = fullName.trim().split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
@@ -156,9 +147,7 @@ function SideBar({ isOpen, onClose }) {
                     >
                       <span className="mi">{item.icon}</span>
                       <span className={styles.navLabel}>{item.label}</span>
-                      {badge && (
-                        <NavBadge count={badge.count} variant={badge.variant} />
-                      )}
+                      {badge && <NavBadge count={badge.count} variant={badge.variant} />}
                     </button>
                   )
                 })}
