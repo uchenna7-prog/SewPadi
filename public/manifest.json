@@ -1,6 +1,6 @@
 {
-  "name": "TailorFlow",
-  "short_name": "TailorFlow",
+  "name": "SewPadi",
+  "short_name": "SewPadi",
   "description": "Your tailor management app",
   "start_url": "/",
   "display": "standalone",
