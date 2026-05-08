@@ -6,14 +6,14 @@ cleanupOutdatedCaches()
 
 // ── Push: show notification when a push event arrives ────────
 self.addEventListener('push', e => {
-  let data = { title: 'TailorFlow', body: 'You have a new notification.' }
+  let data = { title: 'SewPadi', body: 'You have a new notification.' }
   try { data = e.data?.json() || data } catch {}
 
   e.waitUntil(
     self.registration.showNotification(data.title, {
       body:    data.body,
-      icon:    '/icons/icon-192.png',
-      badge:   '/icons/icon-192.png',
+      icon:    '/icons/icon192.png',
+      badge:   '/icons/icon192.png',
       vibrate: [200, 100, 200],
       tag:     data.title,
     })
