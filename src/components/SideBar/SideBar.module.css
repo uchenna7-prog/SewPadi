@@ -60,12 +60,29 @@
   padding: 20px 18px 12px;
   background: var(--surface);
   z-index: 2;
-  box-shadow: none;
-  transition: box-shadow 0.25s ease;
+  /* Light mode: starts clean */
+  box-shadow: 0 1px 0 var(--border);
+  transition: box-shadow 0.3s ease;
 }
 
+/* Light mode scrolled — classic downward shadow */
 .topScrolled {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 1px 0 var(--border),
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+/* Dark mode — subtle white glow + border brighten */
+:global([data-theme="dark"]) .top {
+  box-shadow: 0 1px 0 var(--border);
+}
+
+:global([data-theme="dark"]) .topScrolled {
+  box-shadow:
+    0 1px 0 var(--border2),
+    0 4px 24px rgba(255, 255, 255, 0.04),
+    0 2px 8px rgba(255, 255, 255, 0.03);
 }
 
 /* ── BRAND ROW ── */
