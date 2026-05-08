@@ -789,7 +789,7 @@ function Home({ onMenuClick, onGoToCustomer }) {
     {
       desktopIcon:    'shopping_bag',
       value:          pendingOrders.length,
-      label:          'Pending Orders',
+      label:          'Active Orders',
       sub:            ordersSub?.text ?? null,
       subColor:       ordersSub?.color ?? 'var(--text3)',
       delta:          null,
