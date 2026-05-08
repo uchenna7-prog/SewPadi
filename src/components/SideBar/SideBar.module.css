@@ -57,7 +57,7 @@
 /* ── FIXED TOP ── */
 .top {
   flex-shrink: 0;
-  padding: 20px 18px 12px;
+  padding: 24px 20px 16px;
   background: var(--surface);
   z-index: 2;
   /* Light mode: starts clean */
