@@ -1,0 +1,589 @@
+/* src/components/OrderDetailModal/OrderDetailModal.module.css */
+
+/* ── Overlay ── */
+.overlay {
+  position:        fixed;
+  inset:           0;
+  z-index:         3000;
+  background:      rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  display:         flex;
+  align-items:     flex-end;       /* mobile: sheet rises from bottom */
+  justify-content: flex-end;
+  animation:       fadeIn 0.18s ease;
+}
+
+.overlayNoBlur {
+  backdrop-filter: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Panel — mobile default: bottom sheet ── */
+.panel {
+  width:          100%;
+  max-height:     88dvh;
+  background:     var(--surface);
+  border-radius:  22px 22px 0 0;
+  border-top:     1px solid var(--border);
+  display:        flex;
+  flex-direction: column;
+  animation:      slideUp 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+/* ── Desktop: right-side panel ── */
+@media (min-width: 769px) {
+  .overlay {
+    /* sit to the right of the sidebar */
+    left:            var(--sidebar-width, 280px);
+    align-items:     stretch;
+    justify-content: flex-end;
+  }
+
+  .panel {
+    width:         min(480px, 100%);
+    max-height:    100dvh;
+    border-radius: 0;
+    border-top:    none;
+    border-left:   1px solid var(--border);
+    animation:     slideRight 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  @keyframes slideRight {
+    from { transform: translateX(100%); }
+    to   { transform: translateX(0); }
+  }
+
+  .handle { display: none; }
+}
+
+/* ── Drag handle (mobile) ── */
+.handle {
+  width:         36px;
+  height:        4px;
+  border-radius: 2px;
+  background:    var(--border2);
+  margin:        10px auto 0;
+  flex-shrink:   0;
+}
+
+/* ── Header ── */
+.header {
+  display:         flex;
+  align-items:     center;
+  gap:             10px;
+  padding:         12px 16px 12px;
+  border-bottom:   1px solid var(--border);
+  flex-shrink:     0;
+}
+
+.closeBtn {
+  background: none;
+  border:     none;
+  color:      var(--text2);
+  cursor:     pointer;
+  display:    flex;
+  align-items: center;
+  padding:    4px;
+  flex-shrink: 0;
+}
+
+.closeBtn .mi { font-size: 1.35rem; }
+
+.headerTitle {
+  flex:           1;
+  font-size:      0.72rem;
+  font-weight:    800;
+  text-transform: uppercase;
+  letter-spacing: 1.1px;
+  color:          var(--text2);
+}
+
+.headerActions {
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+  flex-shrink: 0;
+}
+
+.deleteBtn {
+  display:       flex;
+  align-items:   center;
+  padding:       5px 8px;
+  border-radius: 8px;
+  border:        1px solid rgba(239, 68, 68, 0.3);
+  background:    rgba(239, 68, 68, 0.08);
+  color:         #ef4444;
+  cursor:        pointer;
+}
+
+.confirmRow {
+  display:     flex;
+  align-items: center;
+  gap:         6px;
+}
+
+.confirmLabel {
+  font-size:   0.72rem;
+  font-weight: 700;
+  color:       var(--text2);
+}
+
+.confirmYes {
+  background:    #ef4444;
+  border:        none;
+  border-radius: 8px;
+  color:         #fff;
+  cursor:        pointer;
+  padding:       5px 10px;
+  font-size:     0.72rem;
+  font-weight:   800;
+  font-family:   inherit;
+}
+
+.confirmNo {
+  background:    var(--surface2);
+  border:        1px solid var(--border2);
+  border-radius: 8px;
+  color:         var(--text2);
+  cursor:        pointer;
+  padding:       5px 10px;
+  font-size:     0.72rem;
+  font-weight:   800;
+  font-family:   inherit;
+}
+
+/* ── Scrollable body ── */
+.body {
+  flex:                       1;
+  overflow-y:                 auto;
+  padding:                    18px 18px calc(28px + var(--sb, 0px));
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Priority banner ── */
+.priorityBanner {
+  display:        inline-block;
+  font-size:      0.62rem;
+  font-weight:    800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding:        6px 12px;
+  border-radius:  8px;
+  margin-bottom:  14px;
+}
+
+.priorityBanner_normal {
+  color:      var(--text2);
+  background: var(--surface2);
+  border:     1px solid var(--border2);
+}
+
+.priorityBanner_urgent {
+  color:      #fb923c;
+  background: rgba(251, 146, 60, 0.1);
+  border:     1px solid rgba(251, 146, 60, 0.3);
+}
+
+.priorityBanner_vip {
+  color:      #a855f7;
+  background: rgba(168, 85, 247, 0.1);
+  border:     1px solid rgba(168, 85, 247, 0.3);
+}
+
+/* ── Title + customer ── */
+.title {
+  font-size:     1.05rem;
+  font-weight:   800;
+  color:         var(--text);
+  line-height:   1.35;
+  margin-bottom: 6px;
+}
+
+.customer {
+  display:       flex;
+  align-items:   center;
+  gap:           6px;
+  font-size:     0.82rem;
+  font-weight:   500;
+  color:         var(--text2);
+  margin-bottom: 16px;
+}
+
+/* ── Info grid ── */
+.infoGrid {
+  display:               grid;
+  grid-template-columns: 1fr 1fr;
+  gap:                   10px;
+  margin-bottom:         16px;
+}
+
+.infoCell {
+  background:    var(--bg);
+  border:        1px solid var(--border);
+  border-radius: 12px;
+  padding:       12px 14px;
+}
+
+.infoCellLabel {
+  font-size:      0.58rem;
+  font-weight:    800;
+  color:          var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom:  4px;
+}
+
+.infoCellVal {
+  font-size:   1rem;
+  font-weight: 800;
+  color:       var(--text);
+  line-height: 1.2;
+}
+
+.infoCellVal_status {
+  text-transform: capitalize;
+}
+
+.stageVal {
+  display:     flex;
+  align-items: center;
+  gap:         5px;
+  font-size:   0.82rem;
+}
+
+.dueTag {
+  display:       block;
+  font-size:     0.62rem;
+  font-weight:   700;
+  color:         #ef4444;
+  margin-top:    2px;
+  opacity:       0.85;
+}
+
+/* ── Section card ── */
+.sectionCard {
+  background:    var(--surface);
+  border:        1px solid var(--border);
+  border-radius: 14px;
+  padding:       14px;
+  margin-bottom: 12px;
+}
+
+.sectionLabel {
+  font-size:      0.58rem;
+  font-weight:    800;
+  color:          var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom:  10px;
+}
+
+/* ── Garments ── */
+.garmentRow {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  gap:             10px;
+  padding:         8px 0;
+}
+
+.garmentRowBorder {
+  border-bottom: 1px solid var(--border);
+}
+
+.garmentLeft {
+  display:     flex;
+  align-items: center;
+  gap:         10px;
+}
+
+.garmentThumb {
+  width:           36px;
+  height:          36px;
+  border-radius:   8px;
+  background:      var(--surface2);
+  border:          1px solid var(--border2);
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  overflow:        hidden;
+  flex-shrink:     0;
+}
+
+.garmentName {
+  font-size:   0.88rem;
+  font-weight: 700;
+  color:       var(--text);
+}
+
+.garmentQty {
+  font-size:   0.7rem;
+  font-weight: 600;
+  color:       var(--text3);
+  margin-top:  2px;
+}
+
+.garmentPrice {
+  font-size:   0.92rem;
+  font-weight: 800;
+  color:       var(--accent);
+  flex-shrink: 0;
+}
+
+.garmentSubtotal {
+  display:         flex;
+  justify-content: space-between;
+  align-items:     center;
+  margin-top:      10px;
+  padding-top:     10px;
+  border-top:      2px dashed var(--border);
+  font-size:       0.8rem;
+  font-weight:     800;
+  color:           var(--text2);
+  text-transform:  uppercase;
+  letter-spacing:  0.3px;
+}
+
+/* ── Charges ── */
+.chargeRow {
+  display:         flex;
+  justify-content: space-between;
+  align-items:     center;
+  padding:         5px 0;
+}
+
+.chargeLabel {
+  font-size:   0.78rem;
+  font-weight: 600;
+  color:       var(--text3);
+  display:     flex;
+  align-items: center;
+}
+
+.chargeVal {
+  font-size:   0.8rem;
+  font-weight: 700;
+  color:       var(--text2);
+}
+
+.chargeVal_discount {
+  color: #22c55e;
+}
+
+.chargeDivider {
+  height:     1px;
+  background: var(--border2);
+  margin:     8px 0 6px;
+}
+
+.chargeTotal {
+  display:         flex;
+  justify-content: space-between;
+  align-items:     center;
+  font-size:       0.95rem;
+  font-weight:     800;
+  color:           var(--accent);
+}
+
+/* ── Notes ── */
+.notesText {
+  font-size:   0.85rem;
+  color:       var(--text2);
+  line-height: 1.55;
+  margin:      0;
+}
+
+/* ── Meta row (placed / due / qty) ── */
+.metaRow {
+  display:       flex;
+  align-items:   center;
+  flex-wrap:     wrap;
+  gap:           4px;
+  font-size:     0.68rem;
+  font-weight:   500;
+  color:         var(--text3);
+  margin-bottom: 14px;
+  padding:       0 2px;
+}
+
+.metaDot { opacity: 0.5; }
+
+/* ── Stage chips ── */
+.chipWrap {
+  display:   flex;
+  flex-wrap: wrap;
+  gap:       0;
+}
+
+.stageChip {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           5px;
+  padding:       7px 11px;
+  border-radius: 20px;
+  border:        1px solid var(--border2);
+  background:    transparent;
+  color:         var(--text3);
+  font-size:     0.68rem;
+  font-weight:   800;
+  font-family:   inherit;
+  cursor:        pointer;
+  white-space:   nowrap;
+  transition:    all 0.15s;
+  margin:        0 6px 8px 0;
+}
+
+.stageChip:active { opacity: 0.7; }
+
+.stageChip_active {
+  background:   rgba(99, 102, 241, 0.1);
+  border-color: var(--accent);
+  color:        var(--accent);
+}
+
+/* ── Status buttons ── */
+.statusRow {
+  display:   flex;
+  gap:       8px;
+  flex-wrap: wrap;
+}
+
+.statusBtn {
+  flex:          1;
+  min-width:     calc(33% - 6px);
+  padding:       10px 6px;
+  border-radius: 10px;
+  border:        1px solid var(--border2);
+  font-size:     0.7rem;
+  font-weight:   800;
+  font-family:   inherit;
+  cursor:        pointer;
+  transition:    all 0.18s;
+  color:         var(--text3);
+  background:    transparent;
+}
+
+.statusBtn_active {
+  background:   var(--surface2);
+  border-color: #22c55e;
+  color:        #22c55e;
+}
+
+/* ── Priority buttons ── */
+.priorityRow {
+  display: flex;
+  gap:     8px;
+}
+
+.priorityBtn {
+  flex:          1;
+  padding:       9px 4px;
+  border-radius: 10px;
+  border:        1px solid var(--border2);
+  font-size:     0.7rem;
+  font-weight:   800;
+  font-family:   inherit;
+  cursor:        pointer;
+  transition:    all 0.18s;
+  color:         var(--text3);
+  background:    transparent;
+  text-align:    center;
+}
+
+.priorityBtn_normal {
+  background:   var(--surface2);
+  border-color: var(--text2);
+  color:        var(--text);
+}
+
+.priorityBtn_urgent {
+  background:   rgba(251, 146, 60, 0.15);
+  border-color: #fb923c;
+  color:        #fb923c;
+}
+
+.priorityBtn_vip {
+  background:   rgba(168, 85, 247, 0.15);
+  border-color: #a855f7;
+  color:        #a855f7;
+}
+
+/* ── Action buttons ── */
+.customerBtn {
+  display:        flex;
+  align-items:    center;
+  gap:            8px;
+  width:          100%;
+  background:     var(--surface);
+  border:         1px solid var(--border2);
+  border-radius:  12px;
+  padding:        12px 14px;
+  color:          var(--accent);
+  font-family:    inherit;
+  font-size:      0.72rem;
+  font-weight:    800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor:         pointer;
+  margin-bottom:  10px;
+  transition:     border-color 0.18s;
+}
+
+.customerBtn:active { border-color: var(--accent); }
+
+.reviewBtn {
+  display:        flex;
+  align-items:    center;
+  gap:            8px;
+  width:          100%;
+  background:     rgba(34, 197, 94, 0.07);
+  border:         1px solid rgba(34, 197, 94, 0.35);
+  border-radius:  12px;
+  padding:        13px 14px;
+  color:          #22c55e;
+  font-family:    inherit;
+  font-size:      0.72rem;
+  font-weight:    800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor:         pointer;
+  margin-bottom:  10px;
+  transition:     opacity 0.15s;
+}
+
+.reviewBtn:active { opacity: 0.75; }
+
+.invoiceBtn {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             8px;
+  width:           100%;
+  background:      var(--surface);
+  border:          1px solid var(--border2);
+  border-radius:   12px;
+  padding:         14px;
+  color:           var(--text2);
+  font-family:     inherit;
+  font-size:       0.8rem;
+  font-weight:     800;
+  text-transform:  uppercase;
+  letter-spacing:  0.8px;
+  cursor:          pointer;
+  margin-bottom:   10px;
+  transition:      border-color 0.18s, color 0.18s;
+}
+
+.invoiceBtn:active {
+  border-color: var(--accent);
+  color:        var(--accent);
+}
