@@ -11,6 +11,7 @@ import CustomerBodyMeasurements from './pages/CustomerBodyMeasurements/CustomerB
 import Tasks from './pages/Tasks/Tasks'
 import Orders from './pages/Orders/Orders'
 import Invoices from './pages/Invoices/Invoices'
+import Receipts from './pages/Receipts/Receipts'
 import Gallery from './pages/Gallery/Gallery'
 import Settings from './pages/Settings/Settings'
 import Profile from './pages/Profile/Profile'
@@ -50,6 +51,8 @@ function AppShell() {
           <Route path="/tasks" element={<Tasks onMenuClick={menuClick} />} />
           <Route path="/orders" element={<Orders onMenuClick={menuClick} onGoToCustomer={id => navigate(`/customers/${id}`)} />} />
           <Route path="/invoices" element={<Invoices onMenuClick={menuClick} />} />
+          
+          <Route path="/receipts" element={<Receipts onMenuClick={menuClick} />} />
           <Route path="/payments" element={<AllPayments onMenuClick={menuClick} />} />
           <Route path="/inventory" element={<Inventory onMenuClick={menuClick} />} />
           <Route path="/reports" element={<Reports onMenuClick={menuClick} />} />
