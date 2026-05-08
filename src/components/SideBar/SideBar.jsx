@@ -77,7 +77,6 @@ function NavBadge({ count, variant = 'neutral' }) {
 function SideBar({ isOpen, onClose }) {
   const location = useLocation()
   const navigate = useNavigate()
-  const { user } = useAuth()
 
   const { pendingCount: reviewsPending } = useReviews()
   const { customers }                    = useCustomers()
@@ -103,10 +102,6 @@ function SideBar({ isOpen, onClose }) {
     reviews:      { count: reviewsPending,            variant: 'pending' },
   }
 
-  const fullName    = user?.displayName || user?.email?.split('@')[0] || 'User'
-  const displayName = fullName.split(' ').slice(0, 2).join(' ')
-  const initials    = fullName.trim().split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
-
   const handleNav = (path) => {
     navigate(path)
     onClose()
@@ -130,13 +125,6 @@ function SideBar({ isOpen, onClose }) {
             <div className={styles.brandText}>
               <span className={styles.brandName}>Sew Padi</span>
               <span className={styles.tagline}>For tailors who mean business</span>
-            </div>
-          </div>
-          <div className={styles.user}>
-            <div className={styles.avatar}>{initials}</div>
-            <div className={styles.userInfo}>
-              <div className={styles.userName}>{displayName}</div>
-              <div className={styles.userEmail}>{user?.email}</div>
             </div>
           </div>
         </div>
