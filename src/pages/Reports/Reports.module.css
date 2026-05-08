@@ -3,7 +3,6 @@
 .page {
   background: var(--bg);
   min-height: 100dvh;
-
   flex: 1;
 }
 
@@ -16,7 +15,7 @@
   flex-direction: column;
   gap: 0;
   scrollbar-width: none;
-  max-width: 600px;
+  max-width: 860px;
   margin: 0 auto;
   width: 100%;
 }
@@ -26,7 +25,7 @@
    SECTION
    ══════════════════════════════════════════ */
 .section {
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 .sectionHeader {
@@ -114,7 +113,7 @@
 .periodOptionActive     { color: var(--text); background: var(--surface2); font-weight: 700; }
 
 /* ══════════════════════════════════════════
-   STAT GRID + STAT CARD  (identical to home)
+   STAT GRID + STAT CARD  — matches Home exactly
    ══════════════════════════════════════════ */
 .statsGrid {
   display: grid;
@@ -133,19 +132,25 @@
   align-items: flex-start;
   gap: 0;
   min-height: 130px;
+  transition: background 0.15s;
 }
 
 .statIconWrap {
   width: 38px;
   height: 38px;
   border-radius: 8px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
+  background: var(--accent);
+  border: 1px solid var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   margin-bottom: 14px;
+}
+
+/* Icon inside statIconWrap is always bg-coloured */
+.statIconWrap > span {
+  color: var(--bg) !important;
 }
 
 .statValue {
@@ -183,7 +188,6 @@
   border-radius: 10px;
   padding: 16px 18px;
   margin-bottom: 10px;
-  cursor: default;
 }
 
 .collectionTop {
@@ -219,22 +223,25 @@
 
 .collectionTrack {
   width: 100%;
-  height: 6px;
+  height: 7px;
   background: var(--border);
   border-radius: 99px;
   overflow: hidden;
 }
 
+/* colour shifts green → amber → red by fill width via gradient */
 .collectionFill {
   height: 100%;
-  background: var(--text);
   border-radius: 99px;
-  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  transition: width 0.65s cubic-bezier(0.4,0,0.2,1);
   min-width: 2px;
+  background: linear-gradient(90deg, #ef4444 0%, #fb923c 40%, #22c55e 100%);
+  background-size: 200% 100%;
+  background-position: right center;
 }
 
 /* ══════════════════════════════════════════
-   CHART CARD  (orders / tasks)
+   CHART CARD  (orders / tasks / payments)
    ══════════════════════════════════════════ */
 .chartCard {
   background: var(--surface);
@@ -246,7 +253,7 @@
 .chartCardInner {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 18px;
 }
 
 /* ══════════════════════════════════════════
@@ -275,13 +282,13 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 10px;
 }
 
 .statusRow {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
 .statusRowTop {
@@ -294,6 +301,17 @@
   font-size: 0.67rem;
   font-weight: 600;
   color: var(--text2);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* coloured dot beside label */
+.statusRowDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .statusRowCount {
@@ -313,17 +331,14 @@
 
 .statusRowFill {
   height: 100%;
-  background: var(--text);
   border-radius: 99px;
-  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  transition: width 0.55s cubic-bezier(0.4,0,0.2,1);
   min-width: 2px;
 }
 
 /* ══════════════════════════════════════════
-   PAYMENTS CARD
+   PAYMENTS SECTION
    ══════════════════════════════════════════ */
-
-/* Received hero — mirrors revenueCard label/amount pattern */
 .receivedHero {
   display: flex;
   align-items: baseline;
@@ -399,11 +414,20 @@
   flex-shrink: 0;
 }
 
+/* coloured accent dot for pay breakdown */
+.payDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin: 0 auto 2px;
+}
+
 /* ══════════════════════════════════════════
    BAR CHART
    ══════════════════════════════════════════ */
 .barChartWrap {
   position: relative;
+  padding-top: 4px;
 }
 
 .barAvgLine {
@@ -461,10 +485,11 @@
 
 .barFill {
   width: 100%;
-  background: var(--text);
   border-radius: 4px 4px 0 0;
-  transition: height 0.5s cubic-bezier(0.4,0,0.2,1);
+  transition: height 0.55s cubic-bezier(0.4,0,0.2,1);
   min-height: 3px;
+  /* vibrant indigo — distinct from the B&W body */
+  background: linear-gradient(180deg, #818cf8 0%, #6366f1 100%);
 }
 
 .barLabel {
@@ -496,7 +521,7 @@
   .scrollArea { padding-bottom: calc(90px + var(--sb,0px)); }
 
   .statsGrid    { gap: 10px; }
-  .statCard     { padding: 14px 12px 12px; min-height: 120px; }
+  .statCard     { padding: 14px 12px 12px; min-height: 120px; border-radius: 10px; }
   .statIconWrap { width: 34px; height: 34px; border-radius: 8px; margin-bottom: 12px; }
   .statValue    { font-size: 1.85rem; letter-spacing: -1px; margin-bottom: 5px; }
   .statLabel    { font-size: 0.58rem; }
@@ -510,4 +535,67 @@
 
   .receivedVal     { font-size: 1.3rem; }
   .payVal          { font-size: 1.2rem; }
+}
+
+/* ══════════════════════════════════════════
+   DESKTOP ENHANCEMENTS
+   ══════════════════════════════════════════ */
+@media (min-width: 769px) {
+  .scrollArea {
+    padding: 24px 32px calc(48px + var(--sb));
+    max-width: 860px;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+
+  .statCard {
+    padding: 20px 18px 18px;
+    min-height: 160px;
+    border-radius: 12px;
+    transition: background 0.15s, box-shadow 0.15s, transform 0.15s;
+  }
+
+  .statCard:hover {
+    background: var(--surface2);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+  }
+
+  .statIconWrap {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    margin-bottom: 18px;
+  }
+
+  .statValue    { font-size: 2.4rem; letter-spacing: -1.5px; }
+  .statLabel    { font-size: 0.65rem; }
+
+  .collectionCard { padding: 20px 24px; }
+  .collectionRate { font-size: 2rem; }
+
+  .chartCard      { padding: 20px; }
+  .chartCardInner { gap: 24px; }
+
+  /* donut bigger on desktop */
+  .donutSvg { width: 130px !important; height: 130px !important; }
+  .donutNum { font-size: 18px; }
+  .donutSub { font-size: 9px;  }
+
+  .statusRows   { gap: 12px; }
+  .statusRowLabel { font-size: 0.72rem; }
+  .statusRowCount { font-size: 0.72rem; }
+  .statusRowTrack { height: 5px; }
+
+  .receivedVal  { font-size: 1.8rem; }
+  .payVal       { font-size: 1.6rem; }
+  .payLbl       { font-size: 0.62rem; }
+
+  .barChart     { height: 110px; }
+  .barTrack     { height: 86px;  }
+
+  .section      { margin-bottom: 36px; }
 }
