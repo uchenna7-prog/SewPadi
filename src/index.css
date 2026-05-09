@@ -99,6 +99,9 @@
   --success:  #22c55e;
   --warning:  #fb923c;
 
+  /* ── Icon ── */
+  --icon-color: #ffffff;
+
   --sidebar-width: 280px;
 
   --st: env(safe-area-inset-top,    0px);
