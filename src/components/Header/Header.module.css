@@ -1,3 +1,19 @@
+/* ── Sentinel ─────────────────────────────────────────────────
+   A zero-height div that lives just before the header in the DOM.
+   IntersectionObserver watches it — when it leaves viewport,
+   the header is "scrolled" and we activate the shadow.
+   ─────────────────────────────────────────────────────────── */
+.sentinel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+/* ── Header base ─────────────────────────────────────────────*/
 .header {
   position: sticky;
   top: 0;
@@ -8,6 +24,30 @@
   padding: 14px 16px;
   background: var(--bg);
   min-height: 56px;
+
+  /* Smooth transition for shadow + blur */
+  transition:
+    box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    backdrop-filter 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Scrolled state — shadow glides in, bg becomes glass ─── */
+.headerScrolled {
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow:
+    0 1px 0 var(--border),
+    0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+/* Dark mode — richer shadow on true black */
+:global([data-theme="dark"]) .headerScrolled {
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  box-shadow:
+    0 1px 0 var(--border),
+    0 4px 24px rgba(0, 0, 0, 0.35);
 }
 
 .leftSide {
@@ -118,6 +158,7 @@
   }
 }
 
+/* ── Left avatar ─────────────────────────────────────────────*/
 .leftAvatar {
   width: 32px;
   height: 32px;
@@ -169,6 +210,7 @@
   user-select: none;
 }
 
+/* ── Badges ──────────────────────────────────────────────────*/
 .notifDot {
   position: absolute;
   top: 5px;
@@ -209,6 +251,7 @@
   pointer-events: none;
 }
 
+/* ── Notification overlay ────────────────────────────────────*/
 .notifOverlay {
   position: fixed;
   inset: 0;
