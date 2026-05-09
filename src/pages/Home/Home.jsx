@@ -147,20 +147,20 @@ const TASK_STATUS_STYLES = {
 
 const STAT_CARD_ICON_COLORS = {
   orders: {
-    iconBg:  '#2563eb',
-    color:   '#ffffff',
+    iconBg:  'rgba(37,99,235,0.1)',
+    color:   '#2563eb',
   },
   invoices: {
-    iconBg:  '#f97316',
-    color:   '#ffffff',
+    iconBg:  'rgba(249,115,22,0.1)',
+    color:   '#f97316',
   },
   appointments: {
-    iconBg:  '#059669',
-    color:   '#ffffff',
+    iconBg:  'rgba(5,150,105,0.1)',
+    color:   '#059669',
   },
   tasks: {
-    iconBg:  '#7c3aed',
-    color:   '#ffffff',
+    iconBg:  'rgba(124,58,237,0.1)',
+    color:   '#7c3aed',
   },
 }
 
@@ -415,7 +415,7 @@ function StatCard({ card, navigate }) {
             marginBottom: 0,
           }}
         >
-          <span className="mi" style={{ fontSize: '1.15rem', color: iconStyle.color }}>
+          <span className="mi" style={{ fontSize: '1.25rem', color: iconStyle.color }}>
             {card.desktopIcon}
           </span>
         </div>
