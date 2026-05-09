@@ -85,27 +85,26 @@ function Header({
   const [notifOpen,   setNotifOpen]   = useState(false)
   const [notifTab,    setNotifTab]    = useState('all')
   const [scrolled,    setScrolled]    = useState(false)
-  const sentinelRef = useRef(null)
 
   const navigate = useNavigate()
   const location = useLocation()
 
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications()
 
-  // ── Sentinel-based scroll detection ───────────────────────
-  // A 1px div sits just below the header inside the page.
-  // When it leaves the viewport (i.e. user scrolled past it),
-  // the header is "scrolled" and we show the shadow.
+  // ── Window-scroll-based detection (works with any DOM structure) ──
+  // We listen on the window scroll event. As soon as the user
+  // scrolls even 1px down, the shadow kicks in. On scroll back
+  // to top it disappears. Passive listener keeps it performant.
   useEffect(() => {
-    const sentinel = sentinelRef.current
-    if (!sentinel) return
+    const onScroll = () => {
+      setScrolled(window.scrollY > 0)
+    }
 
-    const observer = new IntersectionObserver(
-      ([entry]) => setScrolled(!entry.isIntersecting),
-      { threshold: 0, rootMargin: '0px' }
-    )
-    observer.observe(sentinel)
-    return () => observer.disconnect()
+    // Set initial state in case the page loads already scrolled
+    onScroll()
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   const PAGE_TITLES = {
@@ -145,9 +144,6 @@ function Header({
 
   return (
     <>
-      {/* ── Sentinel — sits at the very top of page content ── */}
-      <div ref={sentinelRef} className={styles.sentinel} aria-hidden="true" />
-
       <header className={`${styles.header} ${type === 'back' ? styles.backHeader : ''} ${scrolled ? styles.headerScrolled : ''}`}>
         <div className={styles.leftSide}>
           {type === 'default' && (
