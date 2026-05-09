@@ -9,7 +9,7 @@ import { useAuth }          from '../../contexts/AuthContext'
 import { useNotifications } from '../../contexts/NotificationContext'
 import { useGeneralSettings }      from '../../contexts/GeneralSettingsContext'
 import { usePayments }      from '../../contexts/PaymentContext'
-import Skeleton from 'react-loading-skeleton'
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 import Header    from '../../components/Header/Header'
 import BottomNav from '../../components/BottomNav/BottomNav'
@@ -867,7 +867,11 @@ function Home({ onMenuClick, onGoToCustomer }) {
 
       <main className={styles.main}>
 
-        {isLoading ? <SkeletonPage /> : (
+        {isLoading ? (
+          <SkeletonTheme baseColor="var(--surface2)" highlightColor="var(--surface)">
+            <SkeletonPage />
+          </SkeletonTheme>
+        ) : (
           <>
             {/* ── HERO ── */}
             <section className={styles.hero}>
