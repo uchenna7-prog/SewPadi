@@ -1,10 +1,11 @@
 :root {
-  --bg:       #f0f2f5;
-  --surface:  #ffffff;
-  --surface2: #f5f6f8;
+  /* ── Backgrounds — matched to Docwrite's #f8fafc page base ── */
+  --bg:       #f8fafc;   /* was #f0f2f5 — now Docwrite's exact slate-50 */
+  --surface:  #ffffff;   /* cards stay pure white, same as Docwrite */
+  --surface2: #f1f5f9;   /* subtle inner surface, one step below white */
 
-  --border:   #e8eaed;
-  --border2:  #d1d5db;
+  --border:   #e2e8f0;   /* slate-200 — matches Docwrite's border-slate-200 */
+  --border2:  #cbd5e1;   /* slate-300 — slightly stronger dividers */
 
   --accent:   #09090b;
   --text:     #09090b;
