@@ -145,33 +145,22 @@ const TASK_STATUS_STYLES = {
   pending:   { bg: 'rgba(234,179,8,0.12)',   color: '#a16207', border: 'rgba(234,179,8,0.3)'   },
 }
 
-/*
-  Semantic icon colors:
-  Cards use plain var(--surface) / var(--border) — no tints.
-  Icon wrap uses a solid opaque background with white icon text,
-  matching the Docwrite screenshot style.
-
-  orders       → Blue-600    — active, in-flight work
-  invoices     → Orange-500  — money owed (warmer than red, less alarming than debt)
-  appointments → Emerald-600 — confirmed, scheduled, positive
-  tasks        → Violet-600  — action items / to-dos
-*/
 const STAT_CARD_ICON_COLORS = {
   orders: {
-    iconBg:  '#2563eb',   // blue-600 — solid fill
-    color:   '#ffffff',   // white icon
+    iconBg:  '#2563eb',
+    color:   '#ffffff',
   },
   invoices: {
-    iconBg:  '#f97316',   // orange-500 — solid fill
-    color:   '#ffffff',   // white icon
+    iconBg:  '#f97316',
+    color:   '#ffffff',
   },
   appointments: {
-    iconBg:  '#059669',   // emerald-600 — solid fill
-    color:   '#ffffff',   // white icon
+    iconBg:  '#059669',
+    color:   '#ffffff',
   },
   tasks: {
-    iconBg:  '#7c3aed',   // violet-600 — solid fill
-    color:   '#ffffff',   // white icon
+    iconBg:  '#7c3aed',
+    color:   '#ffffff',
   },
 }
 
@@ -208,7 +197,7 @@ function SkeletonPage() {
       <div className={styles.skStatsGrid}>
         {[0, 1, 2, 3].map(i => (
           <div key={i} className={styles.skStatCard}>
-            <Skeleton width={34} height={34} borderRadius={8} />
+            <Skeleton width={30} height={30} borderRadius={7} />
             <Skeleton width={48} height={28} borderRadius={5} style={{ marginTop: 14 }} />
             <Skeleton width={72} height={10} borderRadius={4} style={{ marginTop: 8 }} />
             <Skeleton width={56} height={9}  borderRadius={4} style={{ marginTop: 6 }} />
@@ -418,16 +407,15 @@ function StatCard({ card, navigate }) {
       onClick={() => navigate(card.route)}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-        {/* Solid opaque icon wrap — white icon on colored background */}
         <div
           className={styles.statIconWrap}
           style={{
-            background:  iconStyle.iconBg,
-            border:      'none',
+            background: iconStyle.iconBg,
+            border:     'none',
             marginBottom: 0,
           }}
         >
-          <span className="mi" style={{ fontSize: '1.25rem', color: iconStyle.color }}>
+          <span className="mi" style={{ fontSize: '1.15rem', color: iconStyle.color }}>
             {card.desktopIcon}
           </span>
         </div>
@@ -518,9 +506,9 @@ function getPrevWindowStart(period) {
 }
 
 function periodLabel(period) {
-  if (period === 'weekly')  return 'This week'
-  if (period === 'monthly') return 'This month'
-  return 'This year'
+  if (period === 'weekly')  return 'This week · Revenue'
+  if (period === 'monthly') return 'This month · Revenue'
+  return 'This year · Revenue'
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -923,7 +911,7 @@ function Home({ onMenuClick, onGoToCustomer }) {
             ) : (
               <div className={styles.revenueCard} onClick={() => setShowGoalModal(true)}>
                 <div className={styles.revenueCardLeft}>
-                  <div className={styles.revenueLabel}>{periodLabel(revenueGoal.period)} · Revenue</div>
+                  <div className={styles.revenueLabel}>{periodLabel(revenueGoal.period)}</div>
                   <div className={styles.revenueAmount}>
                     {revenueGoal.currency}{revenueEarned.toLocaleString()}
                   </div>
@@ -1093,7 +1081,7 @@ function Home({ onMenuClick, onGoToCustomer }) {
                 ].map(a => (
                   <div key={a.label} className={styles.actionCard} onClick={() => navigate(a.route)}>
                     <div className={styles.statIconWrap}>
-                      <span className="mi" style={{ fontSize: '1.3rem', color: 'var(--accent)' }}>{a.icon}</span>
+                      <span className="mi" style={{ fontSize: '1.15rem', color: 'var(--accent)' }}>{a.icon}</span>
                     </div>
                     <div className={styles.actionCardText}>
                       <div className={styles.actionLabel}>{a.label}</div>
