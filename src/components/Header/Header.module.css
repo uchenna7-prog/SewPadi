@@ -1,18 +1,3 @@
-/* ── Sentinel ─────────────────────────────────────────────────
-   A zero-height div that lives just before the header in the DOM.
-   IntersectionObserver watches it — when it leaves viewport,
-   the header is "scrolled" and we activate the shadow.
-   ─────────────────────────────────────────────────────────── */
-.sentinel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  pointer-events: none;
-  visibility: hidden;
-}
-
 /* ── Header base ─────────────────────────────────────────────*/
 .header {
   position: sticky;
