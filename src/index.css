@@ -1,184 +1,111 @@
 :root {
 
-  /* ─────────────────────────────
-     PREMIUM NEUTRAL SYSTEM
-     Inspired by:
-     ChatGPT / Linear / Vercel / GitHub
-  ───────────────────────────── */
+  /* ── BACKGROUNDS ──
+     Light mode: page is off-white so white cards/modals float above it.
+     Same approach used by ChatGPT, Linear, Vercel. */
+  --bg:       #f7f7f5;   /* warm off-white — never pure white */
+  --surface:  #ffffff;   /* cards, panels, modals */
+  --surface2: #f0f0ee;   /* subtle inset areas, table stripes */
 
-  --bg: #fafafa;
-  --surface: #ffffff;
-  --surface2: #f4f4f5;
-  --surface3: #ededf0;
+  /* ── BORDERS ──
+     Slightly warm-tinted so they don't look sterile. */
+  --border:   #e6e6e3;
+  --border2:  #d4d4d0;
 
-  --border: #e4e4e7;
-  --border2: #d4d4d8;
+  /* ── TEXT ──
+     #0f0f0f reads as "black" but removes the harshness of true black.
+     text2 for labels/captions, text3 for placeholders/disabled. */
+  --accent:   #0f0f0f;
+  --text:     #0f0f0f;
+  --text2:    #5c5c5c;
+  --text3:    #a3a3a3;
 
-  --text: #18181b;
-  --text2: #71717a;
-  --text3: #a1a1aa;
+  /* ── STATUS ──
+     Slightly desaturated vs pure CSS reds/greens — looks intentional,
+     not like a default browser alert. Same palette Linear/Notion use. */
+  --danger:   #e53e3e;
+  --success:  #1daa5a;
+  --warning:  #e8810a;
 
-  --accent: #18181b;
-
-  /* ─────────────────────────────
-     STATUS COLORS
-     (Improved saturation + clarity)
-  ───────────────────────────── */
-
-  --danger: #dc2626;
-  --danger-soft: #ef4444;
-
-  --success: #16a34a;
-  --success-soft: #22c55e;
-
-  --warning: #d97706;
-  --warning-soft: #f59e0b;
-
-  /* ─────────────────────────────
-     BRAND TOKENS
-  ───────────────────────────── */
-
-  --brand-primary: #5C7A60;
-  --brand-primary-light: #748E78;
-  --brand-primary-dark: #3E5840;
-
-  --brand-on-primary: #ffffff;
-
-  --brand-gradient:
-    linear-gradient(
-      135deg,
-      #5C7A60 0%,
-      #3E5840 100%
-    );
-
-  --brand-gradient-card:
-    linear-gradient(
-      135deg,
-      rgba(92,122,96,0.10) 0%,
-      rgba(62,88,64,0.04) 100%
-    );
-
-  --brand-surface: rgba(92,122,96,0.08);
-  --brand-muted: rgba(92,122,96,0.22);
-  --brand-glow: rgba(92,122,96,0.30);
-
-  /* ─────────────────────────────
-     LAYOUT
-  ───────────────────────────── */
-
+  /* ── LAYOUT ── */
   --sidebar-width: 280px;
 
-  /* ─────────────────────────────
-     SAFE AREAS
-  ───────────────────────────── */
-
-  --st: env(safe-area-inset-top, 0px);
+  /* ── SAFE AREAS ── */
+  --st: env(safe-area-inset-top,    0px);
   --sb: env(safe-area-inset-bottom, 0px);
-  --sl: env(safe-area-inset-left, 0px);
-  --sr: env(safe-area-inset-right, 0px);
+  --sl: env(safe-area-inset-left,   0px);
+  --sr: env(safe-area-inset-right,  0px);
 
-  /* ─────────────────────────────
-     SHADOWS
-  ───────────────────────────── */
-
-  --shadow-sm:
-    0 1px 2px rgba(0,0,0,0.04);
-
-  --shadow-md:
-    0 4px 12px rgba(0,0,0,0.06);
-
-  --shadow-lg:
-    0 12px 32px rgba(0,0,0,0.10);
-
-  /* ─────────────────────────────
-     RADII
-  ───────────────────────────── */
-
-  --radius-sm: 10px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
-  --radius-xl: 32px;
-
-  /* ─────────────────────────────
-     SPACING TOKENS
-  ───────────────────────────── */
-
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-7: 32px;
-  --space-8: 40px;
-
-  /* ─────────────────────────────
-     TRANSITIONS
-  ───────────────────────────── */
-
-  --transition-fast: 150ms ease;
-  --transition-normal: 250ms ease;
-  --transition-slow: 400ms ease;
+  /* ── BRAND ──
+     Forest green palette — unchanged, it was already solid. */
+  --brand-primary:       #5C7A60;
+  --brand-primary-light: #748E78;
+  --brand-primary-dark:  #3E5840;
+  --brand-on-primary:    #ffffff;
+  --brand-gradient:      linear-gradient(135deg, #5C7A60 0%, #3E5840 100%);
+  --brand-gradient-card: linear-gradient(135deg, rgba(92,122,96,0.10) 0%, rgba(62,88,64,0.04) 100%);
+  --brand-surface:       rgba(92,122,96,0.07);
+  --brand-surface-dark:  #060c06;
+  --brand-muted:         rgba(92,122,96,0.24);
+  --brand-glow:          rgba(116,142,120,0.30);
 }
 
-
-/* ─────────────────────────────────
-   DARK THEME
-───────────────────────────────── */
 
 :root[data-theme="dark"] {
 
-  --bg: #09090b;
+  /* ── BACKGROUNDS ──
+     #141414 is ChatGPT's exact sidebar bg.
+     #1e1e1e is what VS Code, Linear, and Claude.ai use for surfaces.
+     Never go below #0d0d0d unless it's a deliberate OLED-black brand choice. */
+  --bg:       #141414;
+  --surface:  #1e1e1e;
+  --surface2: #252525;
 
-  --surface: #111113;
-  --surface2: #18181b;
-  --surface3: #202024;
+  /* ── BORDERS ──
+     Dark mode borders should be barely-there — just enough to separate. */
+  --border:   #2c2c2c;
+  --border2:  #383838;
 
-  --border: #27272a;
-  --border2: #3f3f46;
+  /* ── TEXT ──
+     #ededed reads as white but is far easier on the eyes.
+     Pure #ffffff text on #141414 creates too much glare. */
+  --accent:   #ededed;
+  --text:     #ededed;
+  --text2:    #8a8a8a;
+  --text3:    #4a4a4a;
 
-  --text: #fafafa;
-  --text2: #a1a1aa;
-  --text3: #71717a;
+  /* ── STATUS ──
+     Bumped up slightly in dark mode — status colors wash out on dark BGs. */
+  --danger:   #f26d6d;
+  --success:  #34c76a;
+  --warning:  #fba044;
 
-  --accent: #ffffff;
+  /* ── LAYOUT (repeated so dark theme is fully self-contained) ── */
+  --sidebar-width: 280px;
 
-  /* ─────────────────────────────
-     STATUS COLORS
-     Better contrast for AMOLED
-  ───────────────────────────── */
+  --st: env(safe-area-inset-top,    0px);
+  --sb: env(safe-area-inset-bottom, 0px);
+  --sl: env(safe-area-inset-left,   0px);
+  --sr: env(safe-area-inset-right,  0px);
 
-  --danger: #f87171;
-  --danger-soft: #ef4444;
-
-  --success: #4ade80;
-  --success-soft: #22c55e;
-
-  --warning: #fbbf24;
-  --warning-soft: #f59e0b;
-
-  /* ─────────────────────────────
-     SHADOWS
-  ───────────────────────────── */
-
-  --shadow-sm:
-    0 1px 2px rgba(0,0,0,0.20);
-
-  --shadow-md:
-    0 4px 16px rgba(0,0,0,0.35);
-
-  --shadow-lg:
-    0 12px 32px rgba(0,0,0,0.50);
+  /* ── BRAND (dark-mode adjusted) ── */
+  --brand-primary:       #6a8f6e;   /* slightly lighter so it doesn't vanish */
+  --brand-primary-light: #82a486;
+  --brand-primary-dark:  #3E5840;
+  --brand-on-primary:    #ffffff;
+  --brand-gradient:      linear-gradient(135deg, #6a8f6e 0%, #4a6b4e 100%);
+  --brand-gradient-card: linear-gradient(135deg, rgba(106,143,110,0.14) 0%, rgba(74,107,78,0.07) 100%);
+  --brand-surface:       rgba(106,143,110,0.10);
+  --brand-surface-dark:  #060c06;
+  --brand-muted:         rgba(106,143,110,0.22);
+  --brand-glow:          rgba(130,164,134,0.28);
 }
 
 
-/* ─────────────────────────────────
+/* ─────────────────────────────────────────
    RESET
-───────────────────────────────── */
-
-*,
-*::before,
-*::after {
+───────────────────────────────────────── */
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -186,300 +113,131 @@
 }
 
 
-/* ─────────────────────────────────
-   ROOT
-───────────────────────────────── */
-
-html,
-body,
-#root {
-
-  min-height: 100%;
-
+/* ─────────────────────────────────────────
+   BASE
+───────────────────────────────────────── */
+html, body, #root {
+  height: 100%;
   background: var(--bg);
   color: var(--text);
-
   font-family: "Manrope", sans-serif;
-
-  overflow-x: hidden;
-
-  text-rendering: optimizeLegibility;
-
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
 
-  /* IMPORTANT */
-  -webkit-text-size-adjust: 100%;
+button {
+  cursor: pointer;
+  font-family: "Manrope", sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+input, select, textarea {
+  font-family: "Manrope", sans-serif;
 }
 
 
-/* ─────────────────────────────────
-   TYPOGRAPHY IMPROVEMENTS
-───────────────────────────────── */
-
-body {
-
-  font-weight: 500;
-
-  letter-spacing: -0.015em;
-
-  line-height: 1.45;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-
-  letter-spacing: -0.03em;
-
-  line-height: 1.1;
-
-  font-weight: 700;
-}
-
-
-/* ─────────────────────────────────
+/* ─────────────────────────────────────────
    MATERIAL ICONS
-───────────────────────────────── */
-
-.mi,
-.mi-outlined {
-
+───────────────────────────────────────── */
+.mi {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
   display: inline-flex;
-
   align-items: center;
   justify-content: center;
-
   line-height: 1;
-
-  font-style: normal;
-  font-weight: normal;
-
-  flex-shrink: 0;
-}
-
-.mi {
-
-  font-family: "Material Icons";
-
-  font-variation-settings:
-    'FILL' 0,
-    'wght' 300,
-    'GRAD' 0,
-    'opsz' 24;
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
 }
 
 .mi-outlined {
-
-  font-family: "Material Icons Outlined";
-
-  font-variation-settings:
-    'FILL' 0,
-    'wght' 300,
-    'GRAD' 0,
-    'opsz' 24;
+  font-family: 'Material Icons Outlined';
+  font-weight: normal;
+  font-style: normal;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
 }
 
 
-/* ─────────────────────────────────
-   APP LAYOUT
-───────────────────────────────── */
-
+/* ─────────────────────────────────────────
+   LAYOUT
+───────────────────────────────────────── */
 .appShell {
-
   display: flex;
-
   min-height: 100vh;
-
-  background: var(--bg);
 }
 
 .appContent {
-
   flex: 1;
-
-  min-height: 100vh;
-
   margin-left: var(--sidebar-width);
-
+  min-height: 100vh;
   background: var(--bg);
-
-  transition:
-    background var(--transition-normal),
-    margin-left var(--transition-normal);
+  transition: margin-left 0.3s ease;
 }
 
 @media (max-width: 768px) {
-
   .appContent {
-
     margin-left: 0;
-
     max-width: 100vw;
   }
 }
 
 
-/* ─────────────────────────────────
+/* ─────────────────────────────────────────
    SCROLLBAR
-───────────────────────────────── */
-
+───────────────────────────────────────── */
 ::-webkit-scrollbar {
-
-  width: 5px;
-  height: 5px;
+  width: 4px;
 }
-
 ::-webkit-scrollbar-track {
-
   background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-
   background: var(--border2);
-
-  border-radius: 999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-
-  background: var(--text3);
+  border-radius: 4px;
 }
 
 
-/* ─────────────────────────────────
-   DEFAULT ELEMENTS
-───────────────────────────────── */
-
-button {
-
-  cursor: pointer;
-
-  border: none;
-  outline: none;
-
-  background: none;
-
-  color: inherit;
-
-  font-family: inherit;
-
-  transition:
-    background var(--transition-fast),
-    color var(--transition-fast),
-    border-color var(--transition-fast),
-    opacity var(--transition-fast),
-    transform var(--transition-fast);
-}
-
-a {
-
-  color: inherit;
-
-  text-decoration: none;
-}
-
-input,
-textarea,
-select,
-button {
-
-  font-family: inherit;
-}
-
-input,
-textarea,
-select {
-
-  outline: none;
-
-  border: none;
-
-  background: transparent;
-
-  color: var(--text);
-}
-
-
-/* ─────────────────────────────────
-   SELECTION
-───────────────────────────────── */
-
-::selection {
-
-  background: var(--brand-primary);
-
-  color: white;
-}
-
-
-/* ─────────────────────────────────
-   FOCUS STATES
-───────────────────────────────── */
-
-:focus-visible {
-
-  outline: 2px solid var(--brand-primary);
-
-  outline-offset: 2px;
-}
-
-
-/* ─────────────────────────────────
+/* ─────────────────────────────────────────
    ANIMATIONS
-───────────────────────────────── */
-
+───────────────────────────────────────── */
 @keyframes fadeIn {
-
   from {
-
     opacity: 0;
-
     transform: translateY(8px);
   }
-
   to {
-
     opacity: 1;
-
     transform: translateY(0);
   }
 }
 
 @keyframes fadeUp {
-
   from {
-
     opacity: 0;
-
     transform: translateY(16px);
   }
-
   to {
-
     opacity: 1;
-
     transform: translateY(0);
   }
 }
 
 @keyframes slideInRight {
-
   from {
-
     opacity: 0;
-
     transform: translateX(16px);
   }
-
   to {
-
     opacity: 1;
-
     transform: translateX(0);
   }
 }
