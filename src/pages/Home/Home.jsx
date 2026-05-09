@@ -146,22 +146,10 @@ const TASK_STATUS_STYLES = {
 }
 
 const STAT_CARD_ICON_COLORS = {
-  orders: {
-    iconBg:  'rgba(37,99,235,0.1)',
-    color:   '#2563eb',
-  },
-  invoices: {
-    iconBg:  'rgba(249,115,22,0.1)',
-    color:   '#f97316',
-  },
-  appointments: {
-    iconBg:  'rgba(5,150,105,0.1)',
-    color:   '#059669',
-  },
-  tasks: {
-    iconBg:  'rgba(124,58,237,0.1)',
-    color:   '#7c3aed',
-  },
+  orders:       { color: '#2563eb' },
+  invoices:     { color: '#f97316' },
+  appointments: { color: '#059669' },
+  tasks:        { color: '#7c3aed' },
 }
 
 const STAGES = [
@@ -197,8 +185,8 @@ function SkeletonPage() {
       <div className={styles.skStatsGrid}>
         {[0, 1, 2, 3].map(i => (
           <div key={i} className={styles.skStatCard}>
-            <Skeleton width={30} height={30} borderRadius={7} />
-            <Skeleton width={48} height={28} borderRadius={5} style={{ marginTop: 14 }} />
+            <Skeleton width={24} height={24} borderRadius={4} />
+            <Skeleton width={48} height={28} borderRadius={5} style={{ marginTop: 12 }} />
             <Skeleton width={72} height={10} borderRadius={4} style={{ marginTop: 8 }} />
             <Skeleton width={56} height={9}  borderRadius={4} style={{ marginTop: 6 }} />
           </div>
@@ -398,8 +386,8 @@ function NotifBanner({ onEnable, onDismiss }) {
 
 function StatCard({ card, navigate }) {
   const [showTip, setShowTip] = useState(false)
-  const isEmpty    = card.value === 0
-  const iconStyle  = STAT_CARD_ICON_COLORS[card.colorKey] || STAT_CARD_ICON_COLORS.orders
+  const isEmpty   = card.value === 0
+  const iconColor = (STAT_CARD_ICON_COLORS[card.colorKey] || STAT_CARD_ICON_COLORS.orders).color
 
   return (
     <div
@@ -407,15 +395,9 @@ function StatCard({ card, navigate }) {
       onClick={() => navigate(card.route)}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-        <div
-          className={styles.statIconWrap}
-          style={{
-            background: iconStyle.iconBg,
-            border:     'none',
-            marginBottom: 0,
-          }}
-        >
-          <span className="mi" style={{ fontSize: '1.25rem', color: iconStyle.color }}>
+        {/* Icon — no background wrapper, just the bare icon */}
+        <div className={styles.statIconWrap}>
+          <span className="mi" style={{ fontSize: '1.35rem', color: iconColor }}>
             {card.desktopIcon}
           </span>
         </div>
@@ -450,7 +432,7 @@ function StatCard({ card, navigate }) {
       <div
         className={styles.statValue}
         style={{
-          marginTop: '14px',
+          marginTop: '12px',
           color:   isEmpty ? 'var(--text3)' : 'var(--text)',
           opacity: isEmpty ? 0.45 : 1,
         }}
@@ -759,13 +741,13 @@ function Home({ onMenuClick, onGoToCustomer }) {
     route: '/invoices',
   })
 
-  // ── Recent lists ──────────────────────────────────────────
-  const recentOrders       = [...pendingOrders].slice(0, 4)
+  // ── Recent lists — capped at 3 ────────────────────────────
+  const recentOrders       = [...pendingOrders].slice(0, 3)
   const recentTasks        = [...tasks]
     .sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0))
-    .slice(0, 4)
-  const recentAppointments = upcoming.slice(0, 4)
-  const pastAppointments   = recentAppts.slice(0, 4)
+    .slice(0, 3)
+  const recentAppointments = upcoming.slice(0, 3)
+  const pastAppointments   = recentAppts.slice(0, 3)
 
   // ── Stat card sub messages ────────────────────────────────
   const ordersSub = (() => {
@@ -1085,7 +1067,7 @@ function Home({ onMenuClick, onGoToCustomer }) {
                 ].map(a => (
                   <div key={a.label} className={styles.actionCard} onClick={() => navigate(a.route)}>
                     <div className={styles.statIconWrap}>
-                      <span className="mi" style={{ fontSize: '1.15rem', color: 'var(--accent)' }}>{a.icon}</span>
+                      <span className="mi" style={{ fontSize: '1.35rem', color: 'var(--accent)' }}>{a.icon}</span>
                     </div>
                     <div className={styles.actionCardText}>
                       <div className={styles.actionLabel}>{a.label}</div>
