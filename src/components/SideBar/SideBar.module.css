@@ -1,4 +1,3 @@
-/* ── OVERLAY — mobile only ── */
 .overlay {
   position: fixed;
   inset: 0;
@@ -15,13 +14,12 @@
   pointer-events: all;
 }
 
-/* ── SIDEBAR ── */
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
-  width: var(--sidebar-width, 280px);
+  width: var(--sidebar-width);
   background: var(--surface);
   border-right: 1px solid var(--border);
   z-index: 500;
@@ -54,26 +52,22 @@
   }
 }
 
-/* ── FIXED TOP ── */
 .top {
   flex-shrink: 0;
   padding: 24px 20px 16px;
   background: var(--surface);
   z-index: 2;
-  /* Light mode: starts clean */
   box-shadow: 0 1px 0 var(--border);
   transition: box-shadow 0.3s ease;
 }
 
-/* Light mode scrolled — classic downward shadow */
 .topScrolled {
   box-shadow:
     0 1px 0 var(--border),
-    0 4px 16px rgba(0, 0, 0, 0.1),
-    0 2px 6px rgba(0, 0, 0, 0.06);
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
-/* Dark mode — subtle white glow + border brighten */
 :global([data-theme="dark"]) .top {
   box-shadow: 0 1px 0 var(--border);
 }
@@ -82,10 +76,9 @@
   box-shadow:
     0 1px 0 var(--border2),
     0 4px 24px rgba(255, 255, 255, 0.04),
-    0 2px 8px rgba(255, 255, 255, 0.03);
+    0 2px 8px rgba(255, 255, 255, 0.02);
 }
 
-/* ── BRAND ROW ── */
 .brand {
   display: flex;
   align-items: center;
@@ -124,7 +117,6 @@
   text-overflow: ellipsis;
 }
 
-/* ── SCROLLABLE CONTENT ── */
 .scrollArea {
   flex: 1;
   overflow-y: auto;
@@ -139,19 +131,21 @@
 .scrollArea::-webkit-scrollbar-track { background: transparent; }
 .scrollArea::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
-/* ── NAVIGATION ── */
 .nav {
   padding: 10px 12px;
   display: flex;
   flex-direction: column;
 }
 
-/* ── SECTIONS ── */
 .section {
   display: flex;
   flex-direction: column;
   gap: 2px;
   padding: 10px 0 6px;
+}
+
+.sectionBordered {
+  border-top: 1px solid var(--border);
 }
 
 .sectionLabel {
@@ -164,7 +158,6 @@
   user-select: none;
 }
 
-/* ── NAV ITEMS ── */
 .navItem {
   font-family: "Manrope", sans-serif;
   display: flex;
@@ -218,7 +211,6 @@
   flex: 1;
 }
 
-/* ── DANGER (Log out) ── */
 .danger {
   color: var(--danger) !important;
 }
@@ -231,7 +223,6 @@
   background: color-mix(in srgb, var(--danger) 10%, transparent) !important;
 }
 
-/* ── LEGAL LINKS ── */
 .footer {
   padding: 12px 16px 20px;
   border-top: 1px solid var(--border);
@@ -253,9 +244,10 @@
   transition: color 0.15s;
 }
 
-.footerLink:hover { color: var(--accent); }
+.footerLink:hover {
+  color: var(--accent);
+}
 
-/* ── BADGES ── */
 .badge {
   margin-left: auto;
   font-size: 0.62rem;
@@ -273,14 +265,14 @@
 }
 
 .badge_pending {
-  background: color-mix(in srgb, #f59e0b 15%, transparent);
-  color: #b45309;
-  border: 1px solid color-mix(in srgb, #f59e0b 30%, transparent);
+  background: color-mix(in srgb, var(--warning) 15%, transparent);
+  color: var(--warning);
+  border: 1px solid color-mix(in srgb, var(--warning) 30%, transparent);
 }
 
 .badge_info {
   background: color-mix(in srgb, #3b82f6 13%, transparent);
-  color: #1d4ed8;
+  color: #3b82f6;
   border: 1px solid color-mix(in srgb, #3b82f6 25%, transparent);
 }
 
@@ -290,20 +282,10 @@
   border: 1px solid color-mix(in srgb, var(--text3) 20%, transparent);
 }
 
-.active .badge_pending {
-  background: rgba(255, 255, 255, 0.22);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.35);
-}
-
-.active .badge_info {
-  background: rgba(255, 255, 255, 0.22);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.35);
-}
-
+.active .badge_pending,
+.active .badge_info,
 .active .badge_neutral {
-  background: rgba(255, 255, 255, 0.18);
-  color: rgba(255, 255, 255, 0.85);
-  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.22);
+  color: var(--bg);
+  border-color: rgba(255, 255, 255, 0.35);
 }
