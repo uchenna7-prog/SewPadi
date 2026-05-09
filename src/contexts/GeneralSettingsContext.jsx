@@ -67,10 +67,58 @@ function loadGeneralSettings() {
 // THEME HELPER
 // ─────────────────────────────────────────────────────────────
 
-function applyTheme(theme) {
+// How it works:
+// CSS variables don't animate — when data-theme flips,
+// colors change instantly. To fix this we:
+// 1. Inject a <style> that forces background/color transitions on ALL elements
+// 2. Apply the new data-theme attribute
+// 3. After the transition duration, remove the <style> so normal
+//    interaction transitions (hover, active, etc.) are unaffected.
+
+const TRANSITION_DURATION = 350 // ms — matches the style below
+
+function applyTheme(theme, animate = true) {
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
   const resolved    = theme === 'system' ? (prefersDark ? 'dark' : 'light') : theme
+
+  if (!animate) {
+    // Initial load — no transition, just apply
+    document.documentElement.setAttribute('data-theme', resolved)
+    return
+  }
+
+  // Inject transition style
+  const style = document.createElement('style')
+  style.id = '__theme-transition__'
+  style.textContent = `
+    *, *::before, *::after {
+      transition:
+        background-color ${TRANSITION_DURATION}ms cubic-bezier(0.4, 0, 0.2, 1),
+        background ${TRANSITION_DURATION}ms cubic-bezier(0.4, 0, 0.2, 1),
+        border-color ${TRANSITION_DURATION}ms cubic-bezier(0.4, 0, 0.2, 1),
+        color ${TRANSITION_DURATION}ms cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow ${TRANSITION_DURATION}ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+  `
+
+  // Remove any previous one (defensive)
+  document.getElementById('__theme-transition__')?.remove()
+  document.head.appendChild(style)
+
+  // Apply the new theme
   document.documentElement.setAttribute('data-theme', resolved)
+
+  // Remove the style after transition completes so it doesn't
+  // interfere with normal hover/active transitions
+  const timer = setTimeout(() => {
+    style.remove()
+  }, TRANSITION_DURATION + 50)
+
+  // Clean up if something calls applyTheme again mid-transition
+  return () => {
+    clearTimeout(timer)
+    style.remove()
+  }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -80,18 +128,39 @@ function applyTheme(theme) {
 const GeneralSettingsContext = createContext(null)
 
 export function GeneralSettingsProvider({ children }) {
-  
+
   const [generalSettings, setGeneralSettings] = useState(loadGeneralSettings)
 
-  // Apply theme whenever it changes
+  // On first mount — apply theme instantly (no animation on page load)
   useEffect(() => {
-    applyTheme(generalSettings.theme)
+    applyTheme(generalSettings.theme, false)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (generalSettings.theme !== 'system') return
+  // Apply theme with animation whenever it changes after mount
+  useEffect(() => {
+    let cleanup
+
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const resolved    = generalSettings.theme === 'system'
+      ? (prefersDark ? 'dark' : 'light')
+      : generalSettings.theme
+
+    const current = document.documentElement.getAttribute('data-theme')
+
+    // Only animate if theme is actually changing
+    if (current !== resolved) {
+      cleanup = applyTheme(generalSettings.theme, true)
+    }
+
+    if (generalSettings.theme !== 'system') return cleanup
+
     const mq      = window.matchMedia('(prefers-color-scheme: dark)')
-    const handler = () => applyTheme('system')
+    const handler = () => applyTheme('system', true)
     mq.addEventListener('change', handler)
-    return () => mq.removeEventListener('change', handler)
+    return () => {
+      mq.removeEventListener('change', handler)
+      cleanup?.()
+    }
   }, [generalSettings.theme])
 
   // Persist to localStorage on every change
