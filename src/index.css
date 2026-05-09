@@ -1,57 +1,21 @@
 :root {
-  /* ── Backgrounds — pure neutral white & ink ── */
-  --bg:       #fbfbfb;   /* page background */
-  --surface:  #ffffff;   /* cards / elevated surfaces */
-  --surface2: #f0f0f0;   /* subtle inner surface */
+  / ── Backgrounds — matched to Docwrite's #f8fafc page base ── /
+  --bg:       #f8fafc;   / was #f0f2f5 — now Docwrite's exact slate-50 /
+  --surface:  #ffffff;   / cards stay pure white, same as Docwrite /
+  --surface2: #f1f5f9;   / subtle inner surface, one step below white /
 
-  --border:   #e5e5e5;   /* default hairline borders */
-  --border2:  #d4d4d4;   /* stronger dividers */
+  --border:   #e2e8f0;   / slate-200 — matches Docwrite's border-slate-200 /
+  --border2:  #cbd5e1;   / slate-300 — slightly stronger dividers /
 
-  --accent:   #262626;   /* ink */
-  --text:     #262626;
-  --text2:    #777777;
-  --text3:    #a3a3a3;
+  --accent:   #09090b;
+  --text:     #09090b;
+  --text2:    #6b7280;
+  --text3:    #9ca3af;
 
   --danger:   #ef4444;
-  --success:  #16a34a;
+  --success:  #22c55e;
   --warning:  #f97316;
   --alert:    #f59e0b;
-
-  /* ── Primary / brand — monochrome ink (replaces green) ── */
-  --brand-primary:       #262626;
-  --brand-primary-light: #404040;
-  --brand-primary-dark:  #0a0a0a;
-  --brand-on-primary:    #ffffff;
-  --brand-gradient:      linear-gradient(135deg, #404040 0%, #0a0a0a 100%);
-  --brand-gradient-card: linear-gradient(135deg, rgba(38,38,38,0.08) 0%, rgba(10,10,10,0.02) 100%);
-  --brand-surface:       rgba(38,38,38,0.06);
-  --brand-surface-dark:  #0a0a0a;
-  --brand-muted:         rgba(38,38,38,0.18);
-  --brand-glow:          rgba(0,0,0,0.18);
-
-  /* ── Mono "gold" accent (used for premium highlights) ── */
-  --gold:       #696969;
-  --gold-soft:  #8a8a8a;
-
-  /* ── Chart palette (mono ramp + 1 status hue) ── */
-  --chart-1: #1f1f1f;
-  --chart-2: #525252;
-  --chart-3: #8a8a8a;
-  --chart-4: #c2c2c2;
-  --chart-5: #16a34a;
-
-  /* ── Sidebar ── */
-  --sidebar-bg:           #f5f5f5;
-  --sidebar-fg:           #262626;
-  --sidebar-accent:       #ebebeb;
-  --sidebar-accent-fg:    #262626;
-  --sidebar-border:       #e5e5e5;
-
-  /* ── Elevation ── */
-  --shadow-soft:    0 1px 2px rgba(0,0,0,0.04), 0 8px 24px -12px rgba(0,0,0,0.08);
-  --shadow-elegant: 0 10px 30px -12px rgba(0,0,0,0.18);
-
-  --radius: 0.875rem;
 
   --sidebar-width: 280px;
 
@@ -59,70 +23,57 @@
   --sb: env(safe-area-inset-bottom, 0px);
   --sl: env(safe-area-inset-left,   0px);
   --sr: env(safe-area-inset-right,  0px);
+
+  --brand-primary:       #5C7A60;
+  --brand-primary-light: #748E78;
+  --brand-primary-dark:  #3E5840;
+  --brand-on-primary:    #ffffff;
+  --brand-gradient:      linear-gradient(135deg, #5C7A60 0%, #3E5840 100%);
+  --brand-gradient-card: linear-gradient(135deg, rgba(92,122,96,0.10) 0%, rgba(62,88,64,0.04) 100%);
+  --brand-surface:       rgba(92,122,96,0.07);
+  --brand-surface-dark:  #060c06;
+  --brand-muted:         rgba(92,122,96,0.22);
+  --brand-glow:          rgba(116,142,120,0.28);
 }
 
 :root[data-theme="dark"] {
-  /* ── Backgrounds — pure obsidian ── */
-  --bg:       #1a1a1a;
-  --surface:  #222222;
-  --surface2: #2e2e2e;
+  --bg:       #09090b;
+  --surface:  #19191b;
+  --surface2: #27272a;
 
-  --border:   rgba(255,255,255,0.08);
+  --border:   #1c1c1e;
   --border2:  #52525b;
 
-  --accent:   #f7f7f7;
-  --text:     #f7f7f7;
-  --text2:    #a8a8a8;
-  --text3:    #525252;
+  --accent:   #fafafa;
+  --text:     #fafafa;
+  --text2:    #a1a1aa;
+  --text3:    #52525b;
 
   --danger:   #ef4444;
   --success:  #4ade80;
   --warning:  #fb923c;
   --alert:    #f59e0b;
 
-  /* ── Primary / brand — monochrome white-on-black ── */
-  --brand-primary:       #f7f7f7;
-  --brand-primary-light: #ffffff;
-  --brand-primary-dark:  #c2c2c2;
-  --brand-on-primary:    #1a1a1a;
-  --brand-gradient:      linear-gradient(135deg, #ffffff 0%, #b3b3b3 100%);
-  --brand-gradient-card: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
-  --brand-surface:       rgba(255,255,255,0.06);
-  --brand-surface-dark:  #0a0a0a;
-  --brand-muted:         rgba(255,255,255,0.16);
-  --brand-glow:          rgba(255,255,255,0.20);
-
-  /* ── Mono "gold" accent ── */
-  --gold:       #e8e8e8;
-  --gold-soft:  #b3b3b3;
-
-  /* ── Chart palette ── */
-  --chart-1: #f7f7f7;
-  --chart-2: #bfbfbf;
-  --chart-3: #8a8a8a;
-  --chart-4: #595959;
-  --chart-5: #4ade80;
-
-  /* ── Sidebar ── */
-  --sidebar-bg:           #131313;
-  --sidebar-fg:           #ededed;
-  --sidebar-accent:       #2e2e2e;
-  --sidebar-accent-fg:    #f7f7f7;
-  --sidebar-border:       rgba(255,255,255,0.06);
-
-  /* ── Elevation ── */
-  --shadow-soft:    0 1px 0 rgba(255,255,255,0.04) inset, 0 10px 30px -16px rgba(0,0,0,0.5);
-  --shadow-elegant: 0 20px 40px -16px rgba(0,0,0,0.6);
-
   --sidebar-width: 280px;
 
   --st: env(safe-area-inset-top,    0px);
   --sb: env(safe-area-inset-bottom, 0px);
   --sl: env(safe-area-inset-left,   0px);
   --sr: env(safe-area-inset-right,  0px);
+
+  --brand-primary:       #6a8f6e;
+  --brand-primary-light: #82a486;
+  --brand-primary-dark:  #3E5840;
+  --brand-on-primary:    #ffffff;
+  --brand-gradient:      linear-gradient(135deg, #6a8f6e 0%, #4a6b4e 100%);
+  --brand-gradient-card: linear-gradient(135deg, rgba(106,143,110,0.14) 0%, rgba(74,107,78,0.07) 100%);
+  --brand-surface:       rgba(106,143,110,0.10);
+  --brand-surface-dark:  #060c06;
+  --brand-muted:         rgba(106,143,110,0.20);
+  --brand-glow:          rgba(130,164,134,0.25);
 }
 
-*, *::before, *::after {
+, ::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -133,21 +84,15 @@ html, body, #root {
   height: 100%;
   background: var(--bg);
   color: var(--text);
-  font-family: "Inter", "Manrope", ui-sans-serif, system-ui, sans-serif;
+  font-family: "Manrope", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
 
-/* Display / editorial serif — for hero numerals, titles, premium accents */
-.font-display {
-  font-family: "Instrument Serif", ui-serif, Georgia, serif;
-  letter-spacing: -0.01em;
-}
-
 button {
   cursor: pointer;
-  font-family: "Inter", "Manrope", sans-serif;
+  font-family: "Manrope", sans-serif;
 }
 
 a {
@@ -156,7 +101,7 @@ a {
 }
 
 input, select, textarea {
-  font-family: "Inter", "Manrope", sans-serif;
+  font-family: "Manrope", sans-serif;
 }
 
 .mi {
@@ -201,24 +146,49 @@ input, select, textarea {
   }
 }
 
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
 ::-webkit-scrollbar-thumb {
   background: var(--border2);
   border-radius: 4px;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideInRight {
-  from { opacity: 0; transform: translateX(16px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
+
+
+
