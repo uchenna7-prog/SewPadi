@@ -208,7 +208,8 @@
   The .statCard base sets shared structure; tinted bg is inline.
 */
 .statCard {
-  /* base — tinted bg + border applied inline per card */
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 16px 14px 14px;
   display: flex;
@@ -221,7 +222,7 @@
   min-width: 0;
   overflow: hidden;
 }
-.statCard:active { filter: brightness(0.97); }
+.statCard:active { background: var(--surface2); }
 
 /*
   Icon wrap — uses a bolder, more saturated background
@@ -655,11 +656,11 @@
     padding: 20px 18px 18px;
     min-height: 160px;
     border-radius: 12px;
-    transition: filter 0.15s, box-shadow 0.15s, transform 0.15s;
+    transition: background 0.15s, box-shadow 0.15s, transform 0.15s;
   }
 
   .statCard:hover {
-    filter: brightness(0.975);
+    background: var(--surface2);
     box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     transform: translateY(-2px);
   }
