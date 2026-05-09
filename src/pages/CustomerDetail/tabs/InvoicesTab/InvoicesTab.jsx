@@ -108,11 +108,9 @@ function buildOrderItemsMap(orders) {
 }
 
 function getInvoiceTotal(invoice) {
-
-  if (invoice.totalAmount != null && parseFloat(invoice.totalAmount) > 0){
+  if (invoice.totalAmount != null && parseFloat(invoice.totalAmount) > 0) {
     return parseFloat(invoice.totalAmount)
-  }
-  else if (invoice.items?.length > 0) {
+  } else if (invoice.items?.length > 0) {
     return invoice.items.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0)
   }
   return parseFloat(invoice.price) || 0
@@ -127,18 +125,49 @@ function InvoiceRowSkeleton() {
   return (
     <div className={styles.invoiceRow} style={{ pointerEvents: 'none' }}>
       {/* Mosaic thumbnail */}
-      <Skeleton width={68} height={68} borderRadius={12} />
+      <Skeleton
+        width={68}
+        height={68}
+        borderRadius={12}
+        baseColor="var(--surface2)"
+        highlightColor="var(--border)"
+      />
 
       {/* Info column */}
       <div className={styles.invoiceRowInfo}>
-        <Skeleton width={130} height={14} borderRadius={6} style={{ marginBottom: 6 }} />
-        <Skeleton width={70}  height={11} borderRadius={6} />
+        <Skeleton
+          width={130}
+          height={14}
+          borderRadius={6}
+          baseColor="var(--surface2)"
+          highlightColor="var(--border)"
+          style={{ marginBottom: 6 }}
+        />
+        <Skeleton
+          width={70}
+          height={11}
+          borderRadius={6}
+          baseColor="var(--surface2)"
+          highlightColor="var(--border)"
+        />
       </div>
 
       {/* Right column — badge + amount */}
       <div className={styles.invoiceRowRight} style={{ alignItems: 'flex-end', gap: 6 }}>
-        <Skeleton width={72} height={20} borderRadius={20} />
-        <Skeleton width={60} height={14} borderRadius={6}  />
+        <Skeleton
+          width={72}
+          height={20}
+          borderRadius={20}
+          baseColor="var(--surface2)"
+          highlightColor="var(--border)"
+        />
+        <Skeleton
+          width={60}
+          height={14}
+          borderRadius={6}
+          baseColor="var(--surface2)"
+          highlightColor="var(--border)"
+        />
       </div>
     </div>
   )
@@ -298,11 +327,8 @@ function OrderPickerModal({ isOpen, onClose, orders, invoices, onGenerateSelecte
         <div style={{ padding: '20px' }}>
 
           {nonInvoicedOrders.length > 0 && (
-
             <p className={styles.stepHeading}>1. Select Orders</p>
-
           )}
-          
 
           {showSearch && (
             <div className={styles.clothSearchBar}>
