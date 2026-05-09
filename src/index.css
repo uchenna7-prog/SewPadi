@@ -4,18 +4,18 @@
      CORE NEUTRALS — LIGHT THEME
   ───────────────────────────── */
 
-  --bg: #f5f7f4;
+  --bg: #f7f7f8;
   --surface: #ffffff;
-  --surface2: #eef2ed;
+  --surface2: #f1f1f2;
 
-  --border: #dde4dc;
-  --border2: #cfd8ce;
+  --border: #e4e4e7;
+  --border2: #d4d4d8;
 
-  --text: #111814;
-  --text2: #5f6b63;
-  --text3: #8a948c;
+  --text: #18181b;
+  --text2: #71717a;
+  --text3: #a1a1aa;
 
-  --accent: #111814;
+  --accent: #18181b;
 
   --danger: #ef4444;
   --success: #22c55e;
@@ -103,16 +103,16 @@
 
 :root[data-theme="dark"] {
 
-  --bg: #0d0f0d;
-  --surface: #151815;
-  --surface2: #1d221e;
+  --bg: #09090b;
+  --surface: #111113;
+  --surface2: #18181b;
 
-  --border: #272d28;
-  --border2: #343b35;
+  --border: #27272a;
+  --border2: #3f3f46;
 
-  --text: #f5f7f4;
-  --text2: #a4ada5;
-  --text3: #6f7770;
+  --text: #fafafa;
+  --text2: #a1a1aa;
+  --text3: #71717a;
 
   --accent: #ffffff;
 
@@ -161,8 +161,9 @@ body,
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  overflow-x: hidden;
   text-rendering: optimizeLegibility;
+
+  overflow-x: hidden;
 }
 
 
@@ -271,6 +272,8 @@ button {
 
   background: none;
 
+  color: inherit;
+
   font-family: "Manrope", sans-serif;
 }
 
@@ -291,8 +294,30 @@ textarea,
 select {
   outline: none;
   border: none;
+
   background: transparent;
+
   color: var(--text);
+}
+
+
+/* ─────────────────────────────────
+   SELECTION
+───────────────────────────────── */
+
+::selection {
+  background: var(--brand-primary);
+  color: white;
+}
+
+
+/* ─────────────────────────────────
+   FOCUS STATES
+───────────────────────────────── */
+
+:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
 }
 
 
