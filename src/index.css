@@ -163,21 +163,21 @@
   --accent: #ffffff;
   --accent-hover: #f4f4f5;
 
-  /* Status colors */
-  --danger: #f87171;
-  --danger-soft: rgba(239,68,68,0.12);
+  /* Status colors — vivid, high-contrast for dark backgrounds */
+  --danger: #ff3b3b;
+  --danger-soft: rgba(255,59,59,0.14);
 
-  --success: #4ade80;
-  --success-soft: rgba(34,197,94,0.12);
+  --success: #34d364;
+  --success-soft: rgba(52,211,100,0.13);
 
-  --warning: #fbbf24;
-  --warning-soft: rgba(245,158,11,0.12);
+  --warning: #ffb020;
+  --warning-soft: rgba(255,176,32,0.13);
 
-  --alert: #fb923c;
-  --alert-soft: rgba(249,115,22,0.12);
+  --alert: #ff6b2b;
+  --alert-soft: rgba(255,107,43,0.13);
 
-  --info: #60a5fa;
-  --info-soft: rgba(59,130,246,0.12);
+  --info: #3b82f6;
+  --info-soft: rgba(59,130,246,0.14);
 
   /* Sidebar */
   --sidebar-width: 280px;
