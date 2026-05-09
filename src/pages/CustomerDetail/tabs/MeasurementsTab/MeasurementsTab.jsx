@@ -16,13 +16,32 @@ const UNIT_FULL  = { in: 'Inches (")', cm: 'Centimetres (cm)', yd: 'Yards (yd)' 
 
 function MeasurementRowSkeleton() {
   return (
-    <div className={styles.measurementRow} style={{ pointerEvents: 'none'}}>
+    <div className={styles.measurementRow} style={{ pointerEvents: 'none' }}>
       <div className={styles.thumbnailContainer}>
-        <Skeleton width={58} height={58} borderRadius={10} style={{ background:"var(--surface2)"}}/>
+        <Skeleton
+          width={58}
+          height={58}
+          borderRadius={10}
+          baseColor="var(--surface2)"
+          highlightColor="var(--border)"
+        />
       </div>
       <div className={styles.measurementRowInfo}>
-        <Skeleton width={120} height={14} borderRadius={6} style={{ marginBottom: 6,background:"var(--surface2)"}} />
-        <Skeleton width={80}  height={11} borderRadius={6} style={{ background:"var(--surface2)"}} />
+        <Skeleton
+          width={120}
+          height={14}
+          borderRadius={6}
+          baseColor="var(--surface2)"
+          highlightColor="var(--border)"
+          style={{ marginBottom: 6 }}
+        />
+        <Skeleton
+          width={80}
+          height={11}
+          borderRadius={6}
+          baseColor="var(--surface2)"
+          highlightColor="var(--border)"
+        />
       </div>
     </div>
   )
