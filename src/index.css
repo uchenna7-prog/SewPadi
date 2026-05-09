@@ -15,9 +15,9 @@
   --text2: #666666;
   --text3: #9a9a9a;
 
-  --danger: #dc2626;
+  --danger: red;
   --success: #16a34a;
-  --warning: #ca8a04;
+  --warning: orange;
   --alert: #d97706;
 
   --sidebar-width: 280px;
@@ -124,9 +124,9 @@
   --text2: #b3b3b3;
   --text3: #6b6b6b;
 
-  --danger: #ef4444;
+  --danger: red;
   --success: #4ade80;
-  --warning: #eab308;
+  --warning: orange;
   --alert: #f59e0b;
 
   --sidebar-width: 280px;
