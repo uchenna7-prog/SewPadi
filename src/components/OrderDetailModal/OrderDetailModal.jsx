@@ -411,18 +411,18 @@ export default function OrderDetailModal({ order, onClose, onGoToCustomer, onGen
               className={styles.customerBtn}
               onClick={() => { onClose(); onGoToCustomer(local.customerId) }}
             >
-              <span className="mi" style={{ fontSize: '1.1rem' }}>account_circle</span>
+              <span className="material-icons" style={{ fontSize: '1.1rem' }}>account_circle</span>
               Go to {local.customerName || 'Customer'}'s Profile
-              <span className="mi" style={{ marginLeft: 'auto', fontSize: '1rem' }}>arrow_forward_ios</span>
+              <span className="material-icons" style={{ marginLeft: 'auto', fontSize: '1rem' }}>arrow_forward_ios</span>
             </button>
           )}
 
           {/* Share Review Link */}
           {(local.status === 'completed' || local.status === 'delivered') && (
             <button className={styles.reviewBtn} onClick={handleShareReview}>
-              <span className="mi" style={{ fontSize: '1.15rem' }}>rate_review</span>
+              <span className="material-icons" style={{ fontSize: '1.15rem' }}>rate_review</span>
               Share Review Link via WhatsApp
-              <span className="mi" style={{ fontSize: '1rem', marginLeft: 'auto' }}>open_in_new</span>
+              <span className="material-icons" style={{ fontSize: '1rem', marginLeft: 'auto' }}>open_in_new</span>
             </button>
           )}
 
@@ -432,7 +432,7 @@ export default function OrderDetailModal({ order, onClose, onGoToCustomer, onGen
               className={styles.invoiceBtn}
               onClick={() => { onClose(); onGenerateInvoice(local.id) }}
             >
-              <span className="mi" style={{ fontSize: '1.2rem' }}>receipt_long</span>
+              <span className="material-icons" style={{ fontSize: '1.2rem' }}>receipt_long</span>
               Generate Invoice
             </button>
           )}

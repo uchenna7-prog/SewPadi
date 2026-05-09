@@ -37,10 +37,10 @@
 
 :root[data-theme="dark"] {
   --bg:       #09090b;
-  --surface:  #18181b;
+  --surface:  #19191b;
   --surface2: #27272a;
 
-  --border:   #3f3f46;
+  --border:   #1c1c1e;
   --border2:  #52525b;
 
   --accent:   #fafafa;

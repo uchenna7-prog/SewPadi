@@ -20,7 +20,7 @@
   left: 0;
   bottom: 0;
   width: var(--sidebar-width);
-  background: var(--surface);
+  background: var(--bg);
   border-right: 1px solid var(--border);
   z-index: 500;
   display: flex;
@@ -54,8 +54,8 @@
 
 .top {
   flex-shrink: 0;
-  padding: 24px 20px 16px;
-  background: var(--surface);
+  padding: 40px  16px;
+  background: var(--bg);
   z-index: 2;
   box-shadow: 0 1px 0 var(--border);
   transition: box-shadow 0.3s ease;

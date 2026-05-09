@@ -145,7 +145,7 @@ const TASK_STATUS_STYLES = {
 
 const STAGES = [
   { value: 'measurement_taken', label: 'Measurement Taken', icon: 'straighten'    },
-  { value: 'fabric_ready',      label: 'Fabric Ready',      icon: 'roll_content'  },
+  { value: 'fabric_ready',      label: 'Fabric Ready',      icon: 'layers'  },
   { value: 'cutting',           label: 'Cutting',           icon: 'content_cut'   },
   { value: 'weaving',           label: 'Weaving',           icon: 'texture'       },
   { value: 'sewing',            label: 'Sewing',            icon: 'send'          },

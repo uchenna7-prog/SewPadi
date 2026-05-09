@@ -12,7 +12,7 @@
     left: 0;
     right: 0;
     z-index: 100;
-    background: var(--surface);
+    background: var(--bg);
     border-top: 1px solid var(--border);
     padding: 10px 4px calc(10px + var(--sb));
     box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.07);
