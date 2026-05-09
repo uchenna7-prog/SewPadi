@@ -42,11 +42,40 @@ export function buildPaymentRows(receipt) {
   const offset = rows.length
   current.forEach((p, i) => rows.push({ ...p, _isCurrent: false, _sn: offset + i + 1 }))
 
-  // Find the latest date across all rows that have a real date
-  const allDates = rows
-    .map(p => p.date)
-    .filter(d => d && d !== 'Prior payments')
-    .map(d => new Date(d).getTime())
+  // ── Primary strategy: use currentInstallmentId stored on the receipt ──
+  // This is set at receipt-generation time and unambiguously identifies
+  // which single installment "This Payment" refers to, even when two
+  // installments share the same date.
+  const currentInstallmentId = receipt.currentInstallmentId
+
+  if (currentInstallmentId != null) {
+    rows.forEach(p => {
+      if (String(p.id) === String(currentInstallmentId)) p._isCurrent = true
+    })
+    return rows
+  }
+
+  // ── Fallback for receipts generated before this fix ──────────
+  // Try date+time first (more precise), then date-only (legacy).
+  const realRows = rows.filter(p => p.date && p.date !== 'Prior payments')
+
+  const withTime = realRows.filter(p => p.time)
+  if (withTime.length > 0) {
+    // Pick the single row with the latest date+time combination
+    const latest = withTime.reduce((best, p) => {
+      const t = new Date(`${p.date} ${p.time}`).getTime()
+      return t > best.t ? { t, id: p.id } : best
+    }, { t: -Infinity, id: null })
+    rows.forEach(p => {
+      if (String(p.id) === String(latest.id)) p._isCurrent = true
+    })
+    return rows
+  }
+
+  // Original date-only fallback (may still mark multiple rows current
+  // if they share a date, but only for old data that has no time field)
+  const allDates = realRows
+    .map(p => new Date(p.date).getTime())
     .filter(t => !isNaN(t))
 
   if (allDates.length > 0) {
