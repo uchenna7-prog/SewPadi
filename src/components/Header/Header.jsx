@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useNotifications } from '../../contexts/NotificationContext'
 import styles from './Header.module.css'
@@ -78,19 +78,35 @@ function Header({
   customActions = [],
   backIcon = 'arrow_back_ios',
   agentPendingCount = 2,
-  // scrolledAvatar: { src, initials, onClick }
-  // Only drives the LEFT avatar transition — no right avatar rendered
   scrolledAvatar = null,
-  isScrolled = false,
-  // showRightAvatar is accepted but intentionally ignored — no right avatar
+  isScrolled: isScrolledProp = false,
   showRightAvatar = false,
 }) {
-  const [notifOpen, setNotifOpen] = useState(false)
-  const [notifTab,  setNotifTab]  = useState('all')
+  const [notifOpen,   setNotifOpen]   = useState(false)
+  const [notifTab,    setNotifTab]    = useState('all')
+  const [scrolled,    setScrolled]    = useState(false)
+  const sentinelRef = useRef(null)
+
   const navigate = useNavigate()
   const location = useLocation()
 
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications()
+
+  // ── Sentinel-based scroll detection ───────────────────────
+  // A 1px div sits just below the header inside the page.
+  // When it leaves the viewport (i.e. user scrolled past it),
+  // the header is "scrolled" and we show the shadow.
+  useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!sentinel) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setScrolled(!entry.isIntersecting),
+      { threshold: 0, rootMargin: '0px' }
+    )
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [])
 
   const PAGE_TITLES = {
     '/':          'Dashboard',
@@ -100,8 +116,7 @@ function Header({
     '/agent':     'Agent',
   }
 
-  const pageTitle = title || PAGE_TITLES[location.pathname] || 'TailorFlow'
-
+  const pageTitle    = title || PAGE_TITLES[location.pathname] || 'TailorFlow'
   const showBotButton = type === 'default' && location.pathname === '/'
 
   const openNotif  = () => { setNotifTab('all'); setNotifOpen(true) }
@@ -126,12 +141,14 @@ function Header({
     { id: 'read',   label: 'Read',   count: notifications.length - unreadCount },
   ]
 
-  // Filter out any legacy scrollAvatar customNode actions
   const filteredActions = customActions.filter(a => !a._isScrollAvatar)
 
   return (
     <>
-      <header className={`${styles.header} ${type === 'back' ? styles.backHeader : ''}`}>
+      {/* ── Sentinel — sits at the very top of page content ── */}
+      <div ref={sentinelRef} className={styles.sentinel} aria-hidden="true" />
+
+      <header className={`${styles.header} ${type === 'back' ? styles.backHeader : ''} ${scrolled ? styles.headerScrolled : ''}`}>
         <div className={styles.leftSide}>
           {type === 'default' && (
             <button className={styles.iconBtn} onClick={onMenuClick} aria-label="Open menu">
@@ -144,14 +161,14 @@ function Header({
             </button>
           )}
 
-          {/* ── Left avatar — WhatsApp-style, glides in when scrolled ── */}
+          {/* ── Left avatar — glides in when scrolled ── */}
           {type === 'back' && scrolledAvatar && (
             <div
-              className={`${styles.leftAvatar} ${isScrolled ? styles.leftAvatarVisible : styles.leftAvatarHidden}`}
-              onClick={isScrolled ? scrolledAvatar.onClick : undefined}
-              role={isScrolled ? 'button' : undefined}
-              aria-label={isScrolled ? 'View profile photo' : undefined}
-              aria-hidden={!isScrolled}
+              className={`${styles.leftAvatar} ${isScrolledProp ? styles.leftAvatarVisible : styles.leftAvatarHidden}`}
+              onClick={isScrolledProp ? scrolledAvatar.onClick : undefined}
+              role={isScrolledProp ? 'button' : undefined}
+              aria-label={isScrolledProp ? 'View profile photo' : undefined}
+              aria-hidden={!isScrolledProp}
             >
               {scrolledAvatar.src
                 ? <img src={scrolledAvatar.src} className={styles.leftAvatarImg} alt="" />
@@ -160,14 +177,12 @@ function Header({
             </div>
           )}
 
-          <div
-            className={`${styles.title} header-title ${isScrolled && scrolledAvatar ? styles.titleShifted : ''}`}
-          >
+          <div className={`${styles.title} header-title ${isScrolledProp && scrolledAvatar ? styles.titleShifted : ''}`}>
             {pageTitle}
           </div>
         </div>
 
-        {/* ── BACK HEADER ACTIONS — edit + delete icons only, no avatar ── */}
+        {/* ── BACK HEADER ACTIONS ── */}
         {type === 'back' && (
           <div className={styles.rightActions}>
             {filteredActions.map((action, i) => {
@@ -205,8 +220,6 @@ function Header({
         {/* ── DEFAULT HEADER ACTIONS ── */}
         {type === 'default' && (
           <div className={styles.rightActions}>
-
-            {/* Notification bell */}
             <button className={styles.iconBtn} onClick={openNotif} aria-label="Notifications">
               <span className="mi" style={{ fontSize: '1.4rem', color: 'var(--text2)' }}>notifications</span>
               {unreadCount > 0 && (
@@ -216,7 +229,6 @@ function Header({
               )}
             </button>
 
-            {/* ── BOT / AGENT BUTTON ── */}
             {showBotButton && (
               <button
                 className={styles.iconBtn}
@@ -232,7 +244,6 @@ function Header({
                 )}
               </button>
             )}
-
           </div>
         )}
       </header>
