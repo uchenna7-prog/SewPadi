@@ -145,13 +145,6 @@ const TASK_STATUS_STYLES = {
   pending:   { bg: 'rgba(234,179,8,0.12)',   color: '#a16207', border: 'rgba(234,179,8,0.3)'   },
 }
 
-const STAT_CARD_ICON_COLORS = {
-  orders:       { color: '#2563eb' },
-  invoices:     { color: '#f97316' },
-  appointments: { color: '#059669' },
-  tasks:        { color: '#7c3aed' },
-}
-
 const STAGES = [
   { value: 'measurement_taken', label: 'Measurement Taken', icon: 'straighten'    },
   { value: 'fabric_ready',      label: 'Fabric Ready',      icon: 'layers'  },
@@ -384,10 +377,10 @@ function NotifBanner({ onEnable, onDismiss }) {
   )
 }
 
+// ── STAT CARD — icon now uses var(--icon-color), larger size ──
 function StatCard({ card, navigate }) {
   const [showTip, setShowTip] = useState(false)
-  const isEmpty   = card.value === 0
-  const iconColor = (STAT_CARD_ICON_COLORS[card.colorKey] || STAT_CARD_ICON_COLORS.orders).color
+  const isEmpty = card.value === 0
 
   return (
     <div
@@ -395,9 +388,9 @@ function StatCard({ card, navigate }) {
       onClick={() => navigate(card.route)}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-        {/* Icon — no background wrapper, just the bare icon */}
+        {/* Icon — monochrome, larger */}
         <div className={styles.statIconWrap}>
-          <span className="mi" style={{ fontSize: '1.35rem', color: iconColor }}>
+          <span className="mi" style={{ fontSize: '1.75rem', color: 'var(--icon-color)' }}>
             {card.desktopIcon}
           </span>
         </div>
@@ -784,7 +777,6 @@ function Home({ onMenuClick, onGoToCustomer }) {
 
   const statCards = [
     {
-      colorKey:       'orders',
       desktopIcon:    'shopping_bag',
       value:          pendingOrders.length,
       label:          'Active Orders',
@@ -795,7 +787,6 @@ function Home({ onMenuClick, onGoToCustomer }) {
       route:          '/orders',
     },
     {
-      colorKey:       'invoices',
       desktopIcon:    'receipt_long',
       value:          zeroPaidInvoices.length,
       label:          'Unpaid Invoices',
@@ -807,7 +798,6 @@ function Home({ onMenuClick, onGoToCustomer }) {
       tooltip:        'Only invoices with no payment recorded yet.',
     },
     {
-      colorKey:       'appointments',
       desktopIcon:    'event',
       value:          todayCount,
       label:          "Today's Appts",
@@ -818,7 +808,6 @@ function Home({ onMenuClick, onGoToCustomer }) {
       route:          '/appointments',
     },
     {
-      colorKey:       'tasks',
       desktopIcon:    'task_alt',
       value:          pendingTasks.length,
       label:          'Pending Tasks',
@@ -1067,7 +1056,7 @@ function Home({ onMenuClick, onGoToCustomer }) {
                 ].map(a => (
                   <div key={a.label} className={styles.actionCard} onClick={() => navigate(a.route)}>
                     <div className={styles.statIconWrap}>
-                      <span className="mi" style={{ fontSize: '1.35rem', color: 'var(--accent)' }}>{a.icon}</span>
+                      <span className="mi" style={{ fontSize: '1.75rem', color: 'var(--icon-color)' }}>{a.icon}</span>
                     </div>
                     <div className={styles.actionCardText}>
                       <div className={styles.actionLabel}>{a.label}</div>
