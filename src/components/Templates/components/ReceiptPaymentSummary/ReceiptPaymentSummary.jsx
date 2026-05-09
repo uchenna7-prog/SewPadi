@@ -97,7 +97,11 @@ export function ReceiptPaymentSummary({ receipt, brand, isTemplate5 = false }) {
                     {capitalize(method)}
                     {isCurrent && <span className={styles.latestBadge}>Latest</span>}
                   </div>
-                  <div className={styles.paymentDate}>{payment.date}</div>
+                  {/* Show time alongside date when available so same-day
+                      payments are visually distinct on the printed receipt */}
+                  <div className={styles.paymentDate}>
+                    {payment.date}{payment.time ? ` · ${payment.time}` : ''}
+                  </div>
                 </div>
 
                 <span className={`${styles.paymentAmount} ${isCurrent ? styles.amountCurrent : ''}`}
