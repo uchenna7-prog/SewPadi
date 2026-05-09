@@ -192,6 +192,8 @@
 
 /* ══════════════════════════════════════════
    STAT CARDS — 2-col grid
+   Docwrite-style: faint tinted card bg,
+   bold solid icon background
    ══════════════════════════════════════════ */
 .statsGrid {
   display: grid;
@@ -200,9 +202,13 @@
   margin-bottom: 12px;
 }
 
+/*
+  Each card gets a faint tinted background via inline style
+  driven by STAT_CARD_ICON_COLORS (same object, reused for card bg).
+  The .statCard base sets shared structure; tinted bg is inline.
+*/
 .statCard {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  /* base — tinted bg + border applied inline per card */
   border-radius: 10px;
   padding: 16px 14px 14px;
   display: flex;
@@ -215,9 +221,14 @@
   min-width: 0;
   overflow: hidden;
 }
-.statCard:active { background: var(--surface2); }
+.statCard:active { filter: brightness(0.97); }
 
-/* Icon wrap — bg/border/color are applied inline per card for semantic color */
+/*
+  Icon wrap — uses a bolder, more saturated background
+  (the card bg tint is faint; the icon bg is the prominent one).
+  bg/border/color still applied inline for semantic color,
+  but the wrap itself is visually heavier than before.
+*/
 .statIconWrap {
   width: 38px;
   height: 38px;
@@ -644,11 +655,11 @@
     padding: 20px 18px 18px;
     min-height: 160px;
     border-radius: 12px;
-    transition: background 0.15s, box-shadow 0.15s, transform 0.15s;
+    transition: filter 0.15s, box-shadow 0.15s, transform 0.15s;
   }
 
   .statCard:hover {
-    background: var(--surface2);
+    filter: brightness(0.975);
     box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     transform: translateY(-2px);
   }
