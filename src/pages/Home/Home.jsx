@@ -145,12 +145,50 @@ const TASK_STATUS_STYLES = {
   pending:   { bg: 'rgba(234,179,8,0.12)',   color: '#a16207', border: 'rgba(234,179,8,0.3)'   },
 }
 
-// Semantic icon colors per stat card
+/*
+  Semantic icon colors — redesigned:
+
+  orders       → Blue   — work that is actively in flight (clear, directional, progress)
+  invoices     → Red    — money owed / urgency (unchanged, already correct)
+  appointments → Emerald — confirmed calendar events (positive, scheduled, on-track)
+  tasks        → Purple  — action items / to-dos (deliberate, focused)
+
+  Each entry has three values:
+    cardBg   — very faint tint applied to the whole card background (Docwrite style)
+    iconBg   — more prominent/saturated icon wrap background
+    iconBorder — icon wrap border
+    color    — icon foreground color
+    cardBorder — card border (slightly tinted, replaces var(--border))
+*/
 const STAT_CARD_ICON_COLORS = {
-  orders:       { bg: 'rgba(234,179,8,0.15)',   color: '#a16207', border: 'rgba(234,179,8,0.3)'    }, // amber  — active/in-flight work
-  invoices:     { bg: 'rgba(239,68,68,0.12)',   color: '#dc2626', border: 'rgba(239,68,68,0.25)'   }, // red    — money owed / urgency
-  appointments: { bg: 'rgba(6,182,212,0.12)',   color: '#0891b2', border: 'rgba(6,182,212,0.25)'   }, // cyan   — calendar / scheduled
-  tasks:        { bg: 'rgba(129,140,248,0.14)', color: '#4f46e5', border: 'rgba(129,140,248,0.3)'  }, // indigo — to-do / pending actions
+  orders: {
+    cardBg:     'rgba(37,99,235,0.06)',    // blue-50-ish
+    iconBg:     'rgba(37,99,235,0.15)',    // blue — bold icon bg
+    iconBorder: 'rgba(37,99,235,0.25)',
+    color:      '#1d4ed8',                 // blue-700
+    cardBorder: 'rgba(37,99,235,0.18)',
+  },
+  invoices: {
+    cardBg:     'rgba(239,68,68,0.06)',    // red-50-ish
+    iconBg:     'rgba(239,68,68,0.15)',    // red — bold icon bg
+    iconBorder: 'rgba(239,68,68,0.25)',
+    color:      '#dc2626',                 // red-600
+    cardBorder: 'rgba(239,68,68,0.18)',
+  },
+  appointments: {
+    cardBg:     'rgba(16,185,129,0.06)',   // emerald-50-ish
+    iconBg:     'rgba(16,185,129,0.15)',   // emerald — bold icon bg
+    iconBorder: 'rgba(16,185,129,0.25)',
+    color:      '#059669',                 // emerald-600
+    cardBorder: 'rgba(16,185,129,0.18)',
+  },
+  tasks: {
+    cardBg:     'rgba(124,58,237,0.06)',   // purple-50-ish
+    iconBg:     'rgba(124,58,237,0.15)',   // purple — bold icon bg
+    iconBorder: 'rgba(124,58,237,0.25)',
+    color:      '#7c3aed',                 // violet-600
+    cardBorder: 'rgba(124,58,237,0.18)',
+  },
 }
 
 const STAGES = [
@@ -387,18 +425,26 @@ function NotifBanner({ onEnable, onDismiss }) {
 
 function StatCard({ card, navigate }) {
   const [showTip, setShowTip] = useState(false)
-  const isEmpty   = card.value === 0
-  const iconStyle = STAT_CARD_ICON_COLORS[card.colorKey] || STAT_CARD_ICON_COLORS.orders
+  const isEmpty    = card.value === 0
+  const iconStyle  = STAT_CARD_ICON_COLORS[card.colorKey] || STAT_CARD_ICON_COLORS.orders
 
   return (
-    <div className={styles.statCard} onClick={() => navigate(card.route)}>
+    <div
+      className={styles.statCard}
+      onClick={() => navigate(card.route)}
+      style={{
+        /* Docwrite pattern: faint tinted card background + tinted border */
+        background:  iconStyle.cardBg,
+        border:      `1px solid ${iconStyle.cardBorder}`,
+      }}
+    >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-        {/* Semantic-colored icon wrap */}
+        {/* Prominent solid icon wrap */}
         <div
           className={styles.statIconWrap}
           style={{
-            background:   iconStyle.bg,
-            border:       `1px solid ${iconStyle.border}`,
+            background: iconStyle.iconBg,
+            border:     `1px solid ${iconStyle.iconBorder}`,
             marginBottom: 0,
           }}
         >
