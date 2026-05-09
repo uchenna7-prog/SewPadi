@@ -1,119 +1,293 @@
 :root {
-  /* ── Backgrounds — warm off-white premium light mode ── */
-  --bg:       #f5f0e8;   /* warm cream — matches screenshot's warm off-white */
-  --surface:  #faf7f2;   /* card surface, slightly warmer than bg */
-  --surface2: #ede9e1;   /* inner surface, pressed states */
+  /* ─────────────────────────────────────────
+     LIGHT MODE — Cleaner Premium Neutral UI
+     ───────────────────────────────────────── */
 
-  --border:   #e2ddd5;   /* warm gray border */
-  --border2:  #ccc8be;   /* stronger divider */
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface2: #f5f5f5;
 
-  --accent:   #0d0d0d;
-  --text:     #0d0d0d;
-  --text2:    #6b6560;
-  --text3:    #a09890;
+  --border: #ebebeb;
+  --border2: #dcdcdc;
 
-  --danger:   #ef4444;
-  --success:  #22c55e;
-  --warning:  #f97316;
-  --alert:    #f59e0b;
+  --accent: #111111;
+  --text: #111111;
+  --text2: #666666;
+  --text3: #9a9a9a;
+
+  --danger: #dc2626;
+  --success: #16a34a;
+  --warning: #ca8a04;
+  --alert: #d97706;
 
   --sidebar-width: 280px;
 
-  --st: env(safe-area-inset-top,    0px);
+  --st: env(safe-area-inset-top, 0px);
   --sb: env(safe-area-inset-bottom, 0px);
-  --sl: env(safe-area-inset-left,   0px);
-  --sr: env(safe-area-inset-right,  0px);
+  --sl: env(safe-area-inset-left, 0px);
+  --sr: env(safe-area-inset-right, 0px);
 
-  /* ── Brand (kept for compatibility but toned down) ── */
-  --brand-primary:       #5C7A60;
-  --brand-primary-light: #748E78;
-  --brand-primary-dark:  #3E5840;
-  --brand-on-primary:    #ffffff;
-  --brand-gradient:      linear-gradient(135deg, #5C7A60 0%, #3E5840 100%);
-  --brand-gradient-card: linear-gradient(135deg, rgba(92,122,96,0.08) 0%, rgba(62,88,64,0.03) 100%);
-  --brand-surface:       rgba(92,122,96,0.06);
-  --brand-surface-dark:  #060c06;
-  --brand-muted:         rgba(92,122,96,0.18);
-  --brand-glow:          rgba(116,142,120,0.22);
+  /* ─────────────────────────────────────────
+     Brand System
+     ───────────────────────────────────────── */
 
-  /* ── Icon disc colors — monochrome ── */
-  --icon-disc:  #e4e0d8;
-  --icon-color: #0d0d0d;
+  --brand-primary: #1f1f1f;
+  --brand-primary-light: #3a3a3a;
+  --brand-primary-dark: #0f0f0f;
 
-  /* ── Chart colors ── */
-  --chart-line:   #0d0d0d;
-  --chart-fill:   rgba(13,13,13,0.07);
-  --chart-target: rgba(13,13,13,0.28);
-  --chart-tooltip-bg: #faf7f2;
+  --brand-on-primary: #ffffff;
+
+  --brand-gradient:
+    linear-gradient(
+      135deg,
+      #1f1f1f 0%,
+      #0f0f0f 100%
+    );
+
+  --brand-gradient-card:
+    linear-gradient(
+      135deg,
+      rgba(0,0,0,0.04) 0%,
+      rgba(0,0,0,0.02) 100%
+    );
+
+  --brand-surface: rgba(0,0,0,0.03);
+  --brand-surface-dark: #080808;
+
+  --brand-muted: rgba(0,0,0,0.08);
+  --brand-glow: rgba(0,0,0,0.08);
+
+  /* ─────────────────────────────────────────
+     Icon System
+     ───────────────────────────────────────── */
+
+  --icon-disc: #f1f1f1;
+  --icon-color: #111111;
+
+  /* ─────────────────────────────────────────
+     Charts
+     ───────────────────────────────────────── */
+
+  --chart-line: #111111;
+
+  --chart-fill:
+    rgba(17,17,17,0.06);
+
+  --chart-target:
+    rgba(17,17,17,0.18);
+
+  --chart-tooltip-bg: #ffffff;
+
+  /* ─────────────────────────────────────────
+     Shadows
+     ───────────────────────────────────────── */
+
+  --shadow-sm:
+    0 1px 2px rgba(0,0,0,0.04);
+
+  --shadow-md:
+    0 4px 12px rgba(0,0,0,0.05);
+
+  --shadow-lg:
+    0 10px 30px rgba(0,0,0,0.06);
+
+  /* ─────────────────────────────────────────
+     Radius
+     ───────────────────────────────────────── */
+
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
+
+  /* ─────────────────────────────────────────
+     Animation
+     ───────────────────────────────────────── */
+
+  --transition:
+    180ms cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* ─────────────────────────────────────────
+   DARK MODE — Deep Premium Black UI
+   ───────────────────────────────────────── */
 
 :root[data-theme="dark"] {
-  --bg:       #0d0d0d;   /* near-black — matches screenshot */
-  --surface:  #1a1a1a;   /* card surface */
-  --surface2: #242424;   /* inner surface */
+  --bg: #0b0b0b;
+  --surface: #141414;
+  --surface2: #1f1f1f;
 
-  --border:   #2a2a2a;   /* subtle dark border */
-  --border2:  #3a3a3a;   /* slightly stronger */
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
 
-  --accent:   #f5f0e8;
-  --text:     #f5f0e8;
-  --text2:    #9a948c;
-  --text3:    #5a5550;
+  --accent: #fafafa;
+  --text: #fafafa;
+  --text2: #b3b3b3;
+  --text3: #6b6b6b;
 
-  --danger:   #ef4444;
-  --success:  #4ade80;
-  --warning:  #fb923c;
-  --alert:    #f59e0b;
+  --danger: #ef4444;
+  --success: #4ade80;
+  --warning: #eab308;
+  --alert: #f59e0b;
 
   --sidebar-width: 280px;
 
-  --st: env(safe-area-inset-top,    0px);
+  --st: env(safe-area-inset-top, 0px);
   --sb: env(safe-area-inset-bottom, 0px);
-  --sl: env(safe-area-inset-left,   0px);
-  --sr: env(safe-area-inset-right,  0px);
+  --sl: env(safe-area-inset-left, 0px);
+  --sr: env(safe-area-inset-right, 0px);
 
-  --brand-primary:       #6a8f6e;
-  --brand-primary-light: #82a486;
-  --brand-primary-dark:  #3E5840;
-  --brand-on-primary:    #ffffff;
-  --brand-gradient:      linear-gradient(135deg, #6a8f6e 0%, #4a6b4e 100%);
-  --brand-gradient-card: linear-gradient(135deg, rgba(106,143,110,0.10) 0%, rgba(74,107,78,0.05) 100%);
-  --brand-surface:       rgba(106,143,110,0.08);
-  --brand-surface-dark:  #060c06;
-  --brand-muted:         rgba(106,143,110,0.16);
-  --brand-glow:          rgba(130,164,134,0.20);
+  /* ─────────────────────────────────────────
+     Brand System
+     ───────────────────────────────────────── */
 
-  /* ── Icon disc colors — monochrome dark ── */
-  --icon-disc:  #2a2a2a;
-  --icon-color: #f5f0e8;
+  --brand-primary: #fafafa;
+  --brand-primary-light: #ffffff;
+  --brand-primary-dark: #d6d6d6;
 
-  /* ── Chart colors dark ── */
-  --chart-line:   #f5f0e8;
-  --chart-fill:   rgba(245,240,232,0.08);
-  --chart-target: rgba(245,240,232,0.30);
-  --chart-tooltip-bg: #1a1a1a;
+  --brand-on-primary: #0b0b0b;
+
+  --brand-gradient:
+    linear-gradient(
+      135deg,
+      #fafafa 0%,
+      #d6d6d6 100%
+    );
+
+  --brand-gradient-card:
+    linear-gradient(
+      135deg,
+      rgba(255,255,255,0.05) 0%,
+      rgba(255,255,255,0.02) 100%
+    );
+
+  --brand-surface:
+    rgba(255,255,255,0.04);
+
+  --brand-surface-dark: #050505;
+
+  --brand-muted:
+    rgba(255,255,255,0.08);
+
+  --brand-glow:
+    rgba(255,255,255,0.08);
+
+  /* ─────────────────────────────────────────
+     Icon System
+     ───────────────────────────────────────── */
+
+  --icon-disc: #242424;
+  --icon-color: #fafafa;
+
+  /* ─────────────────────────────────────────
+     Charts
+     ───────────────────────────────────────── */
+
+  --chart-line: #fafafa;
+
+  --chart-fill:
+    rgba(255,255,255,0.07);
+
+  --chart-target:
+    rgba(255,255,255,0.20);
+
+  --chart-tooltip-bg: #141414;
+
+  /* ─────────────────────────────────────────
+     Shadows
+     ───────────────────────────────────────── */
+
+  --shadow-sm:
+    0 1px 2px rgba(0,0,0,0.30);
+
+  --shadow-md:
+    0 6px 18px rgba(0,0,0,0.35);
+
+  --shadow-lg:
+    0 16px 40px rgba(0,0,0,0.45);
 }
 
-*, ::before, *::after {
+/* ─────────────────────────────────────────
+   Base Reset
+   ───────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+
   -webkit-tap-highlight-color: transparent;
 }
 
-html, body, #root {
-  height: 100%;
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+
   background: var(--bg);
   color: var(--text);
+
   font-family: "Manrope", sans-serif;
+
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  text-rendering: optimizeLegibility;
+
   overflow-x: hidden;
+}
+
+/* ─────────────────────────────────────────
+   Typography
+   ───────────────────────────────────────── */
+
+body {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--text);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+p {
+  color: var(--text2);
+}
+
+/* ─────────────────────────────────────────
+   Interactive Elements
+   ───────────────────────────────────────── */
+
+button,
+input,
+select,
+textarea {
+  font-family: "Manrope", sans-serif;
 }
 
 button {
   cursor: pointer;
-  font-family: "Manrope", sans-serif;
+  border: none;
+  outline: none;
+
+  transition:
+    background var(--transition),
+    border-color var(--transition),
+    transform var(--transition),
+    opacity var(--transition);
+}
+
+button:active {
+  transform: scale(0.98);
 }
 
 a {
@@ -121,68 +295,111 @@ a {
   text-decoration: none;
 }
 
-input, select, textarea {
-  font-family: "Manrope", sans-serif;
+/* ─────────────────────────────────────────
+   Material Icons
+   ───────────────────────────────────────── */
+
+.mi,
+.mi-outlined {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  line-height: 1;
+
+  font-style: normal;
+  font-weight: normal;
 }
 
 .mi {
-  font-family: 'Material Icons';
-  font-weight: normal;
-  font-style: normal;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  font-family: "Material Icons";
+
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 300,
+    "GRAD" 0,
+    "opsz" 24;
 }
 
 .mi-outlined {
-  font-family: 'Material Icons Outlined';
-  font-weight: normal;
-  font-style: normal;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  font-family: "Material Icons Outlined";
+
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 300,
+    "GRAD" 0,
+    "opsz" 24;
 }
+
+/* ─────────────────────────────────────────
+   Layout
+   ───────────────────────────────────────── */
 
 .appShell {
   display: flex;
   min-height: 100vh;
+  background: var(--bg);
 }
 
 .appContent {
   flex: 1;
+
   margin-left: var(--sidebar-width);
+
   min-height: 100vh;
+  max-width: 100%;
+
   background: var(--bg);
-  transition: margin-left 0.3s ease;
+
+  transition:
+    margin-left 0.3s ease,
+    background var(--transition);
 }
+
+/* ─────────────────────────────────────────
+   Mobile
+   ───────────────────────────────────────── */
 
 @media (max-width: 768px) {
   .appContent {
     margin-left: 0;
+    width: 100%;
     max-width: 100vw;
   }
 }
 
+/* ─────────────────────────────────────────
+   Scrollbar
+   ───────────────────────────────────────── */
+
 ::-webkit-scrollbar {
   width: 4px;
+  height: 4px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--border2);
-  border-radius: 4px;
+  border-radius: 999px;
 }
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text3);
+}
+
+/* ─────────────────────────────────────────
+   Animations
+   ───────────────────────────────────────── */
 
 @keyframes fadeIn {
   from {
     opacity: 0;
     transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -194,6 +411,7 @@ input, select, textarea {
     opacity: 0;
     transform: translateY(16px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -205,8 +423,21 @@ input, select, textarea {
     opacity: 0;
     transform: translateX(16px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
