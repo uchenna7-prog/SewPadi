@@ -130,7 +130,7 @@ function OrderCard({ order, isLast, onTap }) {
       {/* RIGHT: price, qty badge, status pill, due date */}
       <div className={styles.orderListRight}>
         <div className={styles.orderListPrice}>{priceStr}</div>
-        {totalQty > 1 && <div className={styles.orderListQty}>×{totalQty}</div>}
+        {totalQty > 1 && <div className={styles.orderListQty}>{totalQty} items</div>}
         <span
           className={styles.orderListStatusBadge}
           style={{ color: sc.color, background: sc.bg, borderColor: sc.border }}

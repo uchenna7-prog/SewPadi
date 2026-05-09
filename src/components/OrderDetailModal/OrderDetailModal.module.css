@@ -26,7 +26,7 @@
 .panel {
   width:          100%;
   max-height:     88dvh;
-  background:     var(--surface);
+  background:     var(--bg);
   border-radius:  22px 22px 0 0;
   border-top:     1px solid var(--border);
   display:        flex;
@@ -96,7 +96,7 @@
   flex-shrink: 0;
 }
 
-.closeBtn .mi { font-size: 1.35rem; }
+.closeBtn span { font-size: 1.35rem; }
 
 .headerTitle {
   flex:           1;
@@ -227,7 +227,7 @@
 }
 
 .infoCell {
-  background:    var(--bg);
+  background:    var(--surface);
   border:        1px solid var(--border);
   border-radius: 12px;
   padding:       12px 14px;

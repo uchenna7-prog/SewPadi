@@ -274,10 +274,28 @@
 }
 
 /* LEFT info column */
-.orderListInfo { flex: 1; min-width: 0; }
-.orderListDesc { font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.orderListInfo { 
+  flex: 1; 
+  min-width: 0; 
+}
+.orderListDesc { 
+  font-size: 0.9rem; 
+  font-weight: 600; 
+  color: var(--text); 
+  margin-bottom: 3px; 
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+}
 .orderListMeta { display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
-.orderListMetaText { font-size: 0.75rem; font-weight: 400; color: var(--text2); }
+.orderListMetaText { 
+  font-size: 0.75rem; 
+  font-weight: 400; 
+  color: var(--text2); 
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+}
 .orderListStageLine {
   display: flex;
   align-items: center;

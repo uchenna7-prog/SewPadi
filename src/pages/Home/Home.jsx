@@ -9,6 +9,8 @@ import { useAuth }          from '../../contexts/AuthContext'
 import { useNotifications } from '../../contexts/NotificationContext'
 import { useGeneralSettings }      from '../../contexts/GeneralSettingsContext'
 import { usePayments }      from '../../contexts/PaymentContext'
+import Skeleton from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
 import Header    from '../../components/Header/Header'
 import BottomNav from '../../components/BottomNav/BottomNav'
 import OrderMosaic      from '../../components/OrderMosaic/OrderMosaic'
@@ -143,6 +145,14 @@ const TASK_STATUS_STYLES = {
   pending:   { bg: 'rgba(234,179,8,0.12)',   color: '#a16207', border: 'rgba(234,179,8,0.3)'   },
 }
 
+// Semantic icon colors per stat card
+const STAT_CARD_ICON_COLORS = {
+  orders:       { bg: 'rgba(234,179,8,0.15)',   color: '#a16207', border: 'rgba(234,179,8,0.3)'    }, // amber  — active/in-flight work
+  invoices:     { bg: 'rgba(239,68,68,0.12)',   color: '#dc2626', border: 'rgba(239,68,68,0.25)'   }, // red    — money owed / urgency
+  appointments: { bg: 'rgba(6,182,212,0.12)',   color: '#0891b2', border: 'rgba(6,182,212,0.25)'   }, // cyan   — calendar / scheduled
+  tasks:        { bg: 'rgba(129,140,248,0.14)', color: '#4f46e5', border: 'rgba(129,140,248,0.3)'  }, // indigo — to-do / pending actions
+}
+
 const STAGES = [
   { value: 'measurement_taken', label: 'Measurement Taken', icon: 'straighten'    },
   { value: 'fabric_ready',      label: 'Fabric Ready',      icon: 'layers'  },
@@ -158,96 +168,77 @@ const STAGES = [
 ]
 
 // ─────────────────────────────────────────────────────────────
-// SKELETON COMPONENTS
+// SKELETON PAGE  (react-loading-skeleton)
 // ─────────────────────────────────────────────────────────────
-
-function Bone({ w, h, radius, style }) {
-  return (
-    <div
-      className={styles.bone}
-      style={{ width: w, height: h, borderRadius: radius ?? 6, ...style }}
-    />
-  )
-}
 
 function SkeletonPage() {
   return (
     <div className={styles.skeletonPage}>
+      {/* Hero */}
       <div className={styles.skHero}>
-        <Bone w="80px" h="12px" radius={4} />
-        <Bone w="160px" h="32px" radius={6} style={{ marginTop: 6 }} />
-        <Bone w="240px" h="11px" radius={4} style={{ marginTop: 8 }} />
-        <Bone w="100px" h="10px" radius={4} style={{ marginTop: 6, opacity: 0.5 }} />
+        <Skeleton width={80}  height={12} borderRadius={4} />
+        <Skeleton width={160} height={32} borderRadius={6} style={{ marginTop: 6 }} />
+        <Skeleton width={240} height={11} borderRadius={4} style={{ marginTop: 8 }} />
+        <Skeleton width={100} height={10} borderRadius={4} style={{ marginTop: 6, opacity: 0.5 }} />
       </div>
+
+      {/* Stat cards */}
       <div className={styles.skStatsGrid}>
-        {[0,1,2,3].map(i => (
+        {[0, 1, 2, 3].map(i => (
           <div key={i} className={styles.skStatCard}>
-            <Bone w="34px" h="34px" radius={8} />
-            <Bone w="48px" h="28px" radius={5} style={{ marginTop: 14 }} />
-            <Bone w="72px" h="10px" radius={4} style={{ marginTop: 8 }} />
-            <Bone w="56px" h="9px" radius={4} style={{ marginTop: 6 }} />
+            <Skeleton width={34} height={34} borderRadius={8} />
+            <Skeleton width={48} height={28} borderRadius={5} style={{ marginTop: 14 }} />
+            <Skeleton width={72} height={10} borderRadius={4} style={{ marginTop: 8 }} />
+            <Skeleton width={56} height={9}  borderRadius={4} style={{ marginTop: 6 }} />
           </div>
         ))}
       </div>
+
+      {/* Revenue card */}
       <div className={styles.skFullCard}>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <Bone w="90px" h="10px" radius={4} />
-          <Bone w="130px" h="28px" radius={5} />
-          <Bone w="80px" h="10px" radius={4} />
+          <Skeleton width={90}  height={10} borderRadius={4} />
+          <Skeleton width={130} height={28} borderRadius={5} />
+          <Skeleton width={80}  height={10} borderRadius={4} />
         </div>
-        <Bone w="88px" h="88px" radius={44} />
+        <Skeleton width={88} height={88} circle />
       </div>
+
+      {/* Customer card */}
       <div className={styles.skFullCard} style={{ flexDirection: 'column', gap: 12 }}>
-        <Bone w="110px" h="10px" radius={4} />
-        <Bone w="80px" h="36px" radius={5} />
-        <div className={styles.skDivider} />
+        <Skeleton width={110} height={10} borderRadius={4} />
+        <Skeleton width={80}  height={36} borderRadius={5} />
+        <Skeleton height={1} borderRadius={0} style={{ width: '100%' }} />
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Bone w="80px" h="11px" radius={4} />
-          <Bone w="60px" h="11px" radius={4} />
+          <Skeleton width={80} height={11} borderRadius={4} />
+          <Skeleton width={60} height={11} borderRadius={4} />
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Bone w="90px" h="11px" radius={4} />
-          <Bone w="24px" h="11px" radius={4} />
+          <Skeleton width={90} height={11} borderRadius={4} />
+          <Skeleton width={24} height={11} borderRadius={4} />
         </div>
       </div>
-      <div className={styles.skSection}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-          <Bone w="140px" h="11px" radius={4} />
-          <Bone w="44px" h="11px" radius={4} />
-        </div>
-        <div className={styles.skListDivider} />
-        {[0,1,2].map(i => (
-          <div key={i} className={styles.skListItem}>
-            <Bone w="80px" h="80px" radius={12} style={{ flexShrink: 0 }} />
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 7 }}>
-              <Bone w="70%" h="13px" radius={4} />
-              <Bone w="50%" h="10px" radius={4} />
-              <Bone w="60%" h="10px" radius={4} />
-            </div>
+
+      {/* List sections */}
+      {[0, 1].map(s => (
+        <div key={s} className={styles.skSection}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+            <Skeleton width={140} height={11} borderRadius={4} />
+            <Skeleton width={44}  height={11} borderRadius={4} />
           </div>
-        ))}
-      </div>
-      <div className={styles.skSection}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-          <Bone w="110px" h="11px" radius={4} />
-          <Bone w="44px" h="11px" radius={4} />
+          <Skeleton height={1} borderRadius={0} style={{ width: 'calc(100% + 40px)', marginLeft: -20 }} />
+          {[0, 1, 2].map(i => (
+            <div key={i} className={styles.skListItem}>
+              <Skeleton width={80} height={80} borderRadius={12} style={{ flexShrink: 0 }} />
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 7 }}>
+                <Skeleton width="70%" height={13} borderRadius={4} />
+                <Skeleton width="50%" height={10} borderRadius={4} />
+                <Skeleton width="60%" height={10} borderRadius={4} />
+              </div>
+            </div>
+          ))}
         </div>
-        <div className={styles.skListDivider} />
-        {[0,1,2].map(i => (
-          <div key={i} className={styles.skListItem}>
-            <Bone w="80px" h="80px" radius={12} style={{ flexShrink: 0 }} />
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 7 }}>
-              <Bone w="65%" h="13px" radius={4} />
-              <Bone w="45%" h="10px" radius={4} />
-              <Bone w="40%" h="10px" radius={4} />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
-              <Bone w="52px" h="13px" radius={4} />
-              <Bone w="44px" h="18px" radius={5} />
-            </div>
-          </div>
-        ))}
-      </div>
+      ))}
     </div>
   )
 }
@@ -396,16 +387,26 @@ function NotifBanner({ onEnable, onDismiss }) {
 
 function StatCard({ card, navigate }) {
   const [showTip, setShowTip] = useState(false)
-  const isEmpty = card.value === 0
+  const isEmpty   = card.value === 0
+  const iconStyle = STAT_CARD_ICON_COLORS[card.colorKey] || STAT_CARD_ICON_COLORS.orders
 
   return (
     <div className={styles.statCard} onClick={() => navigate(card.route)}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 0 }}>
-        <div className={styles.statIconWrap} style={{ marginBottom: 0 }}>
-          <span className="mi" style={{ fontSize: '1.25rem', color: 'var(--text)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+        {/* Semantic-colored icon wrap */}
+        <div
+          className={styles.statIconWrap}
+          style={{
+            background:   iconStyle.bg,
+            border:       `1px solid ${iconStyle.border}`,
+            marginBottom: 0,
+          }}
+        >
+          <span className="mi" style={{ fontSize: '1.25rem', color: iconStyle.color }}>
             {card.desktopIcon}
           </span>
         </div>
+
         {card.tooltip && (
           <div style={{ position: 'relative' }}>
             <span
@@ -432,11 +433,12 @@ function StatCard({ card, navigate }) {
           </div>
         )}
       </div>
+
       <div
         className={styles.statValue}
         style={{
           marginTop: '14px',
-          color: isEmpty ? 'var(--text3)' : 'var(--text)',
+          color:   isEmpty ? 'var(--text3)' : 'var(--text)',
           opacity: isEmpty ? 0.45 : 1,
         }}
       >
@@ -787,6 +789,7 @@ function Home({ onMenuClick, onGoToCustomer }) {
 
   const statCards = [
     {
+      colorKey:       'orders',
       desktopIcon:    'shopping_bag',
       value:          pendingOrders.length,
       label:          'Active Orders',
@@ -797,6 +800,7 @@ function Home({ onMenuClick, onGoToCustomer }) {
       route:          '/orders',
     },
     {
+      colorKey:       'invoices',
       desktopIcon:    'receipt_long',
       value:          zeroPaidInvoices.length,
       label:          'Unpaid Invoices',
@@ -808,6 +812,7 @@ function Home({ onMenuClick, onGoToCustomer }) {
       tooltip:        'Only invoices with no payment recorded yet.',
     },
     {
+      colorKey:       'appointments',
       desktopIcon:    'event',
       value:          todayCount,
       label:          "Today's Appts",
@@ -818,6 +823,7 @@ function Home({ onMenuClick, onGoToCustomer }) {
       route:          '/appointments',
     },
     {
+      colorKey:       'tasks',
       desktopIcon:    'task_alt',
       value:          pendingTasks.length,
       label:          'Pending Tasks',

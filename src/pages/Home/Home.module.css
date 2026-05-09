@@ -60,25 +60,10 @@
 }
 
 /* ══════════════════════════════════════════
-   SKELETON
+   SKELETON  (react-loading-skeleton)
+   The library handles its own shimmer/colors.
+   We just need the layout shells.
    ══════════════════════════════════════════ */
-@keyframes shimmer {
-  0%   { background-position: -400px 0; }
-  100% { background-position:  400px 0; }
-}
-
-.bone {
-  background: linear-gradient(
-    90deg,
-    var(--surface)  0%,
-    var(--surface2) 40%,
-    var(--surface)  80%
-  );
-  background-size: 800px 100%;
-  animation: shimmer 1.4s ease-in-out infinite;
-  flex-shrink: 0;
-}
-
 .skeletonPage {
   display: flex;
   flex-direction: column;
@@ -121,22 +106,8 @@
   gap: 16px;
 }
 
-.skDivider {
-  height: 1px;
-  background: var(--border);
-  width: 100%;
-}
-
 .skSection {
   margin-bottom: 22px;
-}
-
-.skListDivider {
-  height: 1px;
-  background: var(--border);
-  width: calc(100% + 40px);
-  margin-left: -20px;
-  margin-bottom: 0;
 }
 
 .skListItem {
@@ -241,28 +212,22 @@
   cursor: pointer;
   transition: background 0.15s;
   min-height: 130px;
-  /* prevent card from being stretched by long text */
   min-width: 0;
   overflow: hidden;
 }
 .statCard:active { background: var(--surface2); }
 
+/* Icon wrap — bg/border/color are applied inline per card for semantic color */
 .statIconWrap {
   width: 38px;
   height: 38px;
   border-radius: 8px;
-  background: var(--accent);
-  border: 1px solid var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   margin-bottom: 14px;
   transition: opacity 0.15s;
-}
-
-.statIconWrap > span {
-  color: var(--bg) !important;
 }
 
 .statCard:active .statIconWrap {
@@ -279,7 +244,6 @@
   line-height: 1;
   letter-spacing: -1px;
   margin-bottom: 6px;
-  /* never wrap */
   white-space: nowrap;
 }
 
@@ -290,7 +254,6 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   line-height: 1.35;
-  /* single line + ellipsis */
   white-space:   nowrap;
   overflow:      hidden;
   text-overflow: ellipsis;
@@ -302,7 +265,6 @@
   font-weight: 700;
   margin-top: 6px;
   line-height: 1.2;
-  /* single line + ellipsis */
   white-space:   nowrap;
   overflow:      hidden;
   text-overflow: ellipsis;
