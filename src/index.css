@@ -1,33 +1,26 @@
 :root {
   /* ─────────────────────────────────────────
      LIGHT MODE — Premium Neutral System
-     Similar philosophy:
-     ChatGPT, Linear, Notion, Apple
      ───────────────────────────────────────── */
 
   color-scheme: light;
 
-  /* Core backgrounds */
   --bg: #f7f7f8;
   --surface: #ffffff;
   --surface2: #f1f1f2;
   --surface3: #e5e7eb;
 
-  /* Borders */
   --border: #e4e4e7;
   --border2: #d4d4d8;
   --border3: #c4c7cf;
 
-  /* Typography */
   --text: #09090b;
   --text2: #52525b;
   --text3: #8f8f99;
 
-  /* Accent */
   --accent: #09090b;
   --accent-hover: #18181b;
 
-  /* Status colors */
   --danger: #dc2626;
   --danger-soft: #fef2f2;
 
@@ -43,127 +36,68 @@
   --info: #2563eb;
   --info-soft: #eff6ff;
 
-  /* Sidebar */
   --sidebar-width: 280px;
 
-  /* Safe areas */
   --st: env(safe-area-inset-top, 0px);
   --sb: env(safe-area-inset-bottom, 0px);
   --sl: env(safe-area-inset-left, 0px);
   --sr: env(safe-area-inset-right, 0px);
 
-  /* ─────────────────────────────────────────
-     Brand System
-     ───────────────────────────────────────── */
-
   --brand-primary: #111111;
   --brand-primary-light: #27272a;
   --brand-primary-dark: #000000;
-
   --brand-on-primary: #ffffff;
 
-  --brand-gradient:
-    linear-gradient(
-      135deg,
-      #1c1c1c 0%,
-      #000000 100%
-    );
-
-  --brand-gradient-card:
-    linear-gradient(
-      180deg,
-      rgba(0,0,0,0.025) 0%,
-      rgba(0,0,0,0.01) 100%
-    );
-
+  --brand-gradient: linear-gradient(135deg, #1c1c1c 0%, #000000 100%);
+  --brand-gradient-card: linear-gradient(180deg, rgba(0,0,0,0.025) 0%, rgba(0,0,0,0.01) 100%);
   --brand-surface: rgba(0,0,0,0.03);
   --brand-surface-dark: #050505;
-
   --brand-muted: rgba(15,23,42,0.06);
   --brand-glow: rgba(0,0,0,0.08);
-
-  /* ─────────────────────────────────────────
-     Icon System
-     ───────────────────────────────────────── */
 
   --icon-disc: #ededee;
   --icon-color: #09090b;
 
-  /* ─────────────────────────────────────────
-     Charts
-     ───────────────────────────────────────── */
-
   --chart-line: #111827;
-
-  --chart-fill:
-    rgba(17,24,39,0.06);
-
-  --chart-target:
-    rgba(17,24,39,0.18);
-
+  --chart-fill: rgba(17,24,39,0.06);
+  --chart-target: rgba(17,24,39,0.18);
   --chart-tooltip-bg: #ffffff;
 
-  /* ─────────────────────────────────────────
-     Shadows
-     Premium softer shadows
-     ───────────────────────────────────────── */
-
-  --shadow-sm:
-    0 1px 2px rgba(15,23,42,0.04);
-
-  --shadow-md:
-    0 8px 24px rgba(15,23,42,0.06);
-
-  --shadow-lg:
-    0 20px 50px rgba(15,23,42,0.10);
-
-  /* ─────────────────────────────────────────
-     Radius
-     ───────────────────────────────────────── */
+  --shadow-sm: 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-md: 0 8px 24px rgba(15,23,42,0.06);
+  --shadow-lg: 0 20px 50px rgba(15,23,42,0.10);
 
   --radius-sm: 12px;
   --radius-md: 18px;
   --radius-lg: 24px;
   --radius-xl: 32px;
 
-  /* ─────────────────────────────────────────
-     Motion
-     ───────────────────────────────────────── */
-
-  --transition:
-    180ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ─────────────────────────────────────────
-   DARK MODE — True Premium Black
-   Similar to:
-   ChatGPT, Vercel, Raycast, Linear
+   DARK MODE
    ───────────────────────────────────────── */
 
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  /* Core backgrounds */
   --bg: #000000;
   --surface: #0a0a0a;
   --surface2: #141414;
   --surface3: #1c1c1e;
 
-  /* Borders */
   --border: rgba(255,255,255,0.08);
   --border2: rgba(255,255,255,0.12);
   --border3: rgba(255,255,255,0.16);
 
-  /* Typography */
   --text: #fafafa;
   --text2: #b4b4b8;
   --text3: #71717a;
 
-  /* Accent */
   --accent: #ffffff;
   --accent-hover: #f4f4f5;
 
-  /* Status colors — vivid, high-contrast for dark backgrounds */
   --danger: #ff3b3b;
   --danger-soft: rgba(255,59,59,0.14);
 
@@ -179,83 +113,36 @@
   --info: #3b82f6;
   --info-soft: rgba(59,130,246,0.14);
 
-  /* Sidebar */
   --sidebar-width: 280px;
 
-  /* Safe areas */
   --st: env(safe-area-inset-top, 0px);
   --sb: env(safe-area-inset-bottom, 0px);
   --sl: env(safe-area-inset-left, 0px);
   --sr: env(safe-area-inset-right, 0px);
 
-  /* ─────────────────────────────────────────
-     Brand System
-     ───────────────────────────────────────── */
-
   --brand-primary: #ffffff;
   --brand-primary-light: #fafafa;
   --brand-primary-dark: #d4d4d8;
-
   --brand-on-primary: #000000;
 
-  --brand-gradient:
-    linear-gradient(
-      135deg,
-      #ffffff 0%,
-      #bfbfbf 100%
-    );
-
-  --brand-gradient-card:
-    linear-gradient(
-      180deg,
-      rgba(255,255,255,0.05) 0%,
-      rgba(255,255,255,0.02) 100%
-    );
-
-  --brand-surface:
-    rgba(255,255,255,0.04);
-
+  --brand-gradient: linear-gradient(135deg, #ffffff 0%, #bfbfbf 100%);
+  --brand-gradient-card: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+  --brand-surface: rgba(255,255,255,0.04);
   --brand-surface-dark: #050505;
-
-  --brand-muted:
-    rgba(255,255,255,0.08);
-
-  --brand-glow:
-    rgba(255,255,255,0.10);
-
-  /* ─────────────────────────────────────────
-     Icon System
-     ───────────────────────────────────────── */
+  --brand-muted: rgba(255,255,255,0.08);
+  --brand-glow: rgba(255,255,255,0.10);
 
   --icon-disc: #1a1a1a;
   --icon-color: #fafafa;
 
-  /* ─────────────────────────────────────────
-     Charts
-     ───────────────────────────────────────── */
-
   --chart-line: #fafafa;
-
-  --chart-fill:
-    rgba(255,255,255,0.08);
-
-  --chart-target:
-    rgba(255,255,255,0.18);
-
+  --chart-fill: rgba(255,255,255,0.08);
+  --chart-target: rgba(255,255,255,0.18);
   --chart-tooltip-bg: #0f0f10;
 
-  /* ─────────────────────────────────────────
-     Shadows
-     ───────────────────────────────────────── */
-
-  --shadow-sm:
-    0 1px 2px rgba(0,0,0,0.45);
-
-  --shadow-md:
-    0 10px 30px rgba(0,0,0,0.55);
-
-  --shadow-lg:
-    0 24px 60px rgba(0,0,0,0.75);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.45);
+  --shadow-md: 0 10px 30px rgba(0,0,0,0.55);
+  --shadow-lg: 0 24px 60px rgba(0,0,0,0.75);
 }
 
 /* ─────────────────────────────────────────
@@ -268,15 +155,19 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-
   -webkit-tap-highlight-color: transparent;
 }
 
-html,
-body,
-#root {
+html {
+  width: 100%;
+  /* ✅ NO overflow-x: hidden here — it breaks position: sticky on Android */
+}
+
+body {
   width: 100%;
   min-height: 100%;
+  /* ✅ Clip horizontal overflow safely on body only, NOT html */
+  overflow-x: clip;
 
   background: var(--bg);
   color: var(--text);
@@ -291,67 +182,46 @@ body,
 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
   text-rendering: optimizeLegibility;
 
-  overflow-x: hidden;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+#root {
+  width: 100%;
+  min-height: 100%;
 }
 
 /* ─────────────────────────────────────────
    Typography
    ───────────────────────────────────────── */
 
-body {
-  font-size: 14px;
-  line-height: 1.5;
-  font-weight: 500;
-
-  background: var(--bg);
+h1, h2, h3, h4, h5, h6 {
   color: var(--text);
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  color: var(--text);
-
   font-weight: 700;
   letter-spacing: -0.03em;
-
   line-height: 1.15;
 }
 
-p {
-  color: var(--text2);
-}
-
-small {
-  color: var(--text3);
-}
+p     { color: var(--text2); }
+small { color: var(--text3); }
 
 /* ─────────────────────────────────────────
    Interactive Elements
    ───────────────────────────────────────── */
 
-button,
-input,
-select,
-textarea {
+button, input, select, textarea {
   font: inherit;
 }
 
 button {
   cursor: pointer;
-
   border: none;
   outline: none;
-
   background: transparent;
   color: inherit;
-
   transition:
     background var(--transition),
     border-color var(--transition),
@@ -361,19 +231,12 @@ button {
     box-shadow var(--transition);
 }
 
-button:active {
-  transform: scale(0.985);
-}
+button:active { transform: scale(0.985); }
 
-input,
-textarea,
-select {
+input, textarea, select {
   background: var(--surface);
   color: var(--text);
-
-  border:
-    1px solid var(--border);
-
+  border: 1px solid var(--border);
   transition:
     border-color var(--transition),
     background var(--transition),
@@ -384,11 +247,8 @@ input:focus,
 textarea:focus,
 select:focus {
   outline: none;
-
   border-color: var(--border3);
-
-  box-shadow:
-    0 0 0 4px var(--brand-muted);
+  box-shadow: 0 0 0 4px var(--brand-muted);
 }
 
 a {
@@ -405,33 +265,20 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   line-height: 1;
-
   font-style: normal;
   font-weight: normal;
-
   user-select: none;
 }
 
 .mi {
   font-family: "Material Icons";
-
-  font-variation-settings:
-    "FILL" 0,
-    "wght" 300,
-    "GRAD" 0,
-    "opsz" 24;
+  font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24;
 }
 
 .mi-outlined {
   font-family: "Material Icons Outlined";
-
-  font-variation-settings:
-    "FILL" 0,
-    "wght" 300,
-    "GRAD" 0,
-    "opsz" 24;
+  font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24;
 }
 
 /* ─────────────────────────────────────────
@@ -441,23 +288,21 @@ a {
 .appShell {
   display: flex;
   min-height: 100vh;
-
   background: var(--bg);
+  /* ✅ Clip horizontal overflow here instead of on html/body */
+  overflow-x: clip;
 }
 
 .appContent {
   flex: 1;
-
   min-height: 100vh;
   max-width: 100%;
-
   margin-left: var(--sidebar-width);
-
   background: var(--bg);
-
   transition:
     margin-left 0.3s ease,
     background var(--transition);
+  /* ✅ Must NOT have overflow-y: auto/scroll — let the window scroll */
 }
 
 /* ─────────────────────────────────────────
@@ -467,23 +312,15 @@ a {
 .card,
 .surface {
   background: var(--surface);
-
-  border:
-    1px solid var(--border);
-
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
-
   box-shadow: var(--shadow-sm);
 }
 
 .card-elevated {
   background: var(--surface);
-
-  border:
-    1px solid var(--border);
-
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-
   box-shadow: var(--shadow-md);
 }
 
@@ -491,37 +328,15 @@ a {
    Status Utilities
    ───────────────────────────────────────── */
 
-.text-danger {
-  color: var(--danger);
-}
+.text-danger  { color: var(--danger); }
+.text-success { color: var(--success); }
+.text-warning { color: var(--warning); }
+.text-alert   { color: var(--alert); }
 
-.text-success {
-  color: var(--success);
-}
-
-.text-warning {
-  color: var(--warning);
-}
-
-.text-alert {
-  color: var(--alert);
-}
-
-.bg-danger-soft {
-  background: var(--danger-soft);
-}
-
-.bg-success-soft {
-  background: var(--success-soft);
-}
-
-.bg-warning-soft {
-  background: var(--warning-soft);
-}
-
-.bg-alert-soft {
-  background: var(--alert-soft);
-}
+.bg-danger-soft  { background: var(--danger-soft); }
+.bg-success-soft { background: var(--success-soft); }
+.bg-warning-soft { background: var(--warning-soft); }
+.bg-alert-soft   { background: var(--alert-soft); }
 
 /* ─────────────────────────────────────────
    Mobile
@@ -539,30 +354,14 @@ a {
    Scrollbar
    ───────────────────────────────────────── */
 
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
+::-webkit-scrollbar        { width: 5px; height: 5px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: var(--border2); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text3); }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border2);
-  border-radius: 999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text3);
-}
-
-/* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color:
-    var(--border2)
-    transparent;
+  scrollbar-color: var(--border2) transparent;
 }
 
 /* ─────────────────────────────────────────
@@ -579,49 +378,21 @@ a {
    ───────────────────────────────────────── */
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(16px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
 }
