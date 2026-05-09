@@ -30,6 +30,12 @@ function getTodayLabel() {
   return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
+// Returns current time as a readable string e.g. "02:45 PM"
+// Stored on each installment so same-day payments can be told apart.
+function getTimeLabel() {
+  return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+}
+
 function getStatusMeta(value) {
   return PAYMENT_STATUSES.find(s => s.value === value) ?? PAYMENT_STATUSES[0]
 }
@@ -191,7 +197,9 @@ function InlinePaymentForm({ order, onSave, saving }) {
       orderItems:   order.items ?? [],
       status:       finalStatus,
       notes:        notes.trim(),
-      installments: [{ amount: parseFloat(amount), method, date: getTodayLabel(), id: Date.now() }],
+      // time is stored alongside date so receipts can distinguish
+      // same-day installments from each other
+      installments: [{ amount: parseFloat(amount), method, date: getTodayLabel(), time: getTimeLabel(), id: Date.now() }],
       date:         getTodayLabel(),
     })
   }
@@ -564,7 +572,7 @@ function PaymentDetail({ payment, onClose, onDelete, onStatusChange, onAddInstal
                 <div key={inst.id ?? idx} style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--border)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                     <span style={{ fontSize: '0.62rem', fontWeight: 800, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      Payment {idx + 1}{installments.length > 1 ? ` of ${installments.length}` : ''}{methodLabel ? ` · ${methodLabel}` : ''}{inst.date ? ` · ${inst.date}` : ''}
+                      Payment {idx + 1}{installments.length > 1 ? ` of ${installments.length}` : ''}{methodLabel ? ` · ${methodLabel}` : ''}{inst.date ? ` · ${inst.date}` : ''}{inst.time ? ` · ${inst.time}` : ''}
                     </span>
                     <span style={{ fontSize: '0.6rem', fontWeight: 800, background: 'rgba(251,146,60,0.14)', color: '#fb923c', border: '1px solid rgba(251,146,60,0.3)', borderRadius: 20, padding: '1px 7px' }}>
                       {idx + 1}/{installments.length}
@@ -617,7 +625,9 @@ function PaymentDetail({ payment, onClose, onDelete, onStatusChange, onAddInstal
                   </div>
                   <div className={styles.installmentRowInfo}>
                     <div className={styles.installmentAmount}>{formatMoney(inst.amount)}</div>
-                    <div className={styles.installmentDate}>{inst.date}</div>
+                    <div className={styles.installmentDate}>
+                      {inst.date}{inst.time ? ` · ${inst.time}` : ''}
+                    </div>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
                     <span className={styles.installmentReceivedBadge}>Received</span>
@@ -687,8 +697,6 @@ function PaymentDetail({ payment, onClose, onDelete, onStatusChange, onAddInstal
 
 // ─────────────────────────────────────────────────────────────
 // PAYMENTS TAB — main export
-// Data (payments) flows in from CustomerDetail via useCustomerData.
-// No internal subscription — hook owns the Firestore listener.
 // ─────────────────────────────────────────────────────────────
 
 export default function PaymentsTab({
@@ -745,7 +753,8 @@ export default function PaymentsTab({
     const payment = payments.find(p => p.id === paymentId)
     if (!payment) return
 
-    const newInstallment      = { amount, method, date: getTodayLabel(), id: Date.now() }
+    // Include time so same-day installments are distinguishable on receipts
+    const newInstallment      = { amount, method, date: getTodayLabel(), time: getTimeLabel(), id: Date.now() }
     const updatedInstallments = [...(payment.installments || []), newInstallment]
     const totalPaid           = getTotalPaid(updatedInstallments)
     const fullPrice           = parseFloat(payment.orderPrice) || 0
@@ -798,7 +807,6 @@ export default function PaymentsTab({
             const installments = payment.installments || []
             const totalPaid    = getTotalPaid(installments)
             const fullPrice    = parseFloat(payment.orderPrice) || 0
-            const installCount = installments.length
             const progressPct  = getProgressPercent(totalPaid, fullPrice, payment.status)
             const orderItems   = orderItemsMap[payment.orderId] ?? []
 
@@ -819,7 +827,6 @@ export default function PaymentsTab({
                     >
                       {statusMeta.label}
                     </span>
-
                   </div>
                 </div>
 
