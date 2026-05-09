@@ -1,18 +1,28 @@
 :root {
 
-  --bg: #ffffff;
-  --surface: #f9f9f9;
-  --surface2: #f0f0f0;
-  --border: #e0e0e0;
-  --border2: #d0d0d0;
-  --accent: #000000;
-  --text: #000000;
-  --text2: #555555;
-  --text3: #050101;
-  --danger: #ff4d4d;
-  --success:#22c55e;
-  --warning:#fb923c;
+  /* ── BACKGROUNDS ── */
+  --bg:       #F7F6F3;
+  --surface:  #FFFFFF;
+  --surface2: #F0EEE9;
 
+  /* ── BORDERS ── */
+  --border:   #E4E2DC;
+  --border2:  #D4D1C9;
+
+  /* ── TEXT ── */
+  --text:     #18181A;
+  --text2:    #5A5856;
+  --text3:    #9A9693;
+
+  /* ── ACCENT ── */
+  --accent:   #18181A;
+
+  /* ── SEMANTIC ── */
+  --danger:   #ff4d4d;
+  --success:  #22c55e;
+  --warning:  #fb923c;
+
+  /* ── LAYOUT ── */
   --sidebar-width: 280px;
 
   /* ── SAFE AREAS ── */
@@ -21,43 +31,52 @@
   --sl: env(safe-area-inset-left,   0px);
   --sr: env(safe-area-inset-right,  0px);
 
-  /* ── BRAND TOKEN FALLBACKS ──*/
-
-  --brand-primary: #5C7A60;
+  /* ── BRAND TOKENS ── */
+  --brand-primary:       #5C7A60;
   --brand-primary-light: #748E78;
-  --brand-primary-dark: #3E5840;
-  --brand-on-primary: #ffffff;
-  --brand-gradient:linear-gradient(135deg, #5C7A60 0%, #3E5840 100%);
+  --brand-primary-dark:  #3E5840;
+  --brand-on-primary:    #ffffff;
+  --brand-gradient:      linear-gradient(135deg, #5C7A60 0%, #3E5840 100%);
   --brand-gradient-card: linear-gradient(135deg, rgba(92,122,96,0.12) 0%, rgba(62,88,64,0.06) 100%);
-  --brand-surface: rgba(92,122,96,0.08);
-  --brand-surface-dark: #060c06;
-  --brand-muted: rgba(92,122,96,0.28);
-  --brand-glow: rgba(116,142,120,0.35);
+  --brand-surface:       rgba(92,122,96,0.08);
+  --brand-surface-dark:  #060c06;
+  --brand-muted:         rgba(92,122,96,0.28);
+  --brand-glow:          rgba(116,142,120,0.35);
 }
 
 
 :root[data-theme="dark"] {
-  --bg:       #000000;
-  --surface:  #0a0a0a;
-  --surface2: #121212;
-  --border:   #1f1f1f;
-  --border2:  #2a2a2a;
-  --accent:   #ffffff;
-  --text:     #ffffff;
-  --text2:    #a0a0a0;
-  --text3:    #555555;
+
+  /* ── BACKGROUNDS ── */
+  --bg:       #141414;
+  --surface:  #1E1E1E;
+  --surface2: #272727;
+
+  /* ── BORDERS ── */
+  --border:   #2E2E2E;
+  --border2:  #3A3A3A;
+
+  /* ── TEXT ── */
+  --text:     #EDEAE4;
+  --text2:    #9A9693;
+  --text3:    #5A5856;
+
+  /* ── ACCENT ── */
+  --accent:   #EDEAE4;
+
+  /* ── SEMANTIC ── */
   --danger:   #ff4d4d;
   --success:  #22c55e;
   --warning:  #fb923c;
 
+  /* ── LAYOUT ── */
   --sidebar-width: 280px;
 
+  /* ── SAFE AREAS ── */
   --st: env(safe-area-inset-top,    0px);
   --sb: env(safe-area-inset-bottom, 0px);
   --sl: env(safe-area-inset-left,   0px);
   --sr: env(safe-area-inset-right,  0px);
-
-
 }
 
 
@@ -116,21 +135,20 @@ html, body, #root {
 @media (max-width: 768px) {
   .appContent {
     margin-left: 0px;
-    max-width:100vw ;
+    max-width: 100vw;
   }
 }
 
-::-webkit-scrollbar{ 
-  width: 4px; 
+::-webkit-scrollbar {
+  width: 4px;
 }
-::-webkit-scrollbar-track { 
-  background: transparent; 
+::-webkit-scrollbar-track {
+  background: transparent;
 }
-::-webkit-scrollbar-thumb { 
-  background: var(--border2); 
-  border-radius: 4px; 
+::-webkit-scrollbar-thumb {
+  background: var(--border2);
+  border-radius: 4px;
 }
-
 
 button {
   cursor: pointer;
@@ -148,34 +166,34 @@ input, select, textarea {
 
 
 @keyframes fadeIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(8px); 
+  from {
+    opacity: 0;
+    transform: translateY(8px);
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
 @keyframes fadeUp {
-  from { 
-    opacity: 0; 
-    transform: translateY(16px); 
+  from {
+    opacity: 0;
+    transform: translateY(16px);
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
 @keyframes slideInRight {
-  from { 
-    opacity: 0; 
-    transform: translateX(16px); 
+  from {
+    opacity: 0;
+    transform: translateX(16px);
   }
-  to { 
-    opacity: 1; 
-    transform: translateX(0); 
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
