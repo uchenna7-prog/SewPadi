@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCustomers }     from '../../contexts/CustomerContext'
 import { useOrders }        from '../../contexts/OrdersContext'
@@ -24,12 +24,6 @@ import styles    from './Home.module.css'
 function isTaskOverdue(task) {
   if (!task.dueDate || task.done) return false
   return new Date(task.dueDate + 'T23:59:59') < new Date()
-}
-
-function isInvoiceOverdue(inv) {
-  if (inv.status === 'paid') return false
-  if (!inv.due) return false
-  return new Date(inv.due + 'T23:59:59') < new Date()
 }
 
 function formatDate(dateStr) {
@@ -133,40 +127,21 @@ const APPT_STATUS_COLORS = {
   cancelled: '#ef4444', missed: '#ef4444',
 }
 const ORDER_STATUS_STYLES = {
-  pending:     { bg: 'rgba(234,179,8,0.12)',   color: '#a16207', border: 'rgba(234,179,8,0.3)'   },
-  'in-progress':{ bg: 'rgba(59,130,246,0.12)', color: '#2563eb', border: 'rgba(59,130,246,0.3)'  },
-  completed:   { bg: 'rgba(21,128,61,0.12)',   color: '#15803d', border: 'rgba(21,128,61,0.3)'   },
-  delivered:   { bg: 'rgba(129,140,248,0.12)', color: '#4f46e5', border: 'rgba(129,140,248,0.3)' },
-  cancelled:   { bg: 'rgba(239,68,68,0.12)',   color: '#dc2626', border: 'rgba(239,68,68,0.3)'   },
+  pending:     { bg: 'rgba(234,179,8,0.10)',   color: '#a16207', border: 'rgba(234,179,8,0.25)'   },
+  'in-progress':{ bg: 'rgba(59,130,246,0.10)', color: '#2563eb', border: 'rgba(59,130,246,0.25)'  },
+  completed:   { bg: 'rgba(21,128,61,0.10)',   color: '#15803d', border: 'rgba(21,128,61,0.25)'   },
+  delivered:   { bg: 'rgba(129,140,248,0.10)', color: '#4f46e5', border: 'rgba(129,140,248,0.25)' },
+  cancelled:   { bg: 'rgba(239,68,68,0.10)',   color: '#dc2626', border: 'rgba(239,68,68,0.25)'   },
 }
 const TASK_STATUS_STYLES = {
-  completed: { bg: 'rgba(21,128,61,0.12)',   color: '#15803d', border: 'rgba(21,128,61,0.3)'   },
-  overdue:   { bg: 'rgba(239,68,68,0.12)',   color: '#dc2626', border: 'rgba(239,68,68,0.3)'   },
-  pending:   { bg: 'rgba(234,179,8,0.12)',   color: '#a16207', border: 'rgba(234,179,8,0.3)'   },
-}
-
-const STAT_CARD_ICON_COLORS = {
-  orders: {
-    iconBg:  'rgba(37,99,235,0.1)',
-    color:   '#2563eb',
-  },
-  invoices: {
-    iconBg:  'rgba(249,115,22,0.1)',
-    color:   '#f97316',
-  },
-  appointments: {
-    iconBg:  'rgba(5,150,105,0.1)',
-    color:   '#059669',
-  },
-  tasks: {
-    iconBg:  'rgba(124,58,237,0.1)',
-    color:   '#7c3aed',
-  },
+  completed: { bg: 'rgba(21,128,61,0.10)',   color: '#15803d', border: 'rgba(21,128,61,0.25)'   },
+  overdue:   { bg: 'rgba(239,68,68,0.10)',   color: '#dc2626', border: 'rgba(239,68,68,0.25)'   },
+  pending:   { bg: 'rgba(234,179,8,0.10)',   color: '#a16207', border: 'rgba(234,179,8,0.25)'   },
 }
 
 const STAGES = [
   { value: 'measurement_taken', label: 'Measurement Taken', icon: 'straighten'    },
-  { value: 'fabric_ready',      label: 'Fabric Ready',      icon: 'layers'  },
+  { value: 'fabric_ready',      label: 'Fabric Ready',      icon: 'layers'        },
   { value: 'cutting',           label: 'Cutting',           icon: 'content_cut'   },
   { value: 'weaving',           label: 'Weaving',           icon: 'texture'       },
   { value: 'sewing',            label: 'Sewing',            icon: 'send'          },
@@ -179,33 +154,285 @@ const STAGES = [
 ]
 
 // ─────────────────────────────────────────────────────────────
-// SKELETON PAGE  (react-loading-skeleton)
+// PERFORMANCE CHART COMPONENT
+// SVG area chart with dashed target line — matches screenshots
+// ─────────────────────────────────────────────────────────────
+
+const CHART_PERIODS = ['1M', '3M', '6M', '1Y']
+
+function PerformanceChart({ payments }) {
+  const [period, setPeriod]   = useState('6M')
+  const [tooltip, setTooltip] = useState(null)
+  const svgRef = useRef(null)
+
+  // Build monthly revenue data from payments
+  const chartData = useCallback(() => {
+    const now    = new Date()
+    const months = period === '1M' ? 1 : period === '3M' ? 3 : period === '6M' ? 6 : 12
+    const pts    = []
+
+    for (let i = months - 1; i >= 0; i--) {
+      const d      = new Date(now.getFullYear(), now.getMonth() - i, 1)
+      const label  = d.toLocaleDateString('en-US', { month: 'short' })
+      const yr     = d.getFullYear()
+      const mo     = d.getMonth()
+
+      const rev = (payments || []).flatMap(p => {
+        const insts = p.installments || []
+        if (!insts.length) return []
+        return insts
+          .filter(inst => {
+            const ds = inst.date || p.date
+            if (!ds) return false
+            const id = new Date(ds)
+            return id.getFullYear() === yr && id.getMonth() === mo
+          })
+          .map(inst => Number(inst.amount) || 0)
+      }).reduce((s, a) => s + a, 0)
+
+      pts.push({ label, rev, yr, mo })
+    }
+    return pts
+  }, [payments, period])
+
+  const data   = chartData()
+  const maxRev = Math.max(...data.map(d => d.rev), 1000)
+
+  // Build a simple linear target trend (from first to last * 1.2)
+  const baseTarget = data.length > 0 ? (data[0].rev || maxRev * 0.4) : 1000
+  const targets    = data.map((_, i) =>
+    baseTarget + ((maxRev * 1.1 - baseTarget) / Math.max(data.length - 1, 1)) * i
+  )
+
+  // SVG dimensions
+  const W = 320, H = 140, PAD_L = 36, PAD_R = 8, PAD_T = 10, PAD_B = 30
+  const innerW = W - PAD_L - PAD_R
+  const innerH = H - PAD_T - PAD_B
+
+  const xPos = (i) => PAD_L + (i / Math.max(data.length - 1, 1)) * innerW
+  const yPos = (v) => PAD_T + innerH - (v / (maxRev * 1.15)) * innerH
+
+  // Build SVG path
+  const linePath = data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${xPos(i)} ${yPos(d.rev)}`).join(' ')
+  const areaPath = data.length > 0
+    ? `${linePath} L ${xPos(data.length - 1)} ${H - PAD_B} L ${xPos(0)} ${H - PAD_B} Z`
+    : ''
+
+  const targetPath = targets.map((v, i) => `${i === 0 ? 'M' : 'L'} ${xPos(i)} ${yPos(v)}`).join(' ')
+
+  // Y-axis labels
+  const yLabels = [0, 0.25, 0.5, 0.75, 1].map(f => ({
+    v: f * maxRev * 1.15,
+    y: yPos(f * maxRev * 1.15),
+  }))
+
+  const formatK = (v) => {
+    if (v >= 1_000_000) return `₦${(v/1_000_000).toFixed(0)}m`
+    if (v >= 1_000)     return `₦${(v/1_000).toFixed(0)}k`
+    return `₦${v}`
+  }
+
+  const handleMouseMove = (e) => {
+    if (!svgRef.current || data.length === 0) return
+    const rect   = svgRef.current.getBoundingClientRect()
+    const scaleX = W / rect.width
+    const mx     = (e.clientX - rect.left) * scaleX - PAD_L
+    const step   = innerW / Math.max(data.length - 1, 1)
+    const idx    = Math.min(Math.max(Math.round(mx / step), 0), data.length - 1)
+    const d      = data[idx]
+    const tgt    = targets[idx]
+    setTooltip({
+      x:      xPos(idx),
+      y:      yPos(d.rev),
+      label:  d.label,
+      rev:    d.rev,
+      target: Math.round(tgt),
+      idx,
+    })
+  }
+
+  const handleTouchMove = (e) => {
+    e.preventDefault()
+    if (!svgRef.current || data.length === 0) return
+    const touch  = e.touches[0]
+    const rect   = svgRef.current.getBoundingClientRect()
+    const scaleX = W / rect.width
+    const mx     = (touch.clientX - rect.left) * scaleX - PAD_L
+    const step   = innerW / Math.max(data.length - 1, 1)
+    const idx    = Math.min(Math.max(Math.round(mx / step), 0), data.length - 1)
+    const d      = data[idx]
+    const tgt    = targets[idx]
+    setTooltip({
+      x:      xPos(idx),
+      y:      yPos(d.rev),
+      label:  d.label,
+      rev:    d.rev,
+      target: Math.round(tgt),
+      idx,
+    })
+  }
+
+  return (
+    <div className={styles.chartCard}>
+      <div className={styles.chartCardTop}>
+        <div>
+          <div className={styles.chartEyebrow}>Revenue</div>
+          <div className={styles.chartTitle}>Atelier<br />Performance</div>
+        </div>
+        <div className={styles.chartPeriodTabs}>
+          {CHART_PERIODS.map(p => (
+            <button key={p}
+              className={`${styles.chartPeriodBtn} ${period === p ? styles.chartPeriodBtnActive : ''}`}
+              onClick={() => { setPeriod(p); setTooltip(null) }}>
+              {p}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className={styles.chartWrap}>
+        <svg
+          ref={svgRef}
+          viewBox={`0 0 ${W} ${H}`}
+          width="100%" height="100%"
+          style={{ overflow: 'visible', userSelect: 'none' }}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={() => setTooltip(null)}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={() => setTooltip(null)}
+        >
+          <defs>
+            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stopColor="var(--chart-line)" stopOpacity="0.14" />
+              <stop offset="100%" stopColor="var(--chart-line)" stopOpacity="0.01" />
+            </linearGradient>
+            <clipPath id="chartClip">
+              <rect x={PAD_L} y={PAD_T} width={innerW} height={innerH + 1} />
+            </clipPath>
+          </defs>
+
+          {/* Y-axis grid lines */}
+          {yLabels.map((yl, i) => (
+            <g key={i}>
+              <line x1={PAD_L} y1={yl.y} x2={W - PAD_R} y2={yl.y}
+                stroke="var(--border)" strokeWidth="1"
+                strokeDasharray={i === 0 ? 'none' : '4 4'} />
+              <text x={PAD_L - 4} y={yl.y + 3.5} textAnchor="end"
+                fontSize="8" fill="var(--text3)" fontFamily="Manrope,sans-serif">
+                {formatK(yl.v)}
+              </text>
+            </g>
+          ))}
+
+          {/* Target dashed line */}
+          {data.length > 1 && (
+            <path d={targetPath} fill="none"
+              stroke="var(--chart-target)" strokeWidth="1.5"
+              strokeDasharray="5 4" clipPath="url(#chartClip)" />
+          )}
+
+          {/* Area fill */}
+          {data.length > 1 && (
+            <path d={areaPath} fill="url(#areaGrad)" clipPath="url(#chartClip)" />
+          )}
+
+          {/* Revenue line */}
+          {data.length > 1 && (
+            <path d={linePath} fill="none"
+              stroke="var(--chart-line)" strokeWidth="2.5"
+              strokeLinecap="round" strokeLinejoin="round"
+              clipPath="url(#chartClip)" />
+          )}
+
+          {/* X-axis labels — show fewer on small screens */}
+          {data.map((d, i) => {
+            const showLabel = data.length <= 6 || i % Math.ceil(data.length / 6) === 0 || i === data.length - 1
+            return showLabel ? (
+              <text key={i} x={xPos(i)} y={H - PAD_B + 16}
+                textAnchor="middle" fontSize="8.5"
+                fill={tooltip?.idx === i ? 'var(--text)' : 'var(--text3)'}
+                fontFamily="Manrope,sans-serif" fontWeight={tooltip?.idx === i ? '700' : '500'}>
+                {d.label}
+              </text>
+            ) : null
+          })}
+
+          {/* Tooltip crosshair + dot */}
+          {tooltip && (
+            <>
+              <line x1={tooltip.x} y1={PAD_T} x2={tooltip.x} y2={H - PAD_B}
+                stroke="var(--text)" strokeWidth="1" strokeDasharray="3 3" opacity="0.4" />
+              <circle cx={tooltip.x} cy={tooltip.y} r="5"
+                fill="var(--surface)" stroke="var(--chart-line)" strokeWidth="2.5" />
+              {/* Target dot */}
+              <circle cx={tooltip.x} cy={yPos(tooltip.target)} r="3.5"
+                fill="var(--chart-tooltip-bg)" stroke="var(--chart-target)" strokeWidth="2" />
+            </>
+          )}
+        </svg>
+
+        {/* Tooltip box */}
+        {tooltip && (() => {
+          const svgEl  = svgRef.current
+          if (!svgEl) return null
+          const rect   = svgEl.getBoundingClientRect()
+          const scaleX = rect.width  / W
+          const scaleY = rect.height / H
+          let left = tooltip.x * scaleX + 8
+          if (left + 110 > rect.width) left = tooltip.x * scaleX - 118
+          const top = Math.max(4, tooltip.y * scaleY - 24)
+          return (
+            <div className={styles.chartTooltip} style={{ left, top }}>
+              <div className={styles.chartTooltipMonth}>{tooltip.label}</div>
+              <div className={styles.chartTooltipRow}>
+                <span>target</span>
+                <span className={styles.chartTooltipVal}>{formatK(tooltip.target)}</span>
+              </div>
+              <div className={styles.chartTooltipRow}>
+                <span>rev</span>
+                <span className={styles.chartTooltipVal}>{formatK(tooltip.rev)}</span>
+              </div>
+            </div>
+          )
+        })()}
+      </div>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────
+// SKELETON PAGE
 // ─────────────────────────────────────────────────────────────
 
 function SkeletonPage() {
   return (
     <div className={styles.skeletonPage}>
-      {/* Hero */}
       <div className={styles.skHero}>
         <Skeleton width={80}  height={12} borderRadius={4} />
         <Skeleton width={160} height={32} borderRadius={6} style={{ marginTop: 6 }} />
         <Skeleton width={240} height={11} borderRadius={4} style={{ marginTop: 8 }} />
         <Skeleton width={100} height={10} borderRadius={4} style={{ marginTop: 6, opacity: 0.5 }} />
       </div>
-
-      {/* Stat cards */}
       <div className={styles.skStatsGrid}>
         {[0, 1, 2, 3].map(i => (
           <div key={i} className={styles.skStatCard}>
-            <Skeleton width={30} height={30} borderRadius={7} />
-            <Skeleton width={48} height={28} borderRadius={5} style={{ marginTop: 14 }} />
+            <Skeleton width={32} height={32} borderRadius={50} />
+            <Skeleton width={48} height={28} borderRadius={5} style={{ marginTop: 18 }} />
             <Skeleton width={72} height={10} borderRadius={4} style={{ marginTop: 8 }} />
             <Skeleton width={56} height={9}  borderRadius={4} style={{ marginTop: 6 }} />
           </div>
         ))}
       </div>
-
-      {/* Revenue card */}
+      <div className={styles.skFullCard} style={{ flexDirection: 'column', gap: 16, height: 240 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <Skeleton width={60}  height={10} borderRadius={4} />
+            <Skeleton width={120} height={24} borderRadius={5} />
+          </div>
+          <Skeleton width={100} height={28} borderRadius={20} />
+        </div>
+        <Skeleton height={140} borderRadius={8} style={{ width: '100%' }} />
+      </div>
       <div className={styles.skFullCard}>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
           <Skeleton width={90}  height={10} borderRadius={4} />
@@ -214,23 +441,6 @@ function SkeletonPage() {
         </div>
         <Skeleton width={88} height={88} circle />
       </div>
-
-      {/* Customer card */}
-      <div className={styles.skFullCard} style={{ flexDirection: 'column', gap: 12 }}>
-        <Skeleton width={110} height={10} borderRadius={4} />
-        <Skeleton width={80}  height={36} borderRadius={5} />
-        <Skeleton height={1} borderRadius={0} style={{ width: '100%' }} />
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Skeleton width={80} height={11} borderRadius={4} />
-          <Skeleton width={60} height={11} borderRadius={4} />
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Skeleton width={90} height={11} borderRadius={4} />
-          <Skeleton width={24} height={11} borderRadius={4} />
-        </div>
-      </div>
-
-      {/* List sections */}
       {[0, 1].map(s => (
         <div key={s} className={styles.skSection}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -240,7 +450,7 @@ function SkeletonPage() {
           <Skeleton height={1} borderRadius={0} style={{ width: 'calc(100% + 40px)', marginLeft: -20 }} />
           {[0, 1, 2].map(i => (
             <div key={i} className={styles.skListItem}>
-              <Skeleton width={80} height={80} borderRadius={12} style={{ flexShrink: 0 }} />
+              <Skeleton width={72} height={72} borderRadius={14} style={{ flexShrink: 0 }} />
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 7 }}>
                 <Skeleton width="70%" height={13} borderRadius={4} />
                 <Skeleton width="50%" height={10} borderRadius={4} />
@@ -265,9 +475,9 @@ function RevenueDonut({ pct }) {
   const greenDash = (filled / 100) * circ
   return (
     <svg width="88" height="88" viewBox="0 0 88 88">
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#94a3b8" strokeWidth="8" opacity="0.3" />
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--border2)" strokeWidth="7" />
       {filled > 0 && (
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#22c55e" strokeWidth="8"
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--accent)" strokeWidth="7"
           strokeDasharray={`${greenDash} ${circ}`} strokeLinecap="round"
           transform={`rotate(-90 ${cx} ${cy})`} />
       )}
@@ -283,7 +493,7 @@ function Delta({ delta, positiveIsGood = true }) {
   const isGood     = positiveIsGood ? isPositive : !isPositive
   return (
     <span className={isGood ? styles.deltaUp : styles.deltaDown}>
-      <span className="mi" style={{ fontSize: '0.62rem', verticalAlign: 'middle' }}>
+      <span className="mi" style={{ fontSize: '0.6rem', verticalAlign: 'middle' }}>
         {isPositive ? 'arrow_upward' : 'arrow_downward'}
       </span>
       {' '}{delta.value} vs last wk
@@ -327,13 +537,11 @@ function RevenueGoalModal({ onSave, onClose }) {
   const [period, setPeriod]       = useState('monthly')
   const [goalInput, setGoalInput] = useState('')
   const [currency, setCurrency]   = useState('₦')
-
   const handleSave = () => {
     const amount = Number(goalInput.replace(/,/g, ''))
     if (!amount || amount <= 0) return
     onSave({ period, goal: amount, currency })
   }
-
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modalSheet} onClick={e => e.stopPropagation()}>
@@ -396,65 +604,43 @@ function NotifBanner({ onEnable, onDismiss }) {
   )
 }
 
+// Monochrome stat card icon — gray disc, no color
 function StatCard({ card, navigate }) {
   const [showTip, setShowTip] = useState(false)
-  const isEmpty    = card.value === 0
-  const iconStyle  = STAT_CARD_ICON_COLORS[card.colorKey] || STAT_CARD_ICON_COLORS.orders
+  const isEmpty = card.value === 0
 
   return (
-    <div
-      className={styles.statCard}
-      onClick={() => navigate(card.route)}
-    >
+    <div className={styles.statCard} onClick={() => navigate(card.route)}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-        <div
-          className={styles.statIconWrap}
-          style={{
-            background: iconStyle.iconBg,
-            border:     'none',
-            marginBottom: 0,
-          }}
-        >
-          <span className="mi" style={{ fontSize: '1.25rem', color: iconStyle.color }}>
+        {/* Monochrome gray disc — matches screenshots */}
+        <div className={styles.statIconWrap}>
+          <span className="mi" style={{ fontSize: '1.15rem', color: 'var(--icon-color)' }}>
             {card.desktopIcon}
           </span>
         </div>
-
         {card.tooltip && (
           <div style={{ position: 'relative' }}>
-            <span
-              className="mi"
-              style={{ fontSize: '0.9rem', color: 'var(--text3)', cursor: 'pointer', lineHeight: 1 }}
-              onClick={e => { e.stopPropagation(); setShowTip(v => !v) }}
-            >
+            <span className="mi"
+              style={{ fontSize: '0.85rem', color: 'var(--text3)', cursor: 'pointer', lineHeight: 1 }}
+              onClick={e => { e.stopPropagation(); setShowTip(v => !v) }}>
               info
             </span>
             {showTip && (
-              <div
-                style={{
-                  position: 'absolute', top: '22px', right: 0, zIndex: 50,
-                  background: 'var(--surface)', border: '1px solid var(--border2)',
-                  borderRadius: '8px', padding: '8px 10px',
-                  fontSize: '0.68rem', fontWeight: 500, color: 'var(--text2)',
-                  width: '160px', lineHeight: 1.45, boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
-                }}
-                onClick={e => e.stopPropagation()}
-              >
+              <div style={{
+                position: 'absolute', top: '22px', right: 0, zIndex: 50,
+                background: 'var(--surface)', border: '1px solid var(--border2)',
+                borderRadius: '10px', padding: '8px 10px',
+                fontSize: '0.68rem', fontWeight: 500, color: 'var(--text2)',
+                width: '160px', lineHeight: 1.45, boxShadow: '0 6px 20px rgba(0,0,0,0.12)',
+              }} onClick={e => e.stopPropagation()}>
                 {card.tooltip}
               </div>
             )}
           </div>
         )}
       </div>
-
-      <div
-        className={styles.statValue}
-        style={{
-          marginTop: '14px',
-          color:   isEmpty ? 'var(--text3)' : 'var(--text)',
-          opacity: isEmpty ? 0.45 : 1,
-        }}
-      >
+      <div className={styles.statValue}
+        style={{ color: isEmpty ? 'var(--text3)' : 'var(--text)', opacity: isEmpty ? 0.4 : 1 }}>
         {card.value}
       </div>
       <div className={styles.statLabel}>{card.label}</div>
@@ -528,24 +714,12 @@ function Home({ onMenuClick, onGoToCustomer }) {
   const { generalSettings }    = useGeneralSettings()
   const { allPayments } = usePayments()
 
-  // ── Loading state ─────────────────────────────────────────
   const noCustomersYet  = !loadingCustomers && customers.length === 0
   const ordersSettled   = allOrders.length   > 0 || noCustomersYet
   const invoicesSettled = allInvoices.length  > 0 || noCustomersYet
   const paymentsSettled = allPayments.length  > 0 || noCustomersYet
-  const apptsSettled    =
-    upcoming.length > 0 ||
-    recentAppts.length > 0 ||
-    missedCount > 0 ||
-    (!loadingCustomers && !loadingTasks)
-
-  const allSettled =
-    !loadingCustomers &&
-    !loadingTasks     &&
-    ordersSettled     &&
-    invoicesSettled   &&
-    paymentsSettled   &&
-    apptsSettled
+  const apptsSettled    = upcoming.length > 0 || recentAppts.length > 0 || missedCount > 0 || (!loadingCustomers && !loadingTasks)
+  const allSettled      = !loadingCustomers && !loadingTasks && ordersSettled && invoicesSettled && paymentsSettled && apptsSettled
 
   const settledRef = useRef(false)
   if (allSettled) settledRef.current = true
@@ -585,14 +759,12 @@ function Home({ onMenuClick, onGoToCustomer }) {
     localStorage.setItem('tf_notif_dismissed', 'true')
   }
 
-  // ── Display name ──────────────────────────────────────────
   const displayName = (() => {
     const full = user?.displayName?.trim()
     if (full) { const p = full.split(/\s+/); return p.length >= 2 ? p[1] : p[0] }
     return user?.email?.split('@')[0] ?? 'there'
   })()
 
-  // ── Date boundaries ───────────────────────────────────────
   const now       = new Date()
   const todayStr  = now.toISOString().slice(0, 10)
   const weekAgo   = new Date(now); weekAgo.setDate(weekAgo.getDate() - 7)
@@ -605,22 +777,16 @@ function Home({ onMenuClick, onGoToCustomer }) {
     const d = new Date(c.date)
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
   }).length
-  const newCustLastMonth = customers.filter(c => c.date && isDateInLastMonth(c.date)).length
-
-  // ── Top customer ──────────────────────────────────────────
   const topCustomer = (() => {
     if (!customers.length) return { name: '—', orderCount: 0, totalSpend: 0 }
-    const counts = {}
-    const spend  = {}
+    const counts = {}; const spend = {}
     allOrders.forEach(o => {
       if (!o.customerId) return
       counts[o.customerId] = (counts[o.customerId] || 0) + 1
       spend[o.customerId]  = (spend[o.customerId]  || 0) + (Number(o.price) || 0)
     })
     let bestId = null, bestCount = 0
-    Object.entries(counts).forEach(([id, cnt]) => {
-      if (cnt > bestCount) { bestCount = cnt; bestId = id }
-    })
+    Object.entries(counts).forEach(([id, cnt]) => { if (cnt > bestCount) { bestCount = cnt; bestId = id } })
     const best = bestId ? customers.find(c => c.id === bestId) : customers[0]
     if (!best) return { name: '—', orderCount: 0, totalSpend: 0 }
     return {
@@ -635,24 +801,19 @@ function Home({ onMenuClick, onGoToCustomer }) {
   const ordersDueToday        = pendingOrders.filter(o => (o.dueDate || o.dueRaw) === todayStr).length
   const ordersDueThisWeek     = pendingOrders.filter(o => dueThisWeek(o.dueDate || o.dueRaw)).length
   const ordersCreatedThisWeek = allOrders.filter(o => o.createdAt && new Date(o.createdAt) >= weekAgo).length
-  const ordersCreatedLastWeek = allOrders.filter(o => {
-    if (!o.createdAt) return false; const d = new Date(o.createdAt)
-    return d >= twoWksAgo && d < weekAgo
-  }).length
 
   // ── Invoices ──────────────────────────────────────────────
   const getInvDueDate = (i) => {
     const explicit = i.due || i.dueDate || i.due_date || i.dueOn
     if (explicit) return explicit
-    let ms = null
-    const ca = i.createdAt
+    let ms = null; const ca = i.createdAt
     if (!ca) return null
-    if (typeof ca.toMillis === 'function')       ms = ca.toMillis()
-    else if (typeof ca.toDate === 'function')     ms = ca.toDate().getTime()
-    else if (typeof ca.seconds === 'number')      ms = ca.seconds * 1000
-    else if (typeof ca === 'number')              ms = ca
-    else if (typeof ca === 'string')              ms = new Date(ca).getTime()
-    else if (ca instanceof Date)                  ms = ca.getTime()
+    if (typeof ca.toMillis === 'function')   ms = ca.toMillis()
+    else if (typeof ca.toDate === 'function') ms = ca.toDate().getTime()
+    else if (typeof ca.seconds === 'number') ms = ca.seconds * 1000
+    else if (typeof ca === 'number')         ms = ca
+    else if (typeof ca === 'string')         ms = new Date(ca).getTime()
+    else if (ca instanceof Date)             ms = ca.getTime()
     if (!ms || isNaN(ms)) return null
     const dueDays = generalSettings.invoiceDueDays ?? 7
     return new Date(ms + dueDays * 86400000).toISOString().slice(0, 10)
@@ -665,16 +826,7 @@ function Home({ onMenuClick, onGoToCustomer }) {
   }
   const unpaidInvoices  = allInvoices.filter(i => i.status !== 'paid' && !isInvOverdue(i))
   const overdueInvoices = allInvoices.filter(i => isInvOverdue(i))
-  const totalUnpaid     = unpaidInvoices.length
   const totalOverdue    = overdueInvoices.length
-  const invThisWeek     = allInvoices.filter(i => i.createdAt && new Date(i.createdAt) >= weekAgo).length
-  const invLastWeek     = allInvoices.filter(i => {
-    if (!i.createdAt) return false; const d = new Date(i.createdAt)
-    return d >= twoWksAgo && d < weekAgo
-  }).length
-  const invoicesDueThisWeek = unpaidInvoices.filter(i => dueThisWeek(getInvDueDate(i))).length
-  const invoicesDueToday    = unpaidInvoices.filter(i => getInvDueDate(i) === todayStr).length
-
   const zeroPaidInvoices    = allInvoices.filter(i => i.status === 'unpaid')
   const zeroPaidDueThisWeek = zeroPaidInvoices.filter(i => dueThisWeek(getInvDueDate(i))).length
   const zeroPaidDueToday    = zeroPaidInvoices.filter(i => getInvDueDate(i) === todayStr).length
@@ -685,19 +837,10 @@ function Home({ onMenuClick, onGoToCustomer }) {
   const tasksDueToday    = pendingTasks.filter(t => t.dueDate === todayStr).length
   const tasksDueThisWeek = pendingTasks.filter(t => dueThisWeek(t.dueDate)).length
   const tasksThisWeek    = tasks.filter(t => t.createdAt && new Date(t.createdAt) >= weekAgo).length
-  const tasksLastWeek    = tasks.filter(t => {
-    if (!t.createdAt) return false; const d = new Date(t.createdAt)
-    return d >= twoWksAgo && d < weekAgo
-  }).length
 
   // ── Appointments ──────────────────────────────────────────
   const todayCount   = todayAppointments.length
   const apptThisWeek = upcoming.filter(a => dueThisWeek(a.date)).length
-  const apptLastWeek = recentAppts.filter(a => {
-    if (!a.date) return false
-    const d = new Date(a.date + 'T00:00:00')
-    return d >= twoWksAgo && d < weekAgo
-  }).length
 
   // ── Revenue ───────────────────────────────────────────────
   const calcRevenue = (sinceDate, beforeDate = null) => {
@@ -705,19 +848,16 @@ function Home({ onMenuClick, onGoToCustomer }) {
     return allPayments.flatMap(p => {
       const insts = p.installments || []
       if (!insts.length) return []
-      return insts
-        .filter(inst => {
-          const ds = inst.date || p.date
-          if (!ds) return false
-          const d = new Date(ds)
-          if (d < sinceDate) return false
-          if (beforeDate && d >= beforeDate) return false
-          return true
-        })
-        .map(inst => Number(inst.amount) || 0)
+      return insts.filter(inst => {
+        const ds = inst.date || p.date
+        if (!ds) return false
+        const d = new Date(ds)
+        if (d < sinceDate) return false
+        if (beforeDate && d >= beforeDate) return false
+        return true
+      }).map(inst => Number(inst.amount) || 0)
     }).reduce((s, a) => s + a, 0)
   }
-
   const revenueEarned     = revenueGoal ? calcRevenue(getWindowStart(revenueGoal.period)) : 0
   const revenuePrevPeriod = revenueGoal ? calcRevenue(getPrevWindowStart(revenueGoal.period), getWindowStart(revenueGoal.period)) : 0
   const revenuePct        = revenueGoal?.goal > 0 ? Math.min(Math.round((revenueEarned / revenueGoal.goal) * 100), 100) : 0
@@ -738,41 +878,29 @@ function Home({ onMenuClick, onGoToCustomer }) {
     const apptTime = new Date(); apptTime.setHours(hh, mm, 0, 0)
     const minsLeft = Math.round((apptTime - Date.now()) / 60000)
     urgentItems.push({
-      icon:  APPT_TYPE_ICONS[soonAppt.type] || 'event',
-      text:  `Appointment in ${minsLeft} min${minsLeft !== 1 ? 's' : ''}${soonAppt.customerName ? ` · ${soonAppt.customerName}` : ''}`,
+      icon: APPT_TYPE_ICONS[soonAppt.type] || 'event',
+      text: `Appointment in ${minsLeft} min${minsLeft !== 1 ? 's' : ''}${soonAppt.customerName ? ` · ${soonAppt.customerName}` : ''}`,
       route: '/appointments',
     })
   }
-  if (overdueTasks.length > 0) urgentItems.push({
-    icon: 'assignment_late',
-    text: `${overdueTasks.length} overdue task${overdueTasks.length > 1 ? 's' : ''}`,
-    route: '/tasks',
-  })
-  if (ordersDueToday > 0) urgentItems.push({
-    icon: 'local_shipping',
-    text: `${ordersDueToday} order${ordersDueToday > 1 ? 's' : ''} due today`,
-    route: '/orders',
-  })
-  if (totalOverdue > 0) urgentItems.push({
-    icon: 'receipt_long',
-    text: `${totalOverdue} overdue invoice${totalOverdue > 1 ? 's' : ''}`,
-    route: '/invoices',
-  })
+  if (overdueTasks.length > 0)  urgentItems.push({ icon: 'assignment_late', text: `${overdueTasks.length} overdue task${overdueTasks.length > 1 ? 's' : ''}`, route: '/tasks' })
+  if (ordersDueToday > 0)       urgentItems.push({ icon: 'content_cut', text: `${ordersDueToday} order${ordersDueToday > 1 ? 's' : ''} due today`, route: '/orders' })
+  if (totalOverdue > 0)         urgentItems.push({ icon: 'receipt_long', text: `${totalOverdue} overdue invoice${totalOverdue > 1 ? 's' : ''}`, route: '/invoices' })
 
-  // ── Recent lists ──────────────────────────────────────────
-  const recentOrders       = [...pendingOrders].slice(0, 4)
+  // ── Recent lists — LIMITED TO 3 ───────────────────────────
+  const recentOrders       = [...pendingOrders].slice(0, 3)
   const recentTasks        = [...tasks]
     .sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0))
-    .slice(0, 4)
-  const recentAppointments = upcoming.slice(0, 4)
-  const pastAppointments   = recentAppts.slice(0, 4)
+    .slice(0, 3)
+  const recentAppointments = upcoming.slice(0, 3)
+  const pastAppointments   = recentAppts.slice(0, 3)
 
   // ── Stat card sub messages ────────────────────────────────
   const ordersSub = (() => {
-    if (pendingOrders.length === 0) return { text: 'All orders sent', color: '#22c55e' }
+    if (pendingOrders.length === 0) return { text: 'All caught up', color: '#22c55e' }
     if (ordersDueToday > 0) return { text: `${ordersDueToday} due today`, color: '#ef4444' }
     if (ordersDueThisWeek > 0) return { text: `${ordersDueThisWeek} due this wk`, color: '#fb923c' }
-    if (ordersCreatedThisWeek > 0) return { text: `${ordersCreatedThisWeek} new this wk`, color: '#818cf8' }
+    if (ordersCreatedThisWeek > 0) return { text: `${ordersCreatedThisWeek} new this wk`, color: 'var(--text2)' }
     return null
   })()
 
@@ -785,25 +913,25 @@ function Home({ onMenuClick, onGoToCustomer }) {
   })()
 
   const apptSub = (() => {
-    if (todayCount > 0) return { text: `${todayCount} today`, color: '#06b6d4' }
+    if (todayCount > 0) return { text: `${todayCount} today`, color: 'var(--text)' }
     if (missedCount > 0) return { text: `${missedCount} missed`, color: '#ef4444' }
-    if (upcomingThisWeek > 0) return { text: `${upcomingThisWeek} this wk`, color: '#818cf8' }
+    if (upcomingThisWeek > 0) return { text: `${upcomingThisWeek} this wk`, color: 'var(--text2)' }
     return { text: 'Clear schedule', color: '#22c55e' }
   })()
 
   const tasksSub = (() => {
-    if (pendingTasks.length === 0 && overdueTasks.length === 0) return { text: '+ New task', color: '#22c55e' }
+    if (pendingTasks.length === 0 && overdueTasks.length === 0) return { text: 'All done', color: '#22c55e' }
     if (overdueTasks.length > 0) return { text: `${overdueTasks.length} overdue`, color: '#ef4444' }
     if (tasksDueToday > 0) return { text: `${tasksDueToday} due today`, color: '#ef4444' }
     if (tasksDueThisWeek > 0) return { text: `${tasksDueThisWeek} due this wk`, color: '#fb923c' }
-    if (tasksThisWeek > 0) return { text: `${tasksThisWeek} new this wk`, color: '#818cf8' }
+    if (tasksThisWeek > 0) return { text: `${tasksThisWeek} new this wk`, color: 'var(--text2)' }
     return null
   })()
 
+  // Active orders uses scissors icon — content_cut
   const statCards = [
     {
-      colorKey:       'orders',
-      desktopIcon:    'shopping_bag',
+      desktopIcon:    'content_cut',   // ← scissors for active orders
       value:          pendingOrders.length,
       label:          'Active Orders',
       sub:            ordersSub?.text ?? null,
@@ -813,7 +941,6 @@ function Home({ onMenuClick, onGoToCustomer }) {
       route:          '/orders',
     },
     {
-      colorKey:       'invoices',
       desktopIcon:    'receipt_long',
       value:          zeroPaidInvoices.length,
       label:          'Unpaid Invoices',
@@ -825,7 +952,6 @@ function Home({ onMenuClick, onGoToCustomer }) {
       tooltip:        'Only invoices with no payment recorded yet.',
     },
     {
-      colorKey:       'appointments',
       desktopIcon:    'event',
       value:          todayCount,
       label:          "Today's Appts",
@@ -836,7 +962,6 @@ function Home({ onMenuClick, onGoToCustomer }) {
       route:          '/appointments',
     },
     {
-      colorKey:       'tasks',
       desktopIcon:    'task_alt',
       value:          pendingTasks.length,
       label:          'Pending Tasks',
@@ -855,7 +980,7 @@ function Home({ onMenuClick, onGoToCustomer }) {
     const spendStr = formatNairaCompact(totalSpend)
     if (spendStr) parts.push(spendStr)
     parts.push(`${orderCount} order${orderCount !== 1 ? 's' : ''}`)
-    return parts.join(' • ')
+    return parts.join(' · ')
   })()
 
   // ─────────────────────────────────────────────────────────
@@ -866,7 +991,6 @@ function Home({ onMenuClick, onGoToCustomer }) {
       <Header onMenuClick={onMenuClick} />
 
       <main className={styles.main}>
-
         {isLoading ? (
           <SkeletonTheme baseColor="var(--surface2)" highlightColor="var(--surface)">
             <SkeletonPage />
@@ -900,16 +1024,19 @@ function Home({ onMenuClick, onGoToCustomer }) {
               ))}
             </section>
 
-            {/* 2. REVENUE CARD ── */}
+            {/* 2. PERFORMANCE CHART ── positioned here between stats and revenue */}
+            <PerformanceChart payments={allPayments} />
+
+            {/* 3. REVENUE GOAL CARD ── */}
             {!revenueGoal ? (
               <div className={styles.revenueCard} onClick={() => setShowGoalModal(true)}
                 style={{ justifyContent: 'flex-start', gap: '20px' }}>
                 <div className={styles.revenueEmptyIconWrap}>
-                  <span className="mi" style={{ fontSize: '1.6rem', color: 'var(--accent)' }}>ads_click</span>
+                  <span className="mi" style={{ fontSize: '1.4rem', color: 'var(--icon-color)' }}>ads_click</span>
                 </div>
                 <div className={styles.revenueCardLeft} style={{ gap: '2px' }}>
                   <div className={styles.revenueEmptyTitle}>Set your first goal</div>
-                  <div className={styles.revenueEmptySub}>Tap here to track your shop's revenue growth</div>
+                  <div className={styles.revenueEmptySub}>Tap to track your shop's revenue growth</div>
                 </div>
               </div>
             ) : (
@@ -931,7 +1058,7 @@ function Home({ onMenuClick, onGoToCustomer }) {
                       <span style={{ color: revenueUp ? '#15803d' : '#ef4444', fontSize: '0.72rem', fontWeight: 700 }}>
                         {revenueGoal.currency}{Math.abs(revenueDiff).toLocaleString()}
                       </span>
-                      <span style={{ color: 'var(--text3)', fontSize: '0.7rem', marginLeft: '3px' }}>
+                      <span style={{ color: 'var(--text3)', fontSize: '0.7rem', marginLeft: '4px' }}>
                         vs last {revenueGoal.period === 'weekly' ? 'week' : revenueGoal.period === 'monthly' ? 'month' : 'year'}
                       </span>
                     </div>
@@ -943,11 +1070,11 @@ function Home({ onMenuClick, onGoToCustomer }) {
               </div>
             )}
 
-            {/* 3. CUSTOMER INSIGHTS CARD ── */}
+            {/* 4. CUSTOMER INSIGHTS CARD ── */}
             <div className={styles.customerCard} onClick={() => navigate('/customers')}>
               <div className={styles.customerCardHeader}>
                 <span className={styles.customerCardSectionLabel}>Customer Insights</span>
-                <span className="mi" style={{ fontSize: '0.95rem', color: 'var(--text3)' }}>chevron_right</span>
+                <span className="mi" style={{ fontSize: '0.9rem', color: 'var(--text3)' }}>chevron_right</span>
               </div>
               <div className={styles.customerHeroBlock}>
                 <div className={styles.customerHeroNumber}>{totalCustomers.toLocaleString()}</div>
@@ -958,7 +1085,7 @@ function Home({ onMenuClick, onGoToCustomer }) {
                 <div className={styles.customerStatRow}>
                   <span className={styles.customerStatLbl}>Top Customer</span>
                   <div className={styles.customerTopVal}>
-                    <span style={{ color: 'var(--accent)' }}>{topCustomer.name}</span>
+                    <span style={{ color: 'var(--text)', fontWeight: 700 }}>{topCustomer.name}</span>
                     {topCustomerMeta && (
                       <span className={styles.customerTopMeta}>{topCustomerMeta}</span>
                     )}
@@ -975,7 +1102,7 @@ function Home({ onMenuClick, onGoToCustomer }) {
               <RevenueGoalModal onSave={handleSaveGoal} onClose={() => setShowGoalModal(false)} />
             )}
 
-            {/* ── UPCOMING APPOINTMENTS ── */}
+            {/* ── UPCOMING APPOINTMENTS — 3 max ── */}
             {recentAppointments.length > 0 && (
               <section className={styles.section}>
                 <div className={styles.sectionHeader}>
@@ -992,21 +1119,21 @@ function Home({ onMenuClick, onGoToCustomer }) {
                     return (
                       <div key={appt.id} className={`${styles.listItem} ${isLast ? styles.listItemLast : ''}`}>
                         <div className={styles.listOuter}
-                          style={isToday ? { borderColor: 'rgba(6,182,212,0.35)', background: 'rgba(6,182,212,0.05)' } : {}}>
+                          style={isToday ? { borderColor: 'rgba(6,182,212,0.3)', background: 'rgba(6,182,212,0.04)' } : {}}>
                           <div className={styles.listInner}>
-                            <span className="mi" style={{ fontSize: '1.3rem', color: iconColor }}>{icon}</span>
+                            <span className="mi" style={{ fontSize: '1.2rem', color: 'var(--icon-color)' }}>{icon}</span>
                           </div>
                         </div>
                         <div className={styles.listInfo}>
                           <div className={styles.listDesc}>{appt.title || appt.type || 'Appointment'}</div>
                           {appt.customerName && (
                             <div className={styles.listMeta}>
-                              <span className="mi" style={{ fontSize: '0.78rem', color: 'var(--text3)', verticalAlign: 'middle' }}>person</span>
+                              <span className="mi" style={{ fontSize: '0.75rem', color: 'var(--text3)', verticalAlign: 'middle' }}>person</span>
                               <span className={styles.listMetaText}>{appt.customerName}</span>
                             </div>
                           )}
                           <div className={styles.listMeta}>
-                            <span className="mi" style={{ fontSize: '0.78rem', color: 'var(--text3)', verticalAlign: 'middle' }}>schedule</span>
+                            <span className="mi" style={{ fontSize: '0.75rem', color: 'var(--text3)', verticalAlign: 'middle' }}>schedule</span>
                             <span className={styles.listMetaText}>{formatApptDate(appt.date, appt.time)}</span>
                           </div>
                           {isToday && <div className={styles.listApptToday}>Today</div>}
@@ -1018,7 +1145,7 @@ function Home({ onMenuClick, onGoToCustomer }) {
               </section>
             )}
 
-            {/* ── RECENT APPOINTMENTS ── */}
+            {/* ── RECENT APPOINTMENTS — 3 max ── */}
             {pastAppointments.length > 0 && (
               <section className={styles.section}>
                 <div className={styles.sectionHeader}>
@@ -1035,13 +1162,13 @@ function Home({ onMenuClick, onGoToCustomer }) {
                       <div key={appt.id} className={`${styles.listItem} ${isLast ? styles.listItemLast : ''}`}>
                         <div className={styles.listOuter} style={
                           appt.status === 'completed'
-                            ? { borderColor: 'rgba(21,128,61,0.3)', background: 'rgba(21,128,61,0.04)' }
+                            ? { borderColor: 'rgba(21,128,61,0.25)', background: 'rgba(21,128,61,0.03)' }
                             : appt.status === 'cancelled'
-                            ? { borderColor: 'rgba(148,163,184,0.3)' }
-                            : { borderColor: 'rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.04)' }
+                            ? { borderColor: 'rgba(148,163,184,0.25)' }
+                            : { borderColor: 'rgba(239,68,68,0.25)', background: 'rgba(239,68,68,0.03)' }
                         }>
                           <div className={styles.listInner}>
-                            <span className="mi" style={{ fontSize: '1.3rem', color: iconColor }}>
+                            <span className="mi" style={{ fontSize: '1.2rem', color: 'var(--icon-color)' }}>
                               {APPT_TYPE_ICONS[appt.type] || 'event'}
                             </span>
                           </div>
@@ -1050,19 +1177,19 @@ function Home({ onMenuClick, onGoToCustomer }) {
                           <div className={styles.listDesc}>{appt.title || appt.type || 'Appointment'}</div>
                           {appt.customerName && (
                             <div className={styles.listMeta}>
-                              <span className="mi" style={{ fontSize: '0.78rem', color: 'var(--text3)', verticalAlign: 'middle' }}>person</span>
+                              <span className="mi" style={{ fontSize: '0.75rem', color: 'var(--text3)', verticalAlign: 'middle' }}>person</span>
                               <span className={styles.listMetaText}>{appt.customerName}</span>
                             </div>
                           )}
                           <div className={styles.listMeta}>
-                            <span className="mi" style={{ fontSize: '0.78rem', color: 'var(--text3)', verticalAlign: 'middle' }}>schedule</span>
+                            <span className="mi" style={{ fontSize: '0.75rem', color: 'var(--text3)', verticalAlign: 'middle' }}>schedule</span>
                             <span className={styles.listMetaText}
                               style={{ color: appt.status === 'missed' ? '#ef4444' : undefined }}>
                               {formatApptDate(appt.date, appt.time)}
                             </span>
                           </div>
                           <div className={styles.listApptStatus}
-                            style={{ color: iconColor, borderColor: `${iconColor}40`, background: `${iconColor}12` }}>
+                            style={{ color: iconColor, borderColor: `${iconColor}35`, background: `${iconColor}0e` }}>
                             {appt.status === 'completed' ? 'Completed' : appt.status === 'cancelled' ? 'Cancelled' : 'Missed'}
                           </div>
                         </div>
@@ -1085,7 +1212,7 @@ function Home({ onMenuClick, onGoToCustomer }) {
                 ].map(a => (
                   <div key={a.label} className={styles.actionCard} onClick={() => navigate(a.route)}>
                     <div className={styles.statIconWrap}>
-                      <span className="mi" style={{ fontSize: '1.15rem', color: 'var(--accent)' }}>{a.icon}</span>
+                      <span className="mi" style={{ fontSize: '1.1rem', color: 'var(--icon-color)' }}>{a.icon}</span>
                     </div>
                     <div className={styles.actionCardText}>
                       <div className={styles.actionLabel}>{a.label}</div>
@@ -1095,7 +1222,7 @@ function Home({ onMenuClick, onGoToCustomer }) {
               </div>
             </section>
 
-            {/* ── RECENT ORDERS ── */}
+            {/* ── RECENT ORDERS — 3 max ── */}
             {recentOrders.length > 0 && (
               <section className={styles.section}>
                 <div className={styles.sectionHeader}>
@@ -1113,21 +1240,19 @@ function Home({ onMenuClick, onGoToCustomer }) {
                     const dueDateShort = dueDateRaw ? `Due ${formatDateShort(dueDateRaw)}`
                       : order.due ? `Due ${order.due}` : null
                     return (
-                      <div
-                        key={order.id}
+                      <div key={order.id}
                         className={`${styles.listItem} ${isLast ? styles.listItemLast : ''}`}
-                        onClick={() => setDetailOrder(order)}
-                      >
+                        onClick={() => setDetailOrder(order)}>
                         <OrderMosaic items={itemsList} />
                         <div className={styles.listInfo}>
                           <div className={styles.listDesc}>{order.desc ?? 'Order'}</div>
                           <div className={styles.listMeta}>
-                            <span className="mi" style={{ fontSize: '0.78rem', color: 'var(--text3)', verticalAlign: 'middle' }}>person</span>
+                            <span className="mi" style={{ fontSize: '0.75rem', color: 'var(--text3)', verticalAlign: 'middle' }}>person</span>
                             <span className={styles.listMetaText}>{order.customerName || '—'}</span>
                           </div>
                           {stageObj && (
                             <div className={styles.listStageLine}>
-                              <span className="mi" style={{ fontSize: '0.78rem' }}>{stageObj.icon}</span>
+                              <span className="mi" style={{ fontSize: '0.75rem' }}>{stageObj.icon}</span>
                               {stageObj.label}
                             </div>
                           )}
@@ -1147,7 +1272,7 @@ function Home({ onMenuClick, onGoToCustomer }) {
               </section>
             )}
 
-            {/* ── RECENT TASKS ── */}
+            {/* ── RECENT TASKS — 3 max ── */}
             {recentTasks.length > 0 && (
               <section className={styles.section}>
                 <div className={styles.sectionHeader}>
@@ -1159,32 +1284,35 @@ function Home({ onMenuClick, onGoToCustomer }) {
                   {recentTasks.map((task, idx) => {
                     const isLast    = idx === recentTasks.length - 1
                     const overdue   = isTaskOverdue(task)
-                    const iconColor = overdue ? '#ef4444' : task.done ? '#15803d' : '#818cf8'
                     const catIcon   = CATEGORY_ICONS[task.category] || 'assignment'
+                    const iconColor = overdue ? '#ef4444' : task.done ? '#22c55e' : 'var(--text2)'
                     return (
                       <div key={task.id} className={`${styles.listItem} ${isLast ? styles.listItemLast : ''}`}>
                         <div className={styles.listOuter}
-                          style={overdue ? { borderColor: 'rgba(239,68,68,0.35)', background: 'rgba(239,68,68,0.05)' } : task.done ? { borderColor: 'rgba(21,128,61,0.3)', background: 'rgba(21,128,61,0.04)' } : {}}>
+                          style={
+                            overdue  ? { borderColor: 'rgba(239,68,68,0.25)',  background: 'rgba(239,68,68,0.03)' }
+                          : task.done ? { borderColor: 'rgba(34,197,94,0.25)', background: 'rgba(34,197,94,0.03)' }
+                          : {}
+                          }>
                           <div className={styles.listInner}>
-                            <span className="mi" style={{ fontSize: '1.3rem', color: iconColor }}>{catIcon}</span>
+                            <span className="mi" style={{ fontSize: '1.2rem', color: 'var(--icon-color)' }}>{catIcon}</span>
                           </div>
                         </div>
                         <div className={styles.listInfo}>
                           <div className={styles.listDesc}>{task.desc}</div>
                           {task.customerName && (
                             <div className={styles.listMeta}>
-                              <span className="mi" style={{ fontSize: '0.78rem', color: 'var(--text3)', verticalAlign: 'middle' }}>person</span>
+                              <span className="mi" style={{ fontSize: '0.75rem', color: 'var(--text3)', verticalAlign: 'middle' }}>person</span>
                               <span className={styles.listMetaText}>{task.customerName}</span>
                             </div>
                           )}
                           {(() => {
                             const statusKey = overdue ? 'overdue' : task.done ? 'completed' : 'pending'
                             const sty = TASK_STATUS_STYLES[statusKey]
-                            const label = statusKey.charAt(0).toUpperCase() + statusKey.slice(1)
                             return (
                               <span className={styles.statusPill}
                                 style={{ background: sty.bg, color: sty.color, borderColor: sty.border }}>
-                                {label}
+                                {statusKey.charAt(0).toUpperCase() + statusKey.slice(1)}
                               </span>
                             )
                           })()}
@@ -1210,7 +1338,6 @@ function Home({ onMenuClick, onGoToCustomer }) {
             )}
           </>
         )}
-
       </main>
 
       <BottomNav />
