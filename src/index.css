@@ -79,7 +79,7 @@
 
   /* ── STATUS ──
      Slightly lighter variants so they don't wash out on dark surfaces. */
-  --danger:   #f87171;   /* red-400   */
+  --danger:   #ef4444;   /* red-500 — same as light mode, holds fine on dark */
   --success:  #4ade80;   /* green-400 */
   --warning:  #fb923c;   /* orange-400 */
 
