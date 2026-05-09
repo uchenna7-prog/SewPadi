@@ -332,8 +332,6 @@ export default function CustomerDetail({ onMenuClick }) {
   }, [])
 
   // ── invoice status healing ────────────────────────────────
-  // When payments exist but invoices are still marked 'unpaid',
-  // this one-time effect corrects them on page load.
   useEffect(() => {
     if (healedRef.current) return
     if (!customerData.invoices?.length || !customerData.payments?.length) return
@@ -435,7 +433,7 @@ export default function CustomerDetail({ onMenuClick }) {
       currency: localStorageSettingsSnap.invoiceCurrency || '₦',
       showTax: localStorageSettingsSnap.invoiceShowTax || false,
       taxRate:  localStorageSettingsSnap.invoiceTaxRate || 0,
-  
+
     }
 
     const newInvoice = {
@@ -473,9 +471,9 @@ export default function CustomerDetail({ onMenuClick }) {
   }, [customerData, orders, showToast, invoiceTemplate,  profileSettings])
 
 
- 
+
   const handleInvoicePaid = useCallback(async (orderId, invoiceStatus) => {
-    
+
     const newStatus = invoiceStatus || 'paid'
     const matchingInvoice = customerData.invoices.find(inv =>
       String(inv.orderId) === String(orderId) && inv.status !== 'paid'
@@ -502,14 +500,12 @@ export default function CustomerDetail({ onMenuClick }) {
     let localStorageSettingsSnap = {}
 
     try { 
-
       localStorageSettingsSnap = {
         ...JSON.parse(localStorage.getItem('tailorflow_profile_settings') || '{}'), 
         ...JSON.parse(localStorage.getItem('tailorflow_general_settings') || '{}')
       }
     } 
     catch {
-
     }
 
     const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -524,7 +520,7 @@ export default function CustomerDetail({ onMenuClick }) {
     const isFullPay = balance <= 0
     const previousInstallments = allInstalls
       .slice(0, Math.max(0, thisInstallIndex))
-      .map(inst => ({ id: inst.id, amount: inst.amount, method: inst.method || 'cash', date: inst.date }))
+      .map(inst => ({ id: inst.id, amount: inst.amount, method: inst.method || 'cash', date: inst.date, time: inst.time || null }))
     const previousPaid         = previousInstallments.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0)
 
     const perPaymentCount = customerData.receipts.filter(r => String(r.paymentId) === String(payment.id)).length + 1
@@ -537,34 +533,46 @@ export default function CustomerDetail({ onMenuClick }) {
       currency: localStorageSettingsSnap.receiptCurrency || '₦',
       showTax: localStorageSettingsSnap.receiptShowTax || false,
       taxRate:  localStorageSettingsSnap.receiptTaxRate || 0,
-  
     }
 
     const newReceipt = {
-      paymentId: payment.id,
-      orderId: payment.orderId,
-      orderDesc: payment.orderDesc,
-      orderPrice: payment.orderPrice,
-      items: order?.items || payment.orderItems || [],
-      number: rcptNumber,
-      date: todayStr,
-      payments: [{ id: installment.id, amount: installment.amount, method: installment.method || 'cash', date: installment.date }],
-      installmentIds: [String(installment.id)],
+      paymentId:            payment.id,
+      orderId:              payment.orderId,
+      orderDesc:            payment.orderDesc,
+      orderPrice:           payment.orderPrice,
+      items:                order?.items || payment.orderItems || [],
+      number:               rcptNumber,
+      date:                 todayStr,
+
+      // The single installment this receipt was generated for.
+      // Stored as both a structured object (payments[]) and a plain id
+      // (currentInstallmentId) so buildPaymentRows can unambiguously
+      // identify "This Payment" without relying on date matching.
+      payments: [{
+        id:     installment.id,
+        amount: installment.amount,
+        method: installment.method || 'cash',
+        date:   installment.date,
+        time:   installment.time || null,
+      }],
+      currentInstallmentId: String(installment.id),
+
+      installmentIds:       [String(installment.id)],
       previousInstallments: previousInstallments,
-      previousPaid: previousPaid,
-      cumulativePaid: cumulativePaid,
-      isFullPayment: isFullPay,
-      balance: balance,
-      notes: payment.notes || '',
-      template: receiptTemplate || localStorageSettingsSnap.receiptTemplate || 'receiptTemplate1',
-      brandSnapshot: brandSnapshot,
-      shippingFee: order?.shippingFee ?? 0,
-      discountType: order?.discountType ?? null,
-      discountValue: order?.discountValue ?? 0,
-      discountAmount: order?.discountAmount ?? 0,
-      taxRate: order?.taxRate ?? 0,
-      taxAmount: order?.taxAmount ?? 0,
-      totalAmount: order?.totalAmount ?? order?.price ?? 0,
+      previousPaid:         previousPaid,
+      cumulativePaid:       cumulativePaid,
+      isFullPayment:        isFullPay,
+      balance:              balance,
+      notes:                payment.notes || '',
+      template:             receiptTemplate || localStorageSettingsSnap.receiptTemplate || 'receiptTemplate1',
+      brandSnapshot:        brandSnapshot,
+      shippingFee:          order?.shippingFee    ?? 0,
+      discountType:         order?.discountType   ?? null,
+      discountValue:        order?.discountValue  ?? 0,
+      discountAmount:       order?.discountAmount ?? 0,
+      taxRate:              order?.taxRate        ?? 0,
+      taxAmount:            order?.taxAmount      ?? 0,
+      totalAmount:          order?.totalAmount ?? order?.price ?? 0,
     }
 
     try {
@@ -575,7 +583,7 @@ export default function CustomerDetail({ onMenuClick }) {
       showToast('Failed to generate receipt. Try again.')
       throw new Error('receipt failed')
     }
-  }, [customerData, orders, showToast,  profileSettings])
+  }, [customerData, orders, showToast, profileSettings])
 
   // ── receipt delete ────────────────────────────────────────
   const handleDeleteReceipt = useCallback(async (receiptId) => {
