@@ -7,7 +7,6 @@
   justify-content: space-between;
   padding: 14px 16px;
   background: var(--bg);
-  /* border-bottom intentionally removed */
   min-height: 56px;
 }
 
@@ -29,10 +28,6 @@
   transition: opacity 0.2s ease;
 }
 
-.titleShifted {
-  /* gap on leftSide handles spacing naturally */
-}
-
 :global(.header-title) {
   display: block;
   max-width: 350px;
@@ -41,11 +36,10 @@
   text-overflow: ellipsis;
 }
 
-/* ── RIGHT ACTIONS ── */
 .rightActions {
   display: flex;
   align-items: center;
-  gap: 0px;
+  gap: 0;
   flex-shrink: 0;
 }
 
@@ -118,19 +112,12 @@
   border-radius: 2px;
 }
 
-/* Hide hamburger on desktop */
 @media (min-width: 769px) {
   .iconBtn:has(.hamburgerLines) {
     display: none;
   }
 }
 
-/* ─────────────────────────────────────────────────────────────
-   LEFT AVATAR — WhatsApp-style scroll transition
-   When not scrolled: hidden (scale down, translate left, opacity 0)
-   When scrolled: glides in smoothly — matches the profile avatar
-   fading out, creating the illusion it "moved" to the header.
-   ───────────────────────────────────────────────────────────── */
 .leftAvatar {
   width: 32px;
   height: 32px;
@@ -143,7 +130,6 @@
   justify-content: center;
   flex-shrink: 0;
   cursor: pointer;
-  /* Smooth transition matching the profile avatar's transition timing */
   transition:
     opacity 0.32s cubic-bezier(0.4, 0, 0.2, 1),
     transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
@@ -183,9 +169,6 @@
   user-select: none;
 }
 
-/* ─────────────────────────────────────────────────────────────
-   NOTIFICATION BADGE
-   ───────────────────────────────────────────────────────────── */
 .notifDot {
   position: absolute;
   top: 5px;
@@ -193,7 +176,7 @@
   min-width: 15px;
   height: 15px;
   border-radius: 10px;
-  background: #ef4444;
+  background: var(--alert);
   border: 2px solid var(--bg);
   font-size: 0.5rem;
   font-weight: 800;
@@ -206,7 +189,6 @@
   pointer-events: none;
 }
 
-/* ── AGENT BADGE ── */
 .botBadge {
   position: absolute;
   top: 5px;
@@ -227,14 +209,11 @@
   pointer-events: none;
 }
 
-/* ─────────────────────────────────────────────────────────────
-   NOTIFICATION OVERLAY — mobile full screen
-   ───────────────────────────────────────────────────────────── */
 .notifOverlay {
   position: fixed;
   inset: 0;
   z-index: 5000;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
   animation: fadeIn 0.2s ease;
 }
@@ -256,7 +235,6 @@
   to   { transform: translateY(0); }
 }
 
-/* ── NOTIFICATION PANEL — desktop dropdown ── */
 @media (min-width: 769px) {
   .notifOverlay {
     background: transparent;
@@ -274,7 +252,7 @@
     max-height: 560px;
     border-radius: 16px;
     border: 1px solid var(--border2);
-    box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
     animation: dropIn 0.2s ease;
     pointer-events: all;
     overflow: hidden;
@@ -322,12 +300,11 @@
 }
 
 .notifItem.unread {
-  border-color: rgba(251,146,60,0.3);
+  border-color: color-mix(in srgb, var(--alert) 30%, transparent);
   background: var(--surface2);
 }
 
 .notifIcon {
-  background: red;
   width: 38px;
   height: 38px;
   border-radius: 12px;
@@ -367,7 +344,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--warning);
+  background: var(--alert);
   flex-shrink: 0;
   margin-top: 5px;
 }
@@ -431,7 +408,7 @@
   left: 10%;
   right: 10%;
   height: 2px;
-  background: var(--text);
+  background: var(--accent);
   border-radius: 1px;
 }
 
@@ -440,7 +417,7 @@
   align-items: center;
   justify-content: center;
   background: var(--surface2);
-  color: var(--text);
+  color: var(--text2);
   font-size: 0.58rem;
   font-weight: 800;
   border-radius: 20px;
@@ -450,9 +427,9 @@
 }
 
 .notifTabBadgeAlert {
-  background: rgba(239,68,68,0.12);
-  color: #ef4444;
-  border-color: rgba(239,68,68,0.3);
+  background: color-mix(in srgb, var(--alert) 12%, transparent);
+  color: var(--alert);
+  border-color: color-mix(in srgb, var(--alert) 30%, transparent);
 }
 
 .markAllBtn {
@@ -472,24 +449,22 @@
 .markAllBtn:hover  { background: var(--surface2); }
 .markAllBtn:active { background: var(--surface); }
 
-/* ── Review notification item ── */
 .notifItemReview {
-  border-color: rgba(245, 158, 11, 0.3) !important;
-  background: rgba(245, 158, 11, 0.06) !important;
+  border-color: color-mix(in srgb, var(--alert) 30%, transparent) !important;
+  background: color-mix(in srgb, var(--alert) 6%, transparent) !important;
 }
 
 .notifReviewHint {
   display: inline-block;
   font-size: 0.62rem;
   font-weight: 700;
-  color: #f59e0b;
+  color: var(--alert);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-top: 4px;
   margin-bottom: 2px;
 }
 
-/* ── Legacy classes kept for back-compat with other pages ── */
 .headerAvatar {
   width: 34px;
   height: 34px;
