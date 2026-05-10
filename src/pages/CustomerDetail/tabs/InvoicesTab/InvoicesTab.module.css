@@ -260,12 +260,21 @@
 /* ── EMPTY STATE ── */
 
 .emptyState {
+  /* Fill the tab content area and truly centre the content.
+     The tab content wrapper is min-height: calc(100dvh - 56px - 44px)
+     so this flex column stretches to match and centres vertically. */
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 56px 32px 20px;
   text-align: center;
+  padding: 32px;
+
+  /* Subtract the sticky header (56px) + sticky tabs (44px) so the
+     empty state is centred in the visible white space, not the whole
+     document height. */
+  min-height: calc(100dvh - 56px - 44px);
 }
 
 .emptyStateTitle {
