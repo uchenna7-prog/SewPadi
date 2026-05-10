@@ -5,86 +5,90 @@ import { useGeneralSettings } from '../../../../contexts/GeneralSettingsContext'
 import styles from './AgentSettingsModal.module.css'
 
 // ── Duration units ────────────────────────────────────────────────────────────
-// Each unit has a min/max so the input stays sensible
 
 const UNITS = [
-  { value: 'seconds', label: 'seconds', singular: 'second', min: 10,  max: 59  },
-  { value: 'minutes', label: 'minutes', singular: 'minute', min: 1,   max: 59  },
-  { value: 'hours',   label: 'hours',   singular: 'hour',   min: 1,   max: 23  },
-  { value: 'days',    label: 'days',    singular: 'day',    min: 1,   max: 30  },
-  { value: 'weeks',   label: 'weeks',   singular: 'week',   min: 1,   max: 12  },
-  { value: 'months',  label: 'months',  singular: 'month',  min: 1,   max: 12  },
+  { value: 'seconds', label: 'seconds', singular: 'second', min: 10, max: 59 },
+  { value: 'minutes', label: 'minutes', singular: 'minute', min: 1,  max: 59 },
+  { value: 'hours',   label: 'hours',   singular: 'hour',   min: 1,  max: 23 },
+  { value: 'days',    label: 'days',    singular: 'day',    min: 1,  max: 30 },
+  { value: 'weeks',   label: 'weeks',   singular: 'week',   min: 1,  max: 12 },
+  { value: 'months',  label: 'months',  singular: 'month',  min: 1,  max: 12 },
 ]
 
 function unitMeta(unitValue) {
   return UNITS.find(u => u.value === unitValue) || UNITS[3]
 }
 
+// ── normaliseDuration ─────────────────────────────────────────────────────────
+// Converts any value (undefined, null, old string format) into a safe object
+
+function normaliseDuration(value) {
+  if (value && typeof value === 'object' && 'amount' in value && 'unit' in value) {
+    return value
+  }
+  return { amount: 1, unit: 'days' }
+}
+
 // ── DurationInput ─────────────────────────────────────────────────────────────
-// value: { amount: number, unit: string }
-// onChange: (newValue) => void
 
 function DurationInput({ value, onChange }) {
-  const meta = unitMeta(value.unit)
+  const v    = normaliseDuration(value)
+  const meta = unitMeta(v.unit)
 
   function handleAmountChange(e) {
     const raw = e.target.value.replace(/\D/g, '')
-    if (raw === '') { onChange({ ...value, amount: '' }); return }
+    if (raw === '') { onChange({ ...v, amount: '' }); return }
     const n = Math.min(Math.max(parseInt(raw, 10), meta.min), meta.max)
-    onChange({ ...value, amount: n })
+    onChange({ ...v, amount: n })
   }
 
   function handleAmountBlur() {
-    // Snap to min if left empty
-    if (value.amount === '' || value.amount < meta.min) {
-      onChange({ ...value, amount: meta.min })
+    if (v.amount === '' || Number(v.amount) < meta.min) {
+      onChange({ ...v, amount: meta.min })
     }
   }
 
   function handleUnitChange(e) {
     const newMeta = unitMeta(e.target.value)
-    // Clamp current amount into new unit's range
-    const clamped = Math.min(Math.max(Number(value.amount) || newMeta.min, newMeta.min), newMeta.max)
+    const clamped = Math.min(Math.max(Number(v.amount) || newMeta.min, newMeta.min), newMeta.max)
     onChange({ amount: clamped, unit: e.target.value })
   }
 
-  const displayUnit = Number(value.amount) === 1 ? meta.singular : meta.label
+  const displayUnit = Number(v.amount) === 1 ? meta.singular : meta.label
 
   return (
     <div className={styles.durationRow}>
-      {/* Number input */}
       <div className={styles.durationAmountWrap}>
         <input
           type="number"
           inputMode="numeric"
           className={styles.durationAmount}
-          value={value.amount}
+          value={v.amount}
           onChange={handleAmountChange}
           onBlur={handleAmountBlur}
           min={meta.min}
           max={meta.max}
         />
       </div>
-
-      {/* Unit selector */}
       <div className={styles.durationUnitWrap}>
         <select
           className={styles.durationUnit}
-          value={value.unit}
+          value={v.unit}
           onChange={handleUnitChange}
         >
           {UNITS.map(u => (
             <option key={u.value} value={u.value}>{u.label}</option>
           ))}
         </select>
-        <span className="material-icons" style={{ fontSize: 16, color: 'var(--text3)', pointerEvents: 'none' }}>
+        <span
+          className="material-icons"
+          style={{ fontSize: 16, color: 'var(--text3)', pointerEvents: 'none' }}
+        >
           expand_more
         </span>
       </div>
-
-      {/* Live preview label */}
       <span className={styles.durationPreview}>
-        {value.amount || meta.min} {displayUnit}
+        = {v.amount || meta.min} {displayUnit}
       </span>
     </div>
   )
@@ -139,17 +143,17 @@ export function AgentSettingsModal({ onBack, showToast }) {
   const { generalSettings, updateManyGeneralSettings } = useGeneralSettings()
 
   const [local, setLocal] = useState({
-    agentEnabled:              generalSettings.agentEnabled,
-    agentAutoInvoice:          generalSettings.agentAutoInvoice,
-    agentAutoInvoiceTimeframe: generalSettings.agentAutoInvoiceTimeframe,
-    agentAutoReceipt:          generalSettings.agentAutoReceipt,
-    agentBirthdayMessages:     generalSettings.agentBirthdayMessages,
-    agentBirthdayNotice:       generalSettings.agentBirthdayNotice,
-    agentFollowUp:             generalSettings.agentFollowUp,
-    agentFollowUpInactivity:   generalSettings.agentFollowUpInactivity,
-    agentPaymentReminder:      generalSettings.agentPaymentReminder,
-    agentPaymentReminderBefore: generalSettings.agentPaymentReminderBefore,
-    agentDailyBrief:           generalSettings.agentDailyBrief,
+    agentEnabled:               generalSettings.agentEnabled,
+    agentAutoInvoice:           generalSettings.agentAutoInvoice,
+    agentAutoInvoiceTimeframe:  normaliseDuration(generalSettings.agentAutoInvoiceTimeframe),
+    agentAutoReceipt:           generalSettings.agentAutoReceipt,
+    agentBirthdayMessages:      generalSettings.agentBirthdayMessages,
+    agentBirthdayNotice:        normaliseDuration(generalSettings.agentBirthdayNotice),
+    agentFollowUp:              generalSettings.agentFollowUp,
+    agentFollowUpInactivity:    normaliseDuration(generalSettings.agentFollowUpInactivity),
+    agentPaymentReminder:       generalSettings.agentPaymentReminder,
+    agentPaymentReminderBefore: normaliseDuration(generalSettings.agentPaymentReminderBefore),
+    agentDailyBrief:            generalSettings.agentDailyBrief,
   })
 
   function set(key, value) {
@@ -308,4 +312,3 @@ export function AgentSettingsModal({ onBack, showToast }) {
     </div>
   )
 }
-
