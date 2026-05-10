@@ -267,7 +267,11 @@
   gap: 8px;
   text-align: center;
   padding: 32px;
-  min-height: calc(100dvh - 56px - 44px);
+  /* flex:1 + min-height:0 lets it fill whatever space the parent
+     flex column gives it, centering correctly whether or not the
+     customer-detail header is visible above the tab bar. */
+  flex: 1;
+  min-height: 0;
 }
 
 .emptyStateTitle {
@@ -282,6 +286,21 @@
   color: var(--text3);
   margin: 0;
   line-height: 1.5;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   TAB CONTENT WRAPPER
+   Ensures the invoices tab content area is a flex column so
+   EmptyState can use flex:1 to centre itself properly, and
+   prevents the sticky tab bar from overlapping content.
+   ───────────────────────────────────────────────────────────── */
+
+.tabContent {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
 
