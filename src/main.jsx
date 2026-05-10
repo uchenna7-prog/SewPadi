@@ -17,6 +17,7 @@ import { PremiumProvider }                from './contexts/PremiumContext'
 import { GalleryProvider }                from './contexts/GalleryContext'
 import { ReviewProvider }                 from './contexts/ReviewContext'
 import { BodyMeasurementImagesProvider }  from './contexts/BodyMeasurementImagesContext'
+import { AgentProvider }                  from './contexts/AgentContext'
 import App from './App'
 import './index.css'
 import { registerSW } from 'virtual:pwa-register'
@@ -39,9 +40,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                               <ReceiptProvider>
                                 <PaymentProvider>
                                   <AppointmentProvider>
-                                    <NotificationProvider>
-                                      <App />
-                                    </NotificationProvider>
+                                    <AgentProvider>
+                                      <NotificationProvider>
+                                        <App />
+                                      </NotificationProvider>
+                                    </AgentProvider>
                                   </AppointmentProvider>
                                 </PaymentProvider>
                               </ReceiptProvider>
