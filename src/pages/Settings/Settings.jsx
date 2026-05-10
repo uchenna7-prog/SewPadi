@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef } from 'react'
 import { useGeneralSettings } from '../../contexts/GeneralSettingsContext'
 import { useBrand } from '../../contexts/BrandContext'
 
@@ -14,12 +14,13 @@ import { SectionHeader } from './components/SectionHeader/SectionHeader'
 import { TemplateModal } from './modals/TemplateModal/TemplateModal'
 import { ReceiptSettingsModal } from './modals/ReceiptSettingsModal/ReceiptSettingsModal'
 import { InvoiceSettingsModal } from './modals/InvoiceSettingsModal/InvoiceSettingsModal'
+import { AgentSettingsModal } from './modals/AgentSettingsModal/AgentSettingsModal'
 
 import styles from './Settings.module.css'
 
 
 export default function Settings({ onMenuClick }) {
-  const { generalSettings,updateGeneralSetting,updateManyGeneralSettings,resetGeneralSettings } = useGeneralSettings()
+  const { generalSettings, updateGeneralSetting, updateManyGeneralSettings, resetGeneralSettings } = useGeneralSettings()
   const { brand } = useBrand()
 
   // ── Toast ──────────────────────────────────────────────────────────────────
@@ -33,13 +34,14 @@ export default function Settings({ onMenuClick }) {
   }
 
   // ── Modal visibility ───────────────────────────────────────────────────────
-  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false)
-  const [isInvoiceModalOpen,  setIsInvoiceModalOpen]  = useState(false)
-  const [isReceiptModalOpen,  setIsReceiptModalOpen]  = useState(false)
+  const [isTemplateModalOpen,     setIsTemplateModalOpen]     = useState(false)
+  const [isInvoiceModalOpen,      setIsInvoiceModalOpen]      = useState(false)
+  const [isReceiptModalOpen,      setIsReceiptModalOpen]      = useState(false)
+  const [isAgentModalOpen,        setIsAgentModalOpen]        = useState(false)
 
   // ── Confirm sheet visibility ───────────────────────────────────────────────
-  const [isClearDataConfirmOpen,   setIsClearDataConfirmOpen]   = useState(false)
-  const [isResetSettingsConfirmOpen, setIsResetSettingsConfirmOpen] = useState(false)
+  const [isClearDataConfirmOpen,      setIsClearDataConfirmOpen]      = useState(false)
+  const [isResetSettingsConfirmOpen,  setIsResetSettingsConfirmOpen]  = useState(false)
 
   // ── Derived values ─────────────────────────────────────────────────────────
   const isDarkMode = generalSettings.theme === 'dark'
@@ -65,20 +67,30 @@ export default function Settings({ onMenuClick }) {
     showToast('Settings reset')
   }
 
-  const getSelectedTemplates = () => {
-
+  function getSelectedTemplates() {
     const invoiceTemplate = generalSettings.invoiceTemplate
     const receiptTemplate = generalSettings.receiptTemplate
-    const invoiceTemplateNumber = invoiceTemplate.replace("invoiceTemplate","")
-    const receiptTemplateNumber = receiptTemplate.replace("receiptTemplate","")
-
-    if (invoiceTemplateNumber === receiptTemplateNumber){
-      return "Templates " + receiptTemplateNumber || invoiceTemplateNumber
-
+    const invoiceTemplateNumber = invoiceTemplate.replace('invoiceTemplate', '')
+    const receiptTemplateNumber = receiptTemplate.replace('receiptTemplate', '')
+    if (invoiceTemplateNumber === receiptTemplateNumber) {
+      return 'Templates ' + (receiptTemplateNumber || invoiceTemplateNumber)
     }
-    return ""
+    return ''
   }
 
+  function getAgentSub() {
+    if (!generalSettings.agentEnabled) return 'Off'
+    const active = [
+      generalSettings.agentAutoInvoice      && 'Invoices',
+      generalSettings.agentAutoReceipt      && 'Receipts',
+      generalSettings.agentBirthdayMessages && 'Birthdays',
+      generalSettings.agentFollowUp         && 'Follow-ups',
+      generalSettings.agentPaymentReminder  && 'Reminders',
+      generalSettings.agentDailyBrief       && 'Daily brief',
+    ].filter(Boolean)
+    if (active.length === 0) return 'On — no tasks enabled'
+    return 'On · ' + active.join(', ')
+  }
 
   return (
     <div className={styles.settingsPage}>
@@ -126,6 +138,17 @@ export default function Settings({ onMenuClick }) {
           sub="Choose your preferred invoice and receipt designs"
           value={getSelectedTemplates()}
           onClick={() => setIsTemplateModalOpen(true)}
+          chevron
+        />
+
+        {/* ── Agent ───────────────────────────────────────────────────────── */}
+        <SectionHeader icon="smart_toy" label="Agent" />
+
+        <SettingRow
+          icon="smart_toy"
+          label="Agent Settings"
+          sub={getAgentSub()}
+          onClick={() => setIsAgentModalOpen(true)}
           chevron
         />
 
@@ -191,6 +214,8 @@ export default function Settings({ onMenuClick }) {
 
       </div>
 
+      {/* ── Modals ────────────────────────────────────────────────────────── */}
+
       <TemplateModal
         isOpen={isTemplateModalOpen}
         currentInvoiceTemplate={generalSettings.invoiceTemplate || 'invoiceTemplate1'}
@@ -210,6 +235,13 @@ export default function Settings({ onMenuClick }) {
       {isReceiptModalOpen && (
         <ReceiptSettingsModal
           onBack={() => setIsReceiptModalOpen(false)}
+          showToast={showToast}
+        />
+      )}
+
+      {isAgentModalOpen && (
+        <AgentSettingsModal
+          onBack={() => setIsAgentModalOpen(false)}
           showToast={showToast}
         />
       )}
