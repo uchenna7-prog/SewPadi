@@ -39,11 +39,20 @@ const UNIT_MS = {
   months:  2_592_000_000,
 }
 
-function toMs({ amount, unit }) {
+function normaliseDuration(value) {
+  if (value && typeof value === 'object' && 'amount' in value && 'unit' in value) {
+    return value
+  }
+  return { amount: 1, unit: 'days' }
+}
+
+function toMs(value) {
+  const { amount, unit } = normaliseDuration(value)
   return (Number(amount) || 1) * (UNIT_MS[unit] || UNIT_MS.days)
 }
 
-function durationLabel({ amount, unit }) {
+function durationLabel(value) {
+  const { amount, unit } = normaliseDuration(value)
   const n = Number(amount) || 1
   const singular = { seconds: 'second', minutes: 'minute', hours: 'hour', days: 'day', weeks: 'week', months: 'month' }
   return `${n} ${n === 1 ? singular[unit] : unit}`
