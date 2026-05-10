@@ -46,6 +46,33 @@ export const DEFAULTS = {
   notifyOverdueTasks:      true,
   notifyUpcomingBirthdays: true,
   notifyUnpaidInvoices:    true,
+
+  // ── Agent ────────────────────────────────────────────────────────────────
+  // Master switch
+  agentEnabled: false,
+
+  // Auto-generate invoice: drafts an invoice when an order has none
+  // after the tailor's chosen timeframe
+  agentAutoInvoice:          false,
+  agentAutoInvoiceTimeframe: '1day', // '30min' | '1hr' | '6hr' | '1day' | '2days' | 'app_open'
+
+  // Auto-generate receipt: drafts a receipt whenever a payment is recorded
+  agentAutoReceipt: false,
+
+  // Birthday messages: drafts a message for customers with upcoming birthdays
+  agentBirthdayMessages:   false,
+  agentBirthdayNoticeDays: 1, // 0 = on the day, 1 = 1 day before, etc.
+
+  // Follow-up messages: drafts a message for customers inactive for X days
+  agentFollowUp:           false,
+  agentFollowUpInactivity: '30days', // '14days' | '30days' | '45days' | '60days' | '90days'
+
+  // Payment reminders: drafts a reminder when an invoice is approaching due date
+  agentPaymentReminder:     false,
+  agentPaymentReminderDays: 1, // 0 = on due date, 1 = 1 day before, etc.
+
+  // Daily brief: summarises what the agent did when the tailor opens the app
+  agentDailyBrief: true,
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -82,12 +109,10 @@ function applyTheme(theme, animate = true) {
   const resolved    = theme === 'system' ? (prefersDark ? 'dark' : 'light') : theme
 
   if (!animate) {
-    // Initial load — no transition, just apply
     document.documentElement.setAttribute('data-theme', resolved)
     return
   }
 
-  // Inject transition style
   const style = document.createElement('style')
   style.id = '__theme-transition__'
   style.textContent = `
@@ -101,20 +126,15 @@ function applyTheme(theme, animate = true) {
     }
   `
 
-  // Remove any previous one (defensive)
   document.getElementById('__theme-transition__')?.remove()
   document.head.appendChild(style)
 
-  // Apply the new theme
   document.documentElement.setAttribute('data-theme', resolved)
 
-  // Remove the style after transition completes so it doesn't
-  // interfere with normal hover/active transitions
   const timer = setTimeout(() => {
     style.remove()
   }, TRANSITION_DURATION + 50)
 
-  // Clean up if something calls applyTheme again mid-transition
   return () => {
     clearTimeout(timer)
     style.remove()
@@ -147,7 +167,6 @@ export function GeneralSettingsProvider({ children }) {
 
     const current = document.documentElement.getAttribute('data-theme')
 
-    // Only animate if theme is actually changing
     if (current !== resolved) {
       cleanup = applyTheme(generalSettings.theme, true)
     }
