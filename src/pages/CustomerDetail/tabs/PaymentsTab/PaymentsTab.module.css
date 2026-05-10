@@ -6,12 +6,14 @@
 /* ── EMPTY STATE ── */
 
 .emptyState {
-  text-align: center;
-  padding-top: 60px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 10px;
+  text-align: center;
+  padding: 32px;
+  min-height: calc(100dvh - 56px - 44px);
 }
 
 .emptyState p {
