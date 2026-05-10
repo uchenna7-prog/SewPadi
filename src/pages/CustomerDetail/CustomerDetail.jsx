@@ -610,7 +610,6 @@ export default function CustomerDetail({ onMenuClick }) {
   // ── tab click ─────────────────────────────────────────────
   const handleTabClick = (e, tabId) => {
     setActiveTab(tabId)
-    if (window.scrollY > 56) window.scrollTo({ top: 56, behavior: 'auto' })
     e.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
   }
 
