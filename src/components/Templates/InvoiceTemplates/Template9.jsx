@@ -39,7 +39,7 @@ export function InvoiceTemplate9({ invoice, customer, brand }) {
 
           <div className={styles.logoCircle}>
             {brand.logo
-              ? <img src={brand.logo} alt="" style={{ width : "45px", height : "45px", objectFit : 'contain' }} />
+              ? <img src={brand.logo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', display: 'block' }} />
                : <span className="mi" style={{ fontSize : 13, color : 'var(--brand-on-primary)' }}>checkroom</span>
             }
           </div>
