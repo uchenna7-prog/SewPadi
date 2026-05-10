@@ -68,7 +68,6 @@ function capitalise(str = '') {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
-// Returns true if every installment in this payment has a receipt
 function isPaymentFullyReceipted(payment, receipts) {
   const installments = payment?.installments || []
   if (installments.length === 0) return false
@@ -84,9 +83,7 @@ function isPaymentFullyReceipted(payment, receipts) {
 
 
 // ─────────────────────────────────────────────────────────────
-// ORDER MOSAIC — CSS-module version matching InvoiceTab exactly
-// size="sm" → 38px picker thumbs
-// size="md" → 68px receipt list rows
+// ORDER MOSAIC
 // ─────────────────────────────────────────────────────────────
 
 function OrderMosaic({ items = [], size = 'md' }) {
@@ -177,8 +174,6 @@ function OrderMosaic({ items = [], size = 'md' }) {
 
 // ─────────────────────────────────────────────────────────────
 // INLINE INSTALLMENT LIST
-// Each installment card is independent — clicking Generate on
-// installment #1 only generates a receipt for installment #1.
 // ─────────────────────────────────────────────────────────────
 
 function InlineInstallmentList({ order, payment, receipts, generating, onSelectPayment }) {
@@ -207,7 +202,6 @@ function InlineInstallmentList({ order, payment, receipts, generating, onSelectP
   return (
     <div className={styles.inlineFormCard}>
 
-      {/* Order value summary strip */}
       <div className={styles.inlineOrderStats}>
         <div className={styles.inlineOrderStat}>
           <span className={styles.inlineOrderStatLabel}>Total</span>
@@ -229,15 +223,12 @@ function InlineInstallmentList({ order, payment, receipts, generating, onSelectP
         </div>
       </div>
 
-      {/* Dashed divider */}
       <div className={styles.inlineFormDivider} />
 
-      {/* Payments heading */}
       <p className={styles.stepHeading} style={{ marginTop: 0, marginBottom: 12 }}>
         2. Select Payment
       </p>
 
-      {/* Installment cards — each is independently actionable */}
       <div className={styles.installmentPickerList}>
         {installments.map((inst, index) => {
           const isReceipted  = receiptedInstallmentIds.has(String(inst.id))
@@ -257,7 +248,6 @@ function InlineInstallmentList({ order, payment, receipts, generating, onSelectP
               `}
               onClick={() => !isGenerating && !isReceipted && onSelectPayment(payment, inst)}
             >
-              {/* Left: payment number + amount block */}
               <div className={styles.installmentLeft}>
                 <div className={styles.installmentNumber}>
                   <span>{index + 1}</span>
@@ -277,7 +267,6 @@ function InlineInstallmentList({ order, payment, receipts, generating, onSelectP
                 </div>
               </div>
 
-              {/* Centre: date + method */}
               <div className={styles.installmentMeta}>
                 {inst.date && (
                   <span className={styles.installmentDate}>
@@ -295,7 +284,6 @@ function InlineInstallmentList({ order, payment, receipts, generating, onSelectP
                 )}
               </div>
 
-              {/* Right: action tag */}
               <div className={styles.installmentAction}>
                 {isGenerating ? (
                   <div className={styles.actionTagGenerating}>
@@ -369,6 +357,9 @@ function ReceiptPickerModal({ isOpen, onClose, orders, payments, receipts, onSel
     setSelectedOrderId(prev => prev === order.id ? null : order.id)
   }
 
+  const showAllReceiptsGenerated = ordersNeedingReceipt.length === 0
+  const showNoSearchMatch        = ordersNeedingReceipt.length > 0 && filteredOrders.length === 0
+
   return (
     <div className={`${styles.pickerOverlay} ${isOpen ? styles.pickerOverlay_open : ''}`}>
 
@@ -378,135 +369,131 @@ function ReceiptPickerModal({ isOpen, onClose, orders, payments, receipts, onSel
         onBackClick={generating ? undefined : onClose}
       />
 
-      <div className={styles.pickerScrollBody}>
-        <div style={{ padding: '20px' }}>
+      {/* ── Empty states — outside scroll body, centred in remaining space ── */}
+      {showAllReceiptsGenerated && (
+        <div className={styles.pickerEmpty}>
+          <span className="mi" style={{ fontSize: '2rem', color: 'var(--text3)' }}>receipt_long</span>
+          <p style={{ fontWeight: 700, color: 'var(--text2)' }}>All receipts generated</p>
+          <p>Every recorded payment already has a receipt. Record a new payment first to generate another.</p>
+        </div>
+      )}
 
-          {ordersNeedingReceipt.length > 0 && (
-              <p className={styles.stepHeading}>1. Select Order</p>
+      {showNoSearchMatch && (
+        <div className={styles.pickerEmpty}>
+          <span className="mi" style={{ fontSize: '2rem', color: 'var(--text3)' }}>search_off</span>
+          <p>No orders match your search</p>
+        </div>
+      )}
+
+      {/* ── Scrollable list — only rendered when there are items to show ── */}
+      {!showAllReceiptsGenerated && (
+        <div className={styles.pickerScrollBody}>
+          <div style={{ padding: '20px' }}>
+
+            <p className={styles.stepHeading}>1. Select Order</p>
+
+            {showSearch && (
+              <div className={styles.clothSearchBar}>
+                <span className="mi" style={{ fontSize: '1.1rem', color: 'var(--text3)' }}>search</span>
+                <input
+                  type="text"
+                  className={styles.clothSearchInput}
+                  placeholder="Search orders…"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                />
+                {search.length > 0 && (
+                  <button
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)', display: 'flex', alignItems: 'center', padding: 0 }}
+                    onClick={() => setSearch('')}
+                  >
+                    <span className="mi" style={{ fontSize: '1rem' }}>close</span>
+                  </button>
+                )}
+              </div>
             )}
 
-          {showSearch && (
-            <div className={styles.clothSearchBar}>
-              <span className="mi" style={{ fontSize: '1.1rem', color: 'var(--text3)' }}>search</span>
-              <input
-                type="text"
-                className={styles.clothSearchInput}
-                placeholder="Search orders…"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-              />
-              {search.length > 0 && (
-                <button
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)', display: 'flex', alignItems: 'center', padding: 0 }}
-                  onClick={() => setSearch('')}
-                >
-                  <span className="mi" style={{ fontSize: '1rem' }}>close</span>
-                </button>
-              )}
-            </div>
-          )}
+            <div className={styles.clothPickerList}>
+              {filteredOrders.map(order => {
+                const isSelected  = selectedOrderId === order.id
+                const payment     = payments.find(p => String(p.orderId) === String(order.id))
+                const installs    = payment?.installments || []
+                const paid        = getTotalPaid(installs)
+                const price       = parseFloat(order.totalAmount ?? order.price) || 0
+                const isFullyPaid = price > 0 && paid >= price
 
-          {ordersNeedingReceipt.length === 0 && (
-            <div className={styles.pickerEmpty}>
-              <span className="mi" style={{ fontSize: '2rem', color: 'var(--text3)' }}>receipt_long</span>
-              <p style={{ fontWeight: 700, color: 'var(--text2)' }}>All receipts generated</p>
-              <p>Every recorded payment already has a receipt. Record a new payment first to generate another.</p>
-            </div>
-          )}
+                const receiptedIds = new Set(
+                  receipts
+                    .filter(r => String(r.paymentId) === String(payment?.id))
+                    .flatMap(r => r.installmentIds || [])
+                )
+                const pendingCount = installs.filter(i => !receiptedIds.has(String(i.id))).length
+                const installCount = installs.length
 
-          {ordersNeedingReceipt.length > 0 && filteredOrders.length === 0 && (
-            <div className={styles.pickerEmpty}>
-              <span className="mi" style={{ fontSize: '2rem', color: 'var(--text3)' }}>search_off</span>
-              <p>No orders match your search</p>
-            </div>
-          )}
+                return (
+                  <div key={order.id}>
+                    <div
+                      className={`${styles.clothPickerItem} ${isSelected ? styles.clothPickerItem_selected : ''}`}
+                      onClick={() => handleToggleOrder(order)}
+                    >
+                      <OrderMosaic items={order.items || []} size="sm" />
 
-          <div className={styles.clothPickerList}>
-            {filteredOrders.map(order => {
-              const isSelected  = selectedOrderId === order.id
-              const payment     = payments.find(p => String(p.orderId) === String(order.id))
-              const installs    = payment?.installments || []
-              const paid        = getTotalPaid(installs)
-              const price       = parseFloat(order.totalAmount ?? order.price) || 0
-              const isFullyPaid = price > 0 && paid >= price
+                      <div className={styles.clothInfo}>
+                        <h5>{order.desc || 'Untitled Order'}</h5>
+                        <span style={{ color: isFullyPaid ? '#15803d' : '#fb923c' }}>
+                          {installCount} {installCount === 1 ? 'payment' : 'payments'} ·{' '}
+                          {pendingCount === installCount
+                            ? 'No receipts yet'
+                            : `${pendingCount} pending`
+                          }
+                        </span>
+                      </div>
 
-              const receiptedIds = new Set(
-                receipts
-                  .filter(r => String(r.paymentId) === String(payment?.id))
-                  .flatMap(r => r.installmentIds || [])
-              )
-              const pendingCount = installs.filter(i => !receiptedIds.has(String(i.id))).length
-              const installCount = installs.length
-
-              return (
-                <div key={order.id}>
-                  {/* ── Selectable order row ── */}
-                  <div
-                    className={`${styles.clothPickerItem} ${isSelected ? styles.clothPickerItem_selected : ''}`}
-                    onClick={() => handleToggleOrder(order)}
-                  >
-                    {/* Mosaic thumbnail — sm size, matching InvoiceTab */}
-                    <OrderMosaic items={order.items || []} size="sm" />
-
-                    {/* Name + payment status */}
-                    <div className={styles.clothInfo}>
-                      <h5>{order.desc || 'Untitled Order'}</h5>
-                      <span style={{ color: isFullyPaid ? '#15803d' : '#fb923c' }}>
-                        {installCount} {installCount === 1 ? 'payment' : 'payments'} ·{' '}
-                        {pendingCount === installCount
-                          ? 'No receipts yet'
-                          : `${pendingCount} pending`
+                      <div className={`${styles.clothCheckCircle} ${isSelected ? styles.clothCheckCircle_checked : ''}`}>
+                        {isSelected
+                          ? <span className="mi" style={{ fontSize: '0.9rem' }}>check</span>
+                          : <span className="mi" style={{ fontSize: '0.9rem', color: 'var(--text3)' }}>expand_more</span>
                         }
-                      </span>
+                      </div>
                     </div>
 
-                    {/* Chevron / check */}
-                    <div className={`${styles.clothCheckCircle} ${isSelected ? styles.clothCheckCircle_checked : ''}`}>
-                      {isSelected
-                        ? <span className="mi" style={{ fontSize: '0.9rem' }}>check</span>
-                        : <span className="mi" style={{ fontSize: '0.9rem', color: 'var(--text3)' }}>expand_more</span>
-                      }
-                    </div>
+                    {isSelected && (
+                      <div ref={expandedRef} className={styles.accordionBody}>
+                        <InlineInstallmentList
+                          order={order}
+                          payment={payment}
+                          receipts={receipts}
+                          generating={generating}
+                          onSelectPayment={onSelectPayment}
+                        />
+                      </div>
+                    )}
                   </div>
+                )
+              })}
+            </div>
 
-                  {/* ── Inline expanded installment list ── */}
-                  {isSelected && (
-                    <div ref={expandedRef} className={styles.accordionBody}>
-                      <InlineInstallmentList
-                        order={order}
-                        payment={payment}
-                        receipts={receipts}
-                        generating={generating}
-                        onSelectPayment={onSelectPayment}
-                      />
-                    </div>
-                  )}
-                </div>
-              )
-            })}
           </div>
-
         </div>
-      </div>
+      )}
     </div>
   )
 }
 
 
 // ─────────────────────────────────────────────────────────────
-// RECEIPT CARD — one row in the receipt list
+// RECEIPT CARD
 // ─────────────────────────────────────────────────────────────
 
 function ReceiptCard({ receipt, currency, onTap, isLast, orderItems }) {
   const { thisPayment, isPaidInFull, label, badgeStyle } = getPaymentStatus(receipt)
-  const itemCount  = receipt.items?.length > 0 ? receipt.items.length : (receipt.qty || null)
+  const itemCount = receipt.items?.length > 0 ? receipt.items.length : (receipt.qty || null)
 
   return (
     <div
       className={`${styles.receiptRow} ${isLast ? styles.receiptRowLast : ''}`}
       onClick={onTap}
     >
-      {/* md mosaic for the list rows */}
       <OrderMosaic items={orderItems} size="md" />
 
       <div className={styles.receiptRowInfo}>
