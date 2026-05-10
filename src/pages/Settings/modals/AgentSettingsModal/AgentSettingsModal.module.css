@@ -1,0 +1,330 @@
+/* src/pages/Settings/modals/AgentSettingsModal/AgentSettingsModal.module.css */
+
+/* ── Shell ─────────────────────────────────────────────────────────────────── */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.backBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--surface2);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+}
+
+.backBtn:active {
+  opacity: 0.7;
+}
+
+.headerTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.2px;
+}
+
+/* ── Scroll area ─────────────────────────────────────────────────────────────── */
+
+.scrollArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Master card ─────────────────────────────────────────────────────────────── */
+
+.masterCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  gap: 12px;
+}
+
+.masterLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.masterIconRing {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bg);
+  flex-shrink: 0;
+}
+
+.masterPulse {
+  position: absolute;
+  inset: -3px;
+  border-radius: 17px;
+  border: 2px solid var(--text);
+  opacity: 0;
+  animation: ringPulse 2.2s ease-in-out infinite;
+}
+
+@keyframes ringPulse {
+  0%   { opacity: 0.5; transform: scale(1);    }
+  100% { opacity: 0;   transform: scale(1.18); }
+}
+
+.masterTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.masterSub {
+  font-size: 0.75rem;
+  color: var(--text3);
+  margin: 2px 0 0;
+}
+
+/* ── Disabled hint ───────────────────────────────────────────────────────────── */
+
+.disabledHint {
+  font-size: 0.75rem;
+  color: var(--text3);
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 9px 12px;
+  text-align: center;
+}
+
+/* ── Feature list ────────────────────────────────────────────────────────────── */
+
+.featureList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: opacity 0.2s;
+}
+
+.featureListDimmed {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* ── Feature block ───────────────────────────────────────────────────────────── */
+
+.featureBlock {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  transition: opacity 0.2s;
+}
+
+.featureBlockOff {
+  opacity: 0.6;
+}
+
+.featureTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.featureLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.featureIconWrap {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: var(--surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text2);
+  flex-shrink: 0;
+}
+
+.featureTitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text1);
+  margin: 0;
+}
+
+.featureSub {
+  font-size: 0.72rem;
+  color: var(--text3);
+  margin: 2px 0 0;
+  line-height: 1.4;
+}
+
+/* ── Feature expanded body ───────────────────────────────────────────────────── */
+
+.featureBody {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.fieldLabel {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 8px;
+}
+
+/* ── Pill row ────────────────────────────────────────────────────────────────── */
+
+.pillRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pill {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 13px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text2);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  white-space: nowrap;
+}
+
+.pill:active {
+  opacity: 0.75;
+}
+
+.pillActive {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+  font-weight: 700;
+}
+
+/* ── Toggle ──────────────────────────────────────────────────────────────────── */
+
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  border-radius: 13px;
+  background: var(--border2, #d0d0d0);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.toggleOn {
+  background: var(--text);
+}
+
+.toggleThumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--bg);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggleOn .toggleThumb {
+  transform: translateX(18px);
+}
+
+/* ── Notice ──────────────────────────────────────────────────────────────────── */
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: var(--surface2);
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: var(--text3);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.notice p {
+  margin: 0;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────────── */
+
+.footer {
+  padding: 12px 16px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.saveBtn {
+  width: 100%;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  letter-spacing: -0.1px;
+  transition: opacity 0.15s;
+}
+
+.saveBtn:active {
+  opacity: 0.8;
+}
