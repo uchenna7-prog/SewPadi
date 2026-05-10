@@ -318,6 +318,8 @@ export default function CustomerDetail({ onMenuClick }) {
   const healedRef      = useRef(false)
   const touchStartX    = useRef(null)
   const touchStartY    = useRef(null)
+  // ── Per-tab element refs so swipe can call scrollIntoView ──
+  const tabRefs        = useRef({})
 
   const orders = getOrders(id)
 
@@ -607,10 +609,17 @@ export default function CustomerDetail({ onMenuClick }) {
     }
   }, [handleGenerateInvoice])
 
+  // ── Scroll the tab strip to bring the active tab into view ──
+  // Used by both click and swipe so behaviour is identical.
+  const scrollTabIntoView = useCallback((tabId) => {
+    const el = tabRefs.current[tabId]
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+  }, [])
+
   // ── tab click ─────────────────────────────────────────────
   const handleTabClick = (e, tabId) => {
     setActiveTab(tabId)
-    e.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+    scrollTabIntoView(tabId)
   }
 
   // ── swipe to switch tabs ──────────────────────────────────
@@ -626,12 +635,24 @@ export default function CustomerDetail({ onMenuClick }) {
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
       const tabIds     = TABS.map(t => t.id)
       const currentIdx = tabIds.indexOf(activeTab)
-      if (dx < 0 && currentIdx < tabIds.length - 1) setActiveTab(tabIds[currentIdx + 1])
-      else if (dx > 0 && currentIdx > 0)             setActiveTab(tabIds[currentIdx - 1])
+      let nextTabId    = null
+
+      if (dx < 0 && currentIdx < tabIds.length - 1) {
+        nextTabId = tabIds[currentIdx + 1]
+      } else if (dx > 0 && currentIdx > 0) {
+        nextTabId = tabIds[currentIdx - 1]
+      }
+
+      if (nextTabId) {
+        setActiveTab(nextTabId)
+        // Mirror the click handler — scroll the tab strip so the
+        // newly active tab is centred, just like a manual tap would.
+        scrollTabIntoView(nextTabId)
+      }
     }
     touchStartX.current = null
     touchStartY.current = null
-  }, [activeTab])
+  }, [activeTab, scrollTabIntoView])
 
   // ── derived values ────────────────────────────────────────
   const customer = getCustomer(id)
@@ -848,6 +869,7 @@ export default function CustomerDetail({ onMenuClick }) {
           {TABS.map(tab => (
             <div
               key={tab.id}
+              ref={el => { tabRefs.current[tab.id] = el }}
               className={`${styles.tab} ${activeTab === tab.id ? styles.active : ''}`}
               onClick={(e) => handleTabClick(e, tab.id)}
             >
