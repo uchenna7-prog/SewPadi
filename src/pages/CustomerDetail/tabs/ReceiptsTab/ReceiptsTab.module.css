@@ -127,9 +127,6 @@
   gap: 8px;
   padding: 32px;
   text-align: center;
-  /* Use flex: 1 so it fills whatever space the parent gives it,
-     rather than a hardcoded min-height that breaks when the
-     customer-detail header is taller than expected. */
   flex: 1;
   min-height: 0;
 }
@@ -151,9 +148,6 @@
 
 /* ─────────────────────────────────────────────────────────────
    TAB CONTENT WRAPPER
-   Ensures the receipts tab content area is a flex column so
-   the empty state can use flex:1 to centre itself properly,
-   and prevents the sticky tab bar from overlapping content.
    ───────────────────────────────────────────────────────────── */
 
 .tabContent {
@@ -161,15 +155,12 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  /* Matches whatever padding the other tabs use so the sticky
-     tab container doesn't lap the first row of content */
   padding-top: 0;
 }
 
 
 /* ─────────────────────────────────────────────────────────────
    RECEIPT PICKER MODAL
-   Full-screen overlay — slide-up, matches OrderModal exactly
    ───────────────────────────────────────────────────────────── */
 
 .pickerOverlay {
@@ -410,6 +401,11 @@
 
 /* ─────────────────────────────────────────────────────────────
    INSTALLMENT PICKER CARDS
+   Redesigned: two-row layout so the action button never
+   overlaps the date / method meta on narrow screens.
+
+   Row 1 (top):   [number badge]  [amount]        [action tag →]
+   Row 2 (bottom):                [balance text]  [date · method pill]
    ───────────────────────────────────────────────────────────── */
 
 .installmentPickerList {
@@ -420,9 +416,9 @@
 
 .installmentPickerCard {
   display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 16px;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 14px;
@@ -444,12 +440,11 @@
   pointer-events: none;
 }
 
-/* ── Left zone ── */
-.installmentLeft {
+/* ── Top row: badge + amount + action ── */
+.installmentTopRow {
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-shrink: 0;
 }
 
 .installmentNumber {
@@ -467,41 +462,45 @@
   color: var(--text2);
 }
 
-.installmentAmountBlock {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
 .installmentAmount {
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 800;
   color: var(--text);
   white-space: nowrap;
+  flex: 1;
+}
+
+/* ── Bottom row: balance + meta pills ── */
+.installmentBottomRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* indent to align under amount, past the badge */
+  padding-left: 44px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .installmentBalance {
-  font-size: 0.65rem;
+  font-size: 0.68rem;
   color: var(--text3);
   font-weight: 500;
   white-space: nowrap;
 }
 
-/* ── Centre zone ── */
 .installmentMeta {
-  flex: 1;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 6px;
-  min-width: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .installmentDate {
   display: flex;
   align-items: center;
   gap: 3px;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 500;
   color: var(--text2);
   white-space: nowrap;
@@ -521,12 +520,10 @@
   white-space: nowrap;
 }
 
-/* ── Right zone ── */
+/* ── Action tags (right side of top row) ── */
 .installmentAction {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: center;
+  align-items: center;
   flex-shrink: 0;
 }
 
@@ -735,7 +732,7 @@
 
 .pickerEmpty {
   position: absolute;
-  top: 56px; /* below the modal header */
+  top: 56px;
   left: 0;
   right: 0;
   bottom: 0;
