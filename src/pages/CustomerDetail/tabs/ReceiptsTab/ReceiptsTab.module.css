@@ -253,7 +253,7 @@
   border-radius: 14px;
   padding: 12px 14px;
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: border-color 0.25s, background 0.25s, border-radius 0.25s;
 }
 
 .clothPickerItem_selected {
@@ -262,6 +262,7 @@
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
   border-bottom-color: transparent;
+  transition: border-radius 0.1s, border-color 0.2s, background 0.2s;
 }
 
 .clothInfo {
@@ -282,21 +283,21 @@
 }
 
 .clothCheckCircle {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: 1.5px solid var(--border2);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: all 0.2s;
+  color: var(--text3);
+  transition: border-color 0.25s, color 0.25s;
 }
 
 .clothCheckCircle_checked {
-  background: var(--accent);
   border-color: var(--accent);
-  color: var(--bg);
+  color: var(--accent);
 }
 
 
@@ -304,6 +305,8 @@
    ACCORDION BODY
    ───────────────────────────────────────────────────────────── */
 
+/* The outer height-animated shell is driven by JS (AccordionBody).
+   This inner div just handles border, padding, and a subtle content fade. */
 .accordionBody {
   background: var(--surface2);
   border: 1px solid var(--accent);
@@ -311,19 +314,13 @@
   border-bottom-left-radius: 14px;
   border-bottom-right-radius: 14px;
   padding: 16px 14px 14px;
-  animation: accordionOpen 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
+  /* Fade the content in slightly behind the height animation */
+  animation: accordionFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
-@keyframes accordionOpen {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes accordionFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 
