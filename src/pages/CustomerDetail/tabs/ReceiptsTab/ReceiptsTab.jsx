@@ -248,59 +248,63 @@ function InlineInstallmentList({ order, payment, receipts, generating, onSelectP
               `}
               onClick={() => !isGenerating && !isReceipted && onSelectPayment(payment, inst)}
             >
-              <div className={styles.installmentLeft}>
+              {/* ── Row 1: badge · amount · action ── */}
+              <div className={styles.installmentTopRow}>
                 <div className={styles.installmentNumber}>
                   <span>{index + 1}</span>
                 </div>
-                <div className={styles.installmentAmountBlock}>
-                  <span className={styles.installmentAmount}>
-                    {formatMoney(currency, inst.amount)}
-                  </span>
-                  {balAfter !== null && (
-                    <span className={styles.installmentBalance}>
-                      Balance after:{' '}
-                      <span style={{ color: balAfter > 0 ? '#ef4444' : '#22c55e', fontWeight: 700 }}>
-                        {balAfter > 0 ? formatMoney(currency, balAfter) : 'Fully Paid'}
-                      </span>
-                    </span>
+
+                <span className={styles.installmentAmount}>
+                  {formatMoney(currency, inst.amount)}
+                </span>
+
+                <div className={styles.installmentAction}>
+                  {isGenerating ? (
+                    <div className={styles.actionTagGenerating}>
+                      <div className={styles.actionSpinner} />
+                      <span>Generating</span>
+                    </div>
+                  ) : isReceipted ? (
+                    <div className={styles.actionTagReceipited}>
+                      <span className="mi" style={{ fontSize: '0.9rem' }}>receipt_long</span>
+                      <span>Receipted</span>
+                    </div>
+                  ) : (
+                    <div className={styles.actionTagGenerate}>
+                      <span className="mi" style={{ fontSize: '0.9rem' }}>add_circle</span>
+                      <span>Generate</span>
+                    </div>
                   )}
                 </div>
               </div>
 
-              <div className={styles.installmentMeta}>
-                {inst.date && (
-                  <span className={styles.installmentDate}>
-                    <span className="mi" style={{ fontSize: '0.7rem', verticalAlign: 'middle', marginRight: 3 }}>calendar_today</span>
-                    {inst.date}
-                  </span>
-                )}
-                {inst.method && (
-                  <span className={styles.installmentMethodPill}>
-                    <span className="mi" style={{ fontSize: '0.65rem', verticalAlign: 'middle', marginRight: 3 }}>
-                      {inst.method === 'transfer' ? 'swap_horiz' : inst.method === 'card' ? 'credit_card' : 'payments'}
+              {/* ── Row 2: balance · date + method ── */}
+              <div className={styles.installmentBottomRow}>
+                {balAfter !== null && (
+                  <span className={styles.installmentBalance}>
+                    Balance after:{' '}
+                    <span style={{ color: balAfter > 0 ? '#ef4444' : '#22c55e', fontWeight: 700 }}>
+                      {balAfter > 0 ? formatMoney(currency, balAfter) : 'Fully Paid'}
                     </span>
-                    {capitalise(inst.method)}
                   </span>
                 )}
-              </div>
 
-              <div className={styles.installmentAction}>
-                {isGenerating ? (
-                  <div className={styles.actionTagGenerating}>
-                    <div className={styles.actionSpinner} />
-                    <span>Generating</span>
-                  </div>
-                ) : isReceipted ? (
-                  <div className={styles.actionTagReceipited}>
-                    <span className="mi" style={{ fontSize: '0.9rem' }}>receipt_long</span>
-                    <span>Receipted</span>
-                  </div>
-                ) : (
-                  <div className={styles.actionTagGenerate}>
-                    <span className="mi" style={{ fontSize: '0.9rem' }}>add_circle</span>
-                    <span>Generate</span>
-                  </div>
-                )}
+                <div className={styles.installmentMeta}>
+                  {inst.date && (
+                    <span className={styles.installmentDate}>
+                      <span className="mi" style={{ fontSize: '0.7rem', verticalAlign: 'middle', marginRight: 3 }}>calendar_today</span>
+                      {inst.date}
+                    </span>
+                  )}
+                  {inst.method && (
+                    <span className={styles.installmentMethodPill}>
+                      <span className="mi" style={{ fontSize: '0.65rem', verticalAlign: 'middle', marginRight: 3 }}>
+                        {inst.method === 'transfer' ? 'swap_horiz' : inst.method === 'card' ? 'credit_card' : 'payments'}
+                      </span>
+                      {capitalise(inst.method)}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           )
@@ -584,9 +588,6 @@ export default function ReceiptTab({
 
   return (
     <>
-      {/* tabContent makes this a flex column so EmptyState's flex:1 can
-          fill the remaining height and stay truly centred regardless of
-          how tall the customer-detail header above the tab bar is. */}
       <div className={styles.tabContent}>
         {receipts.length === 0 && <EmptyState />}
 
