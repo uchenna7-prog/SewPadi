@@ -17,22 +17,43 @@
    gap: 10px; 
 }
 
+/* Replace the existing .logoArea */
 .logoArea {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
   flex: 1;
   min-width: 0;
 }
-.brandName { 
-   text-transform: uppercase;
-   font-size: 10px; 
-   font-weight: 700; 
+
+/* Add this new class */
+.logoCircle {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 2px solid var(--brand-primary);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.10);
 }
-.brandSub { 
-   font-size: 9px; 
-   color: #999; 
-   letter-spacing: 0.06em; 
+
+/* Replace existing .brandName and .brandSub */
+.brandName {
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+.brandSub {
+  font-size: 8.5px;
+  color: #999;
+  letter-spacing: 0.06em;
+  margin-top: 2px;
 }
 .invoiceBox,.receiptBox { 
    background: var(--brand-gradient); 
