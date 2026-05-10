@@ -36,7 +36,7 @@ export function InvoiceTemplate7({ invoice, customer, brand }) {
 
         <div className={styles.logoCircle} style={{ borderColor : accentColor }}>
           {brand.logo
-            ? <img src={brand.logo} alt="" style={{ width : "45px", height : "45px", objectFit : 'contain', borderRadius : '50%' }} />
+            ? <img src={brand.logo} alt="" style={{ width: "100%", height: "100%", objectFit: 'cover', borderRadius: '50%', display: 'block' }} />
              : <span className="mi" style={{ fontSize : 13, color : accentColor }}>checkroom</span>
           }
         </div>
