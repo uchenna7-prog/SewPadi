@@ -51,10 +51,12 @@ export function ReceiptTemplate8({ receipt, customer, brand }) {
       {/* ── Header ── */}
       <div className={styles.header}>
         <div className={styles.logoArea}>
-          {brand.logo
-            ? <img src={brand.logo} alt="" style={{ width: '45px', height: '45px', objectFit: 'contain' }} />
-            : <span className="mi" style={{ fontSize: 20, color: '#333' }}>checkroom</span>
-          }
+          <div className={styles.logoCircle}>
+  {brand.logo
+    ? <img src={brand.logo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', display: 'block' }} />
+    : <span className="mi" style={{ fontSize: 16, color: 'var(--brand-primary)' }}>checkroom</span>
+  }
+</div>
           <div>
             <div className={styles.brandName}>{brand.name || brand.ownerName}</div>
             {brand.tagline && <div className={styles.brandSub}>{brand.tagline}</div>}
