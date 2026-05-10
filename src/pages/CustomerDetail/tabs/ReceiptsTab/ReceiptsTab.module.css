@@ -123,9 +123,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 56px 32px 20px;
+  padding: 32px;
   text-align: center;
+  min-height: calc(100dvh - 56px - 44px);
 }
 
 .emptyStateTitle {
@@ -386,10 +388,6 @@
 
 /* ─────────────────────────────────────────────────────────────
    INSTALLMENT PICKER CARDS
-   Three zones:
-     Left  — number circle + amount block
-     Centre — date + method pill
-     Right  — action tag (Generate / Receipted / Generating)
    ───────────────────────────────────────────────────────────── */
 
 .installmentPickerList {
@@ -432,7 +430,6 @@
   flex-shrink: 0;
 }
 
-/* Numbered circle */
 .installmentNumber {
   width: 32px;
   height: 32px;
@@ -448,7 +445,6 @@
   color: var(--text2);
 }
 
-/* Amount + balance stacked */
 .installmentAmountBlock {
   display: flex;
   flex-direction: column;
@@ -512,7 +508,6 @@
   flex-shrink: 0;
 }
 
-/* "Receipted" — green */
 .actionTagReceipited {
   display: flex;
   flex-direction: column;
@@ -531,7 +526,6 @@
   text-align: center;
 }
 
-/* "Generate" — accent */
 .actionTagGenerate {
   display: flex;
   flex-direction: column;
@@ -550,7 +544,6 @@
   text-align: center;
 }
 
-/* "Generating…" — neutral */
 .actionTagGenerating {
   display: flex;
   flex-direction: column;
@@ -584,6 +577,10 @@
 }
 
 
+/* ─────────────────────────────────────────────────────────────
+   ORDER MOSAIC THUMBNAIL
+   ───────────────────────────────────────────────────────────── */
+
 .mosaicOuter {
   width: 80px;
   height: 80px;
@@ -607,7 +604,6 @@
   overflow: hidden;
 }
 
-/* ── sm outer / inner ── */
 .mosaicOuter_sm {
   width: 38px;
   height: 38px;
@@ -631,14 +627,12 @@
   overflow: hidden;
 }
 
-/* Single full-bleed image */
 .mosaicSingleImage {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-/* Tiled split layout */
 .mosaicSplit {
   padding: 0 !important;
   display: flex !important;
@@ -647,7 +641,6 @@
   overflow: hidden;
 }
 
-/* Left panel — 60% width */
 .mosaicLeft {
   flex: 0 0 60%;
   display: flex;
@@ -658,7 +651,6 @@
   height: 100%;
 }
 
-/* Right column — two stacked cells */
 .mosaicRight {
   flex: 1;
   display: flex;
@@ -667,7 +659,6 @@
   background: #fff;
 }
 
-/* Each cell in the right column */
 .mosaicCell {
   flex: 1;
   display: flex;
@@ -678,7 +669,6 @@
   background: #fff;
 }
 
-/* Image inside any panel */
 .mosaicPanelImg {
   width: 100%;
   height: 100%;
@@ -686,7 +676,6 @@
   display: block;
 }
 
-/* Vertical divider between left and right */
 .mosaicDividerV {
   width: 1.5px;
   flex-shrink: 0;
@@ -694,7 +683,6 @@
   align-self: stretch;
 }
 
-/* Horizontal divider between top and bottom right cells */
 .mosaicDividerH {
   height: 1.5px;
   flex-shrink: 0;
@@ -702,7 +690,6 @@
   width: 100%;
 }
 
-/* Cell with +N overlay */
 .mosaicCell_overlay {
   position: relative;
 }
@@ -725,12 +712,19 @@
 /* ── PICKER EMPTY STATE ── */
 
 .pickerEmpty {
+  position: absolute;
+  top: 56px; /* below the modal header */
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 48px 20px;
   text-align: center;
+  padding: 32px;
+  pointer-events: none;
 }
 
 .pickerEmpty p {
