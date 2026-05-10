@@ -127,7 +127,11 @@
   gap: 8px;
   padding: 32px;
   text-align: center;
-  min-height: calc(100dvh - 56px - 44px);
+  /* Use flex: 1 so it fills whatever space the parent gives it,
+     rather than a hardcoded min-height that breaks when the
+     customer-detail header is taller than expected. */
+  flex: 1;
+  min-height: 0;
 }
 
 .emptyStateTitle {
@@ -142,6 +146,24 @@
   color: var(--text3);
   margin: 0;
   line-height: 1.5;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   TAB CONTENT WRAPPER
+   Ensures the receipts tab content area is a flex column so
+   the empty state can use flex:1 to centre itself properly,
+   and prevents the sticky tab bar from overlapping content.
+   ───────────────────────────────────────────────────────────── */
+
+.tabContent {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  /* Matches whatever padding the other tabs use so the sticky
+     tab container doesn't lap the first row of content */
+  padding-top: 0;
 }
 
 
