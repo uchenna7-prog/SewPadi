@@ -30,8 +30,6 @@ function getTodayLabel() {
   return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-// Returns current time as a readable string e.g. "02:45 PM"
-// Stored on each installment so same-day payments can be told apart.
 function getTimeLabel() {
   return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
 }
@@ -176,7 +174,6 @@ function InlinePaymentForm({ order, onSave, saving }) {
   const [method,      setMethod]      = useState('cash')
   const [notes,       setNotes]       = useState('')
 
-  // Use grand total for all price display and full/part detection
   const fullPrice = parseFloat(order?.totalAmount ?? order?.price) || 0
 
   function handleAmountChange(value) {
@@ -193,12 +190,10 @@ function InlinePaymentForm({ order, onSave, saving }) {
     onSave({
       orderId:      order.id,
       orderDesc:    order.desc,
-      orderPrice:   order.totalAmount ?? order.price ?? null, // grand total saved
+      orderPrice:   order.totalAmount ?? order.price ?? null,
       orderItems:   order.items ?? [],
       status:       finalStatus,
       notes:        notes.trim(),
-      // time is stored alongside date so receipts can distinguish
-      // same-day installments from each other
       installments: [{ amount: parseFloat(amount), method, date: getTodayLabel(), time: getTimeLabel(), id: Date.now() }],
       date:         getTodayLabel(),
     })
@@ -332,6 +327,10 @@ function AddPaymentModal({ isOpen, onClose, orders, payments, onSave }) {
     catch { setSaving(false) }
   }
 
+  // Determine which empty state to show, if any
+  const showAllHavePayments = eligibleOrders.length === 0
+  const showNoSearchMatch   = eligibleOrders.length > 0 && filteredOrders.length === 0
+
   return (
     <div className={`${styles.pickerOverlay} ${isOpen ? styles.pickerOverlay_open : ''}`}>
       <Header
@@ -340,91 +339,92 @@ function AddPaymentModal({ isOpen, onClose, orders, payments, onSave }) {
         onBackClick={saving ? undefined : onClose}
       />
 
-      <div className={styles.pickerScrollBody}>
-        <div style={{ padding: '20px' }}>
-
-          {/* Step heading — only when there are eligible orders */}
-          {eligibleOrders.length > 0 && (
-            <p className={styles.stepHeading}>1. Select Order</p>
-          )}
-
-          {showSearch && (
-            <div className={styles.clothSearchBar}>
-              <span className="mi" style={{ fontSize: '1.1rem', color: 'var(--text3)' }}>search</span>
-              <input
-                type="text"
-                className={styles.clothSearchInput}
-                placeholder="Search orders…"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-              />
-              {search.length > 0 && (
-                <button
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)', display: 'flex', alignItems: 'center', padding: 0 }}
-                  onClick={() => setSearch('')}
-                >
-                  <span className="mi" style={{ fontSize: '1rem' }}>close</span>
-                </button>
-              )}
-            </div>
-          )}
-
-          {eligibleOrders.length === 0 && (
-            <div className={styles.pickerEmpty}>
-              <span className="mi" style={{ fontSize: '2rem', color: 'var(--text3)' }}>assignment</span>
-              <p>All orders already have a payment recorded.</p>
-              <p>Open an existing payment to add an instalment.</p>
-            </div>
-          )}
-
-          {eligibleOrders.length > 0 && filteredOrders.length === 0 && (
-            <div className={styles.pickerEmpty}>
-              <span className="mi" style={{ fontSize: '2rem', color: 'var(--text3)' }}>search_off</span>
-              <p>No orders match your search</p>
-            </div>
-          )}
-
-          <div className={styles.clothPickerList}>
-            {filteredOrders.map(order => {
-              const isSelected = selectedOrderId === order.id
-              return (
-                <div key={order.id}>
-                  <div
-                    className={`
-                      ${styles.clothPickerItem}
-                      ${isSelected ? styles.clothPickerItem_selected : ''}
-                      ${saving && isSelected ? styles.clothPickerItem_saving : ''}
-                    `}
-                    onClick={() => !saving && handleToggleOrder(order)}
-                  >
-                    <OrderMosaic items={order.items || []} size="sm" fallbackIcon="content_cut" />
-                    <div className={styles.clothInfo}>
-                      <h5>{order.desc || 'Untitled Order'}</h5>
-                      {order.due
-                        ? <span style={{ color: '#ef4444' }}>Due {order.due}</span>
-                        : <span>No due date</span>
-                      }
-                    </div>
-                    <div className={`${styles.clothCheckCircle} ${isSelected ? styles.clothCheckCircle_checked : ''}`}>
-                      {isSelected && <span className="mi" style={{ fontSize: '0.9rem' }}>check</span>}
-                    </div>
-                  </div>
-
-                  {isSelected && (
-                    <div ref={expandedRef} className={styles.accordionBody}>
-                      <p className={styles.stepHeading} style={{ marginTop: 0, marginBottom: 16 }}>
-                        2. Payment Details
-                      </p>
-                      <InlinePaymentForm order={order} onSave={handleSave} saving={saving} />
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-
+      {/* ── Empty states — outside scroll body, centred in remaining space ── */}
+      {showAllHavePayments && (
+        <div className={styles.pickerEmpty}>
+          <span className="mi" style={{ fontSize: '2rem', color: 'var(--text3)' }}>assignment</span>
+          <p>All orders already have a payment recorded.</p>
+          <p>Open an existing payment to add an instalment.</p>
         </div>
-      </div>
+      )}
+
+      {showNoSearchMatch && (
+        <div className={styles.pickerEmpty}>
+          <span className="mi" style={{ fontSize: '2rem', color: 'var(--text3)' }}>search_off</span>
+          <p>No orders match your search</p>
+        </div>
+      )}
+
+      {/* ── Scrollable list — only rendered when there are items to show ── */}
+      {!showAllHavePayments && (
+        <div className={styles.pickerScrollBody}>
+          <div style={{ padding: '20px' }}>
+
+            <p className={styles.stepHeading}>1. Select Order</p>
+
+            {showSearch && (
+              <div className={styles.clothSearchBar}>
+                <span className="mi" style={{ fontSize: '1.1rem', color: 'var(--text3)' }}>search</span>
+                <input
+                  type="text"
+                  className={styles.clothSearchInput}
+                  placeholder="Search orders…"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                />
+                {search.length > 0 && (
+                  <button
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)', display: 'flex', alignItems: 'center', padding: 0 }}
+                    onClick={() => setSearch('')}
+                  >
+                    <span className="mi" style={{ fontSize: '1rem' }}>close</span>
+                  </button>
+                )}
+              </div>
+            )}
+
+            <div className={styles.clothPickerList}>
+              {filteredOrders.map(order => {
+                const isSelected = selectedOrderId === order.id
+                return (
+                  <div key={order.id}>
+                    <div
+                      className={`
+                        ${styles.clothPickerItem}
+                        ${isSelected ? styles.clothPickerItem_selected : ''}
+                        ${saving && isSelected ? styles.clothPickerItem_saving : ''}
+                      `}
+                      onClick={() => !saving && handleToggleOrder(order)}
+                    >
+                      <OrderMosaic items={order.items || []} size="sm" fallbackIcon="content_cut" />
+                      <div className={styles.clothInfo}>
+                        <h5>{order.desc || 'Untitled Order'}</h5>
+                        {order.due
+                          ? <span style={{ color: '#ef4444' }}>Due {order.due}</span>
+                          : <span>No due date</span>
+                        }
+                      </div>
+                      <div className={`${styles.clothCheckCircle} ${isSelected ? styles.clothCheckCircle_checked : ''}`}>
+                        {isSelected && <span className="mi" style={{ fontSize: '0.9rem' }}>check</span>}
+                      </div>
+                    </div>
+
+                    {isSelected && (
+                      <div ref={expandedRef} className={styles.accordionBody}>
+                        <p className={styles.stepHeading} style={{ marginTop: 0, marginBottom: 16 }}>
+                          2. Payment Details
+                        </p>
+                        <InlinePaymentForm order={order} onSave={handleSave} saving={saving} />
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -712,14 +712,12 @@ export default function PaymentsTab({
   const [viewingPayment, setViewingPayment] = useState(null)
   const [deleteTarget,   setDeleteTarget]   = useState(null)
 
-  // Keep viewingPayment in sync when payments array updates from Firestore
   useEffect(() => {
     if (!viewingPayment) return
     const updated = payments.find(p => p.id === viewingPayment.id)
     setViewingPayment(updated ?? null)
   }, [payments])
 
-  // FAB event
   useEffect(() => {
     const handler = () => setModalOpen(true)
     document.addEventListener('openPaymentModal', handler)
@@ -753,7 +751,6 @@ export default function PaymentsTab({
     const payment = payments.find(p => p.id === paymentId)
     if (!payment) return
 
-    // Include time so same-day installments are distinguishable on receipts
     const newInstallment      = { amount, method, date: getTodayLabel(), time: getTimeLabel(), id: Date.now() }
     const updatedInstallments = [...(payment.installments || []), newInstallment]
     const totalPaid           = getTotalPaid(updatedInstallments)
