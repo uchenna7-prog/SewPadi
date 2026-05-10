@@ -44,7 +44,7 @@ export function ReceiptTemplate11({ receipt, customer, brand }) {
 
           <div className={styles.logoCircle}>
             {brand.logo
-              ? <img src={brand.logo} alt="" style={{ width : "45px", height : "45px", objectFit : 'contain', borderRadius : 2 }} />
+              ? <img src={brand.logo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', display: 'block' }} />
                : <span className="mi" style={{ fontSize : 11, color : '#fff' }}>checkroom</span>
             }
           </div>
