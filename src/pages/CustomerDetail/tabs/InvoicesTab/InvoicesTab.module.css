@@ -260,9 +260,6 @@
 /* ── EMPTY STATE ── */
 
 .emptyState {
-  /* Fill the tab content area and truly centre the content.
-     The tab content wrapper is min-height: calc(100dvh - 56px - 44px)
-     so this flex column stretches to match and centres vertically. */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -270,10 +267,6 @@
   gap: 8px;
   text-align: center;
   padding: 32px;
-
-  /* Subtract the sticky header (56px) + sticky tabs (44px) so the
-     empty state is centred in the visible white space, not the whole
-     document height. */
   min-height: calc(100dvh - 56px - 44px);
 }
 
@@ -344,6 +337,10 @@
   overflow-y: auto;
   padding-bottom: 100px;
   -webkit-overflow-scrolling: touch;
+
+  /* Allow pickerEmpty to stretch and centre inside this container */
+  display: flex;
+  flex-direction: column;
 }
 
 
@@ -563,9 +560,15 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 48px 20px;
   text-align: center;
+  padding: 32px;
+
+  /* Stretch to fill the scrollable body so content centres vertically.
+     Subtract the modal header (56px) from the full viewport height. */
+  flex: 1;
+  min-height: calc(100dvh - 56px);
 }
 
 .pickerEmpty p {
