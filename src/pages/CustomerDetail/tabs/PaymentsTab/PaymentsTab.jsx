@@ -327,7 +327,6 @@ function AddPaymentModal({ isOpen, onClose, orders, payments, onSave }) {
     catch { setSaving(false) }
   }
 
-  // Determine which empty state to show, if any
   const showAllHavePayments = eligibleOrders.length === 0
   const showNoSearchMatch   = eligibleOrders.length > 0 && filteredOrders.length === 0
 
@@ -339,7 +338,6 @@ function AddPaymentModal({ isOpen, onClose, orders, payments, onSave }) {
         onBackClick={saving ? undefined : onClose}
       />
 
-      {/* ── Empty states — outside scroll body, centred in remaining space ── */}
       {showAllHavePayments && (
         <div className={styles.pickerEmpty}>
           <span className="mi" style={{ fontSize: '2rem', color: 'var(--text3)' }}>assignment</span>
@@ -355,7 +353,6 @@ function AddPaymentModal({ isOpen, onClose, orders, payments, onSave }) {
         </div>
       )}
 
-      {/* ── Scrollable list — only rendered when there are items to show ── */}
       {!showAllHavePayments && (
         <div className={styles.pickerScrollBody}>
           <div style={{ padding: '20px' }}>
@@ -785,66 +782,71 @@ export default function PaymentsTab({
 
   return (
     <>
-      {payments.length === 0 && (
-        <div className={styles.emptyState}>
-          <span className="mi" style={{ fontSize: '2.8rem', opacity: 0.3 }}>payments</span>
-          <p>No payments recorded yet.</p>
-          <span className={styles.emptyStateHint}>Tap + to record a payment</span>
-        </div>
-      )}
+      {/* tabContent wrapper ensures the empty state can flex:1 to fill
+          the available height and stay centred regardless of how tall
+          the customer-detail header above the tab bar is. */}
+      <div className={styles.tabContent}>
+        {payments.length === 0 && (
+          <div className={styles.emptyState}>
+            <span className="mi" style={{ fontSize: '2.8rem', opacity: 0.3 }}>payments</span>
+            <p>No payments recorded yet.</p>
+            <span className={styles.emptyStateHint}>Tap + to record a payment</span>
+          </div>
+        )}
 
-      {Object.entries(groupedByDate).map(([date, datePayments]) => (
-        <div key={date} className={styles.dateGroup}>
-          <div className={styles.dateGroupLabel}>{date}</div>
-          <div className={styles.dateGroupDivider} />
+        {Object.entries(groupedByDate).map(([date, datePayments]) => (
+          <div key={date} className={styles.dateGroup}>
+            <div className={styles.dateGroupLabel}>{date}</div>
+            <div className={styles.dateGroupDivider} />
 
-          {datePayments.map((payment, index) => {
-            const statusMeta   = getStatusMeta(payment.status)
-            const isLast       = index === datePayments.length - 1
-            const installments = payment.installments || []
-            const totalPaid    = getTotalPaid(installments)
-            const fullPrice    = parseFloat(payment.orderPrice) || 0
-            const progressPct  = getProgressPercent(totalPaid, fullPrice, payment.status)
-            const orderItems   = orderItemsMap[payment.orderId] ?? []
+            {datePayments.map((payment, index) => {
+              const statusMeta   = getStatusMeta(payment.status)
+              const isLast       = index === datePayments.length - 1
+              const installments = payment.installments || []
+              const totalPaid    = getTotalPaid(installments)
+              const fullPrice    = parseFloat(payment.orderPrice) || 0
+              const progressPct  = getProgressPercent(totalPaid, fullPrice, payment.status)
+              const orderItems   = orderItemsMap[payment.orderId] ?? []
 
-            return (
-              <div
-                key={payment.id}
-                className={`${styles.paymentRow} ${isLast ? styles.paymentRowLast : ''}`}
-                onClick={() => setViewingPayment(payment)}
-              >
-                <OrderMosaic items={orderItems} size="md" fallbackIcon="payments" fallbackColor={statusMeta.color} />
+              return (
+                <div
+                  key={payment.id}
+                  className={`${styles.paymentRow} ${isLast ? styles.paymentRowLast : ''}`}
+                  onClick={() => setViewingPayment(payment)}
+                >
+                  <OrderMosaic items={orderItems} size="md" fallbackIcon="payments" fallbackColor={statusMeta.color} />
 
-                <div className={styles.paymentRowInfo}>
-                  <div className={styles.paymentRowTitle}>{payment.orderDesc || 'Payment'}</div>
-                  <div className={styles.paymentRowMeta}>
-                    <span
-                      className={styles.paymentStatusBadge}
-                      style={{ color: statusMeta.color, background: statusMeta.background, borderColor: statusMeta.borderColor }}
-                    >
-                      {statusMeta.label}
-                    </span>
-                  </div>
-                </div>
-
-                <div className={styles.paymentRowRight}>
-                  <div className={styles.paymentRowAmount}>
-                    {fullPrice > 0 ? formatMoney(totalPaid) : formatMoney(installments[0]?.amount)}
-                  </div>
-                  {fullPrice > 0 && totalPaid < fullPrice && (
-                    <div className={styles.paymentRowSubAmount}>of {formatMoney(fullPrice)}</div>
-                  )}
-                  {fullPrice > 0 && (
-                    <div className={styles.miniProgressTrack}>
-                      <div className={styles.miniProgressFill} style={{ width: `${progressPct}%`, background: statusMeta.color }} />
+                  <div className={styles.paymentRowInfo}>
+                    <div className={styles.paymentRowTitle}>{payment.orderDesc || 'Payment'}</div>
+                    <div className={styles.paymentRowMeta}>
+                      <span
+                        className={styles.paymentStatusBadge}
+                        style={{ color: statusMeta.color, background: statusMeta.background, borderColor: statusMeta.borderColor }}
+                      >
+                        {statusMeta.label}
+                      </span>
                     </div>
-                  )}
+                  </div>
+
+                  <div className={styles.paymentRowRight}>
+                    <div className={styles.paymentRowAmount}>
+                      {fullPrice > 0 ? formatMoney(totalPaid) : formatMoney(installments[0]?.amount)}
+                    </div>
+                    {fullPrice > 0 && totalPaid < fullPrice && (
+                      <div className={styles.paymentRowSubAmount}>of {formatMoney(fullPrice)}</div>
+                    )}
+                    {fullPrice > 0 && (
+                      <div className={styles.miniProgressTrack}>
+                        <div className={styles.miniProgressFill} style={{ width: `${progressPct}%`, background: statusMeta.color }} />
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )
-          })}
-        </div>
-      ))}
+              )
+            })}
+          </div>
+        ))}
+      </div>
 
       <AddPaymentModal
         isOpen={modalOpen}
