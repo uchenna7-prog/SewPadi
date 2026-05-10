@@ -316,55 +316,6 @@ function InlineInstallmentList({ order, payment, receipts, generating, onSelectP
 
 
 // ─────────────────────────────────────────────────────────────
-// ACCORDION BODY — smooth height animation (Radix-style)
-// ─────────────────────────────────────────────────────────────
-
-function AccordionBody({ isOpen, children, scrollRef }) {
-  const innerRef  = useRef(null)
-  const [height, setHeight] = useState(0)
-  const [visible, setVisible] = useState(false)
-  const rafRef    = useRef(null)
-
-  useEffect(() => {
-    if (isOpen) {
-      // Mount immediately so we can measure, but keep height:0
-      setVisible(true)
-      // One rAF to let the DOM paint, then set the measured height
-      rafRef.current = requestAnimationFrame(() => {
-        if (innerRef.current) {
-          setHeight(innerRef.current.scrollHeight)
-        }
-        // Pass the scroll ref up so the modal can scroll to it
-        if (scrollRef) scrollRef.current = innerRef.current
-      })
-    } else {
-      // Collapse: animate back to 0, then unmount
-      setHeight(0)
-      const timer = setTimeout(() => setVisible(false), 380)
-      return () => clearTimeout(timer)
-    }
-    return () => cancelAnimationFrame(rafRef.current)
-  }, [isOpen]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  if (!visible) return null
-
-  return (
-    <div
-      style={{
-        height: height,
-        overflow: 'hidden',
-        transition: 'height 0.38s cubic-bezier(0.4, 0, 0.2, 1)',
-      }}
-    >
-      <div ref={innerRef} className={styles.accordionBody}>
-        {children}
-      </div>
-    </div>
-  )
-}
-
-
-// ─────────────────────────────────────────────────────────────
 // RECEIPT PICKER MODAL
 // ─────────────────────────────────────────────────────────────
 
@@ -503,30 +454,24 @@ function ReceiptPickerModal({ isOpen, onClose, orders, payments, receipts, onSel
                       </div>
 
                       <div className={`${styles.clothCheckCircle} ${isSelected ? styles.clothCheckCircle_checked : ''}`}>
-                        <span
-                          className="mi"
-                          style={{
-                            fontSize: '0.9rem',
-                            color: isSelected ? 'inherit' : 'var(--text3)',
-                            display: 'block',
-                            transition: 'transform 0.32s cubic-bezier(0.4, 0, 0.2, 1)',
-                            transform: isSelected ? 'rotate(180deg)' : 'rotate(0deg)',
-                          }}
-                        >
-                          expand_more
-                        </span>
+                        {isSelected
+                          ? <span className="mi" style={{ fontSize: '0.9rem' }}>check</span>
+                          : <span className="mi" style={{ fontSize: '0.9rem', color: 'var(--text3)' }}>expand_more</span>
+                        }
                       </div>
                     </div>
 
-                    <AccordionBody isOpen={isSelected} scrollRef={expandedRef}>
-                      <InlineInstallmentList
-                        order={order}
-                        payment={payment}
-                        receipts={receipts}
-                        generating={generating}
-                        onSelectPayment={onSelectPayment}
-                      />
-                    </AccordionBody>
+                    {isSelected && (
+                      <div ref={expandedRef} className={styles.accordionBody}>
+                        <InlineInstallmentList
+                          order={order}
+                          payment={payment}
+                          receipts={receipts}
+                          generating={generating}
+                          onSelectPayment={onSelectPayment}
+                        />
+                      </div>
+                    )}
                   </div>
                 )
               })}
