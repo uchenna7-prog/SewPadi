@@ -15,14 +15,17 @@
    padding: 12px 16px 8px; 
 }
 .logoCircle { 
-   width: 45px; 
-   height: 45px; 
+   width: 48px; 
+   height: 48px; 
    border-radius: 50%; 
-   border: 2px solid var(--brand-primary); 
+   border: 2px solid var(--brand-primary);
+   background: #fff;           /* white backing for transparent PNGs */
    display: flex; 
    align-items: center; 
    justify-content: center; 
-   flex-shrink: 0; 
+   flex-shrink: 0;
+   overflow: hidden;           /* clips image to circle shape */
+   box-shadow: 0 1px 4px rgba(0,0,0,0.10);  /* subtle lift */
 }
 .titleGroup { 
    display: flex; 
