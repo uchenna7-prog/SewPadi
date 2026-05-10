@@ -584,25 +584,30 @@ export default function ReceiptTab({
 
   return (
     <>
-      {receipts.length === 0 && <EmptyState />}
+      {/* tabContent makes this a flex column so EmptyState's flex:1 can
+          fill the remaining height and stay truly centred regardless of
+          how tall the customer-detail header above the tab bar is. */}
+      <div className={styles.tabContent}>
+        {receipts.length === 0 && <EmptyState />}
 
-      {receipts.length > 0 && Object.entries(groupedByDate).map(([date, dateReceipts]) => (
-        <div key={date} className={styles.dateGroup}>
-          <div className={styles.dateGroupLabel}>{date}</div>
-          <div className={styles.dateGroupDivider} />
+        {receipts.length > 0 && Object.entries(groupedByDate).map(([date, dateReceipts]) => (
+          <div key={date} className={styles.dateGroup}>
+            <div className={styles.dateGroupLabel}>{date}</div>
+            <div className={styles.dateGroupDivider} />
 
-          {dateReceipts.map((receipt, index) => (
-            <ReceiptCard
-              key={receipt.id}
-              receipt={receipt}
-              currency={currency}
-              isLast={index === dateReceipts.length - 1}
-              onTap={() => setViewingReceipt(receipt)}
-              orderItems={orderItemsMap[receipt.orderId] ?? receipt.orderItems ?? []}
-            />
-          ))}
-        </div>
-      ))}
+            {dateReceipts.map((receipt, index) => (
+              <ReceiptCard
+                key={receipt.id}
+                receipt={receipt}
+                currency={currency}
+                isLast={index === dateReceipts.length - 1}
+                onTap={() => setViewingReceipt(receipt)}
+                orderItems={orderItemsMap[receipt.orderId] ?? receipt.orderItems ?? []}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
 
       <ReceiptPickerModal
         isOpen={pickerOpen}
