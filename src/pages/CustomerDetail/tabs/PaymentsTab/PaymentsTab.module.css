@@ -13,7 +13,8 @@
   gap: 10px;
   text-align: center;
   padding: 32px;
-  min-height: calc(100dvh - 56px - 44px);
+  flex: 1;
+  min-height: 0;
 }
 
 .emptyState p {
@@ -25,6 +26,18 @@
   font-size: 0.7rem;
   color: var(--text3);
   opacity: 0.6;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   TAB CONTENT WRAPPER
+   ───────────────────────────────────────────────────────────── */
+
+.tabContent {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
 
