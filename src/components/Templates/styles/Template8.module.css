@@ -26,19 +26,18 @@
   min-width: 0;
 }
 
-/* Add this new class */
 .logoCircle {
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  border: 2px solid var(--brand-primary);
-  background: #fff;
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  border: 1.5px solid var(--brand-primary);
+  background: #f9f9f9;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   overflow: hidden;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
 /* Replace existing .brandName and .brandSub */
