@@ -39,10 +39,12 @@ export function ReceiptTemplate10({ receipt, customer, brand }) {
       <div className={styles.header}>
         <div>
           <div className={styles.logoRow}>
-            {brand.logo
-              ? <img src={brand.logo} alt="" style={{ width : "45px", height : "45px", objectFit : 'contain' }} />
-               : <span className="mi" style={{ fontSize : 14, color : '#333' }}>checkroom</span>
-            }
+            <div className={styles.logoSquare}>
+  {brand.logo
+    ? <img src={brand.logo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+    : <span className="mi" style={{ fontSize: 14, color: 'var(--brand-primary)' }}>checkroom</span>
+  }
+</div>
             <span className={styles.companyName}>{(brand.name || brand.ownerName || '').toUpperCase()}</span>
           </div>
           {brand.tagline  && <div className={styles.companySub}>{brand.tagline}</div>}
