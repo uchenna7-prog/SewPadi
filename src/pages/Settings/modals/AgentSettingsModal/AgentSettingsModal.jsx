@@ -1,43 +1,96 @@
 // src/pages/Settings/modals/AgentSettingsModal/AgentSettingsModal.jsx
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useGeneralSettings } from '../../../../contexts/GeneralSettingsContext'
 import styles from './AgentSettingsModal.module.css'
 
-// ── Timeframe options ─────────────────────────────────────────────────────────
+// ── Duration units ────────────────────────────────────────────────────────────
+// Each unit has a min/max so the input stays sensible
 
-const TIMEFRAME_OPTIONS = [
-  { value: '30min',    label: '30 minutes' },
-  { value: '1hr',      label: '1 hour'     },
-  { value: '6hr',      label: '6 hours'    },
-  { value: '1day',     label: '1 day'      },
-  { value: '2days',    label: '2 days'     },
-  { value: 'app_open', label: 'Next app open' },
+const UNITS = [
+  { value: 'seconds', label: 'seconds', singular: 'second', min: 10,  max: 59  },
+  { value: 'minutes', label: 'minutes', singular: 'minute', min: 1,   max: 59  },
+  { value: 'hours',   label: 'hours',   singular: 'hour',   min: 1,   max: 23  },
+  { value: 'days',    label: 'days',    singular: 'day',    min: 1,   max: 30  },
+  { value: 'weeks',   label: 'weeks',   singular: 'week',   min: 1,   max: 12  },
+  { value: 'months',  label: 'months',  singular: 'month',  min: 1,   max: 12  },
 ]
 
-const INACTIVITY_OPTIONS = [
-  { value: '14days',  label: '14 days'  },
-  { value: '30days',  label: '30 days'  },
-  { value: '45days',  label: '45 days'  },
-  { value: '60days',  label: '2 months' },
-  { value: '90days',  label: '3 months' },
-]
+function unitMeta(unitValue) {
+  return UNITS.find(u => u.value === unitValue) || UNITS[3]
+}
 
-const BIRTHDAY_NOTICE_OPTIONS = [
-  { value: 0, label: 'On the day'    },
-  { value: 1, label: '1 day before'  },
-  { value: 2, label: '2 days before' },
-  { value: 3, label: '3 days before' },
-]
+// ── DurationInput ─────────────────────────────────────────────────────────────
+// value: { amount: number, unit: string }
+// onChange: (newValue) => void
 
-const REMINDER_DAYS_OPTIONS = [
-  { value: 1, label: '1 day before due'  },
-  { value: 2, label: '2 days before due' },
-  { value: 3, label: '3 days before due' },
-  { value: 0, label: 'On the due date'   },
-]
+function DurationInput({ value, onChange }) {
+  const meta = unitMeta(value.unit)
 
-// ── Sub-components ────────────────────────────────────────────────────────────
+  function handleAmountChange(e) {
+    const raw = e.target.value.replace(/\D/g, '')
+    if (raw === '') { onChange({ ...value, amount: '' }); return }
+    const n = Math.min(Math.max(parseInt(raw, 10), meta.min), meta.max)
+    onChange({ ...value, amount: n })
+  }
+
+  function handleAmountBlur() {
+    // Snap to min if left empty
+    if (value.amount === '' || value.amount < meta.min) {
+      onChange({ ...value, amount: meta.min })
+    }
+  }
+
+  function handleUnitChange(e) {
+    const newMeta = unitMeta(e.target.value)
+    // Clamp current amount into new unit's range
+    const clamped = Math.min(Math.max(Number(value.amount) || newMeta.min, newMeta.min), newMeta.max)
+    onChange({ amount: clamped, unit: e.target.value })
+  }
+
+  const displayUnit = Number(value.amount) === 1 ? meta.singular : meta.label
+
+  return (
+    <div className={styles.durationRow}>
+      {/* Number input */}
+      <div className={styles.durationAmountWrap}>
+        <input
+          type="number"
+          inputMode="numeric"
+          className={styles.durationAmount}
+          value={value.amount}
+          onChange={handleAmountChange}
+          onBlur={handleAmountBlur}
+          min={meta.min}
+          max={meta.max}
+        />
+      </div>
+
+      {/* Unit selector */}
+      <div className={styles.durationUnitWrap}>
+        <select
+          className={styles.durationUnit}
+          value={value.unit}
+          onChange={handleUnitChange}
+        >
+          {UNITS.map(u => (
+            <option key={u.value} value={u.value}>{u.label}</option>
+          ))}
+        </select>
+        <span className="material-icons" style={{ fontSize: 16, color: 'var(--text3)', pointerEvents: 'none' }}>
+          expand_more
+        </span>
+      </div>
+
+      {/* Live preview label */}
+      <span className={styles.durationPreview}>
+        {value.amount || meta.min} {displayUnit}
+      </span>
+    </div>
+  )
+}
+
+// ── AgentToggle ───────────────────────────────────────────────────────────────
 
 function AgentToggle({ value, onChange }) {
   return (
@@ -52,21 +105,7 @@ function AgentToggle({ value, onChange }) {
   )
 }
 
-function SelectPill({ options, value, onChange }) {
-  return (
-    <div className={styles.pillRow}>
-      {options.map(opt => (
-        <button
-          key={opt.value}
-          className={`${styles.pill} ${value === opt.value ? styles.pillActive : ''}`}
-          onClick={() => onChange(opt.value)}
-        >
-          {opt.label}
-        </button>
-      ))}
-    </div>
-  )
-}
+// ── FeatureBlock ──────────────────────────────────────────────────────────────
 
 function FeatureBlock({ icon, title, sub, enabled, onToggle, children }) {
   return (
@@ -105,11 +144,11 @@ export function AgentSettingsModal({ onBack, showToast }) {
     agentAutoInvoiceTimeframe: generalSettings.agentAutoInvoiceTimeframe,
     agentAutoReceipt:          generalSettings.agentAutoReceipt,
     agentBirthdayMessages:     generalSettings.agentBirthdayMessages,
-    agentBirthdayNoticeDays:   generalSettings.agentBirthdayNoticeDays,
+    agentBirthdayNotice:       generalSettings.agentBirthdayNotice,
     agentFollowUp:             generalSettings.agentFollowUp,
     agentFollowUpInactivity:   generalSettings.agentFollowUpInactivity,
     agentPaymentReminder:      generalSettings.agentPaymentReminder,
-    agentPaymentReminderDays:  generalSettings.agentPaymentReminderDays,
+    agentPaymentReminderBefore: generalSettings.agentPaymentReminderBefore,
     agentDailyBrief:           generalSettings.agentDailyBrief,
   })
 
@@ -162,7 +201,6 @@ export function AgentSettingsModal({ onBack, showToast }) {
           />
         </div>
 
-        {/* Dim overlay hint when master is off */}
         {masterOff && (
           <p className={styles.disabledHint}>
             <span className="material-icons" style={{ fontSize: 14, verticalAlign: 'middle', marginRight: 4 }}>info</span>
@@ -182,8 +220,7 @@ export function AgentSettingsModal({ onBack, showToast }) {
             onToggle={v => set('agentAutoInvoice', v)}
           >
             <FieldLabel>Act after order has been uninvoiced for</FieldLabel>
-            <SelectPill
-              options={TIMEFRAME_OPTIONS}
+            <DurationInput
               value={local.agentAutoInvoiceTimeframe}
               onChange={v => set('agentAutoInvoiceTimeframe', v)}
             />
@@ -206,11 +243,10 @@ export function AgentSettingsModal({ onBack, showToast }) {
             enabled={local.agentBirthdayMessages}
             onToggle={v => set('agentBirthdayMessages', v)}
           >
-            <FieldLabel>Prepare draft</FieldLabel>
-            <SelectPill
-              options={BIRTHDAY_NOTICE_OPTIONS}
-              value={local.agentBirthdayNoticeDays}
-              onChange={v => set('agentBirthdayNoticeDays', v)}
+            <FieldLabel>Prepare draft this long before the birthday</FieldLabel>
+            <DurationInput
+              value={local.agentBirthdayNotice}
+              onChange={v => set('agentBirthdayNotice', v)}
             />
           </FeatureBlock>
 
@@ -223,8 +259,7 @@ export function AgentSettingsModal({ onBack, showToast }) {
             onToggle={v => set('agentFollowUp', v)}
           >
             <FieldLabel>Draft follow-up after customer is inactive for</FieldLabel>
-            <SelectPill
-              options={INACTIVITY_OPTIONS}
+            <DurationInput
               value={local.agentFollowUpInactivity}
               onChange={v => set('agentFollowUpInactivity', v)}
             />
@@ -238,11 +273,10 @@ export function AgentSettingsModal({ onBack, showToast }) {
             enabled={local.agentPaymentReminder}
             onToggle={v => set('agentPaymentReminder', v)}
           >
-            <FieldLabel>Draft reminder</FieldLabel>
-            <SelectPill
-              options={REMINDER_DAYS_OPTIONS}
-              value={local.agentPaymentReminderDays}
-              onChange={v => set('agentPaymentReminderDays', v)}
+            <FieldLabel>Draft reminder this long before the due date</FieldLabel>
+            <DurationInput
+              value={local.agentPaymentReminderBefore}
+              onChange={v => set('agentPaymentReminderBefore', v)}
             />
           </FeatureBlock>
 
@@ -260,17 +294,15 @@ export function AgentSettingsModal({ onBack, showToast }) {
         {/* Draft-only notice */}
         <div className={styles.notice}>
           <span className="material-icons" style={{ fontSize: 15, flexShrink: 0 }}>lock</span>
-          <p>The agent only drafts — it never sends anything. You stay in full control of all messages, invoices, and receipts.</p>
+          <p>The agent only drafts — it never sends anything. You stay in full control.</p>
         </div>
 
         <div style={{ height: 32 }} />
       </div>
 
-      {/* ── Save button ── */}
+      {/* ── Save ── */}
       <div className={styles.footer}>
-        <button className={styles.saveBtn} onClick={handleSave}>
-          Save
-        </button>
+        <button className={styles.saveBtn} onClick={handleSave}>Save</button>
       </div>
 
     </div>
