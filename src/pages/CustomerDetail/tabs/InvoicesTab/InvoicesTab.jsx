@@ -625,8 +625,10 @@ export default function InvoiceTab({
   // ── Skeleton state ────────────────────────────────────────
   if (loading) {
     return (
-      <div className={styles.dateGroup}>
-        {[1, 2, 3].map(i => <InvoiceRowSkeleton key={i} />)}
+      <div className={styles.tabContent}>
+        <div className={styles.dateGroup}>
+          {[1, 2, 3].map(i => <InvoiceRowSkeleton key={i} />)}
+        </div>
       </div>
     )
   }
@@ -634,7 +636,7 @@ export default function InvoiceTab({
   // ── Empty state ───────────────────────────────────────────
   if (invoices.length === 0) {
     return (
-      <>
+      <div className={styles.tabContent}>
         <EmptyState />
         <OrderPickerModal
           isOpen={pickerOpen}
@@ -647,13 +649,13 @@ export default function InvoiceTab({
           onGenerateSelected={handleGenerateSelected}
           generatingIds={generatingIds}
         />
-      </>
+      </div>
     )
   }
 
   // ── Populated list ────────────────────────────────────────
   return (
-    <>
+    <div className={styles.tabContent}>
       {Object.entries(groupedByDate).map(([date, dateInvoices]) => (
         <div key={date} className={styles.dateGroup}>
           <div className={styles.dateGroupLabel}>{date}</div>
@@ -716,6 +718,6 @@ export default function InvoiceTab({
         onConfirm={handleConfirmDelete}
         onCancel={() => setDeleteTarget(null)}
       />
-    </>
+    </div>
   )
 }
