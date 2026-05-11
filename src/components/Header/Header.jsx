@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useNotifications } from '../../contexts/NotificationContext'
 import styles from './Header.module.css'
@@ -70,39 +70,35 @@ function BotIcon() {
   )
 }
 
+// ─────────────────────────────────────────────────────────────
+// HEADER
+// ─────────────────────────────────────────────────────────────
+
 function Header({
   onMenuClick,
   onBackClick,
-  type = 'default',
+  type            = 'default',
   title,
-  customActions = [],
-  backIcon = 'arrow_back_ios',
-  agentPendingCount = 2,
-  scrolledAvatar = null,
+  customTitle,            // ← NEW: renders instead of title string when provided
+  customActions   = [],
+  backIcon        = 'arrow_back_ios',
+  agentPendingCount = 0,  // ← now defaults 0; caller passes real count
+  scrolledAvatar  = null,
   isScrolled: isScrolledProp = false,
   showRightAvatar = false,
 }) {
-  const [notifOpen,   setNotifOpen]   = useState(false)
-  const [notifTab,    setNotifTab]    = useState('all')
-  const [scrolled,    setScrolled]    = useState(false)
+  const [notifOpen, setNotifOpen] = useState(false)
+  const [notifTab,  setNotifTab]  = useState('all')
+  const [scrolled,  setScrolled]  = useState(false)
 
   const navigate = useNavigate()
   const location = useLocation()
 
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications()
 
-  // ── Window-scroll-based detection (works with any DOM structure) ──
-  // We listen on the window scroll event. As soon as the user
-  // scrolls even 1px down, the shadow kicks in. On scroll back
-  // to top it disappears. Passive listener keeps it performant.
   useEffect(() => {
-    const onScroll = () => {
-      setScrolled(window.scrollY > 0)
-    }
-
-    // Set initial state in case the page loads already scrolled
+    const onScroll = () => setScrolled(window.scrollY > 0)
     onScroll()
-
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
@@ -115,7 +111,7 @@ function Header({
     '/agent':     'Agent',
   }
 
-  const pageTitle    = title || PAGE_TITLES[location.pathname] || 'TailorFlow'
+  const pageTitle     = title || PAGE_TITLES[location.pathname] || 'TailorFlow'
   const showBotButton = type === 'default' && location.pathname === '/'
 
   const openNotif  = () => { setNotifTab('all'); setNotifOpen(true) }
@@ -146,6 +142,8 @@ function Header({
     <>
       <header className={`${styles.header} ${type === 'back' ? styles.backHeader : ''} ${scrolled ? styles.headerScrolled : ''}`}>
         <div className={styles.leftSide}>
+
+          {/* Back / hamburger button */}
           {type === 'default' && (
             <button className={styles.iconBtn} onClick={onMenuClick} aria-label="Open menu">
               <span className={styles.hamburgerLines}><span /><span /><span /></span>
@@ -157,7 +155,7 @@ function Header({
             </button>
           )}
 
-          {/* ── Left avatar — glides in when scrolled ── */}
+          {/* Scrolled avatar (back pages only) */}
           {type === 'back' && scrolledAvatar && (
             <div
               className={`${styles.leftAvatar} ${isScrolledProp ? styles.leftAvatarVisible : styles.leftAvatarHidden}`}
@@ -173,9 +171,18 @@ function Header({
             </div>
           )}
 
-          <div className={`${styles.title} header-title ${isScrolledProp && scrolledAvatar ? styles.titleShifted : ''}`}>
-            {pageTitle}
-          </div>
+          {/* Title — customTitle node takes priority over string title */}
+          {customTitle
+            ? (
+              <div className={`${styles.customTitleWrap} ${isScrolledProp && scrolledAvatar ? styles.titleShifted : ''}`}>
+                {customTitle}
+              </div>
+            ) : (
+              <div className={`${styles.title} header-title ${isScrolledProp && scrolledAvatar ? styles.titleShifted : ''}`}>
+                {pageTitle}
+              </div>
+            )
+          }
         </div>
 
         {/* ── BACK HEADER ACTIONS ── */}
@@ -192,7 +199,7 @@ function Header({
               return (
                 <button
                   key={i}
-                  className={action.label ? styles.textBtn : styles.iconBtn}
+                  className={`${action.label ? styles.textBtn : styles.iconBtn} ${styles.actionBtnRelative}`}
                   onClick={action.onClick}
                   aria-label={action.label || action.icon}
                   disabled={action.disabled}
@@ -207,6 +214,12 @@ function Header({
                     </span>
                   )}
                   {action.label && <span>{action.label}</span>}
+                  {/* Badge support for customActions */}
+                  {action.badge > 0 && (
+                    <span className={styles.actionBadge}>
+                      {action.badge > 9 ? '9+' : action.badge}
+                    </span>
+                  )}
                 </button>
               )
             })}
@@ -230,7 +243,7 @@ function Header({
                 className={styles.iconBtn}
                 onClick={handleBotClick}
                 aria-label="Open Agent"
-                title="TailorFlow Agent"
+                title="Stitch — TailorFlow Agent"
               >
                 <BotIcon />
                 {agentPendingCount > 0 && (
