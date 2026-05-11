@@ -4,6 +4,7 @@
     "indexes": "firestore.indexes.json"
   },
   "hosting": {
+    "target":"sewpadi",
     "public": "dist",
     "ignore": [
       "firebase.json",
