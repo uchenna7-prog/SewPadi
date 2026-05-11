@@ -1,14 +1,15 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useCustomers }     from '../../contexts/CustomerContext'
-import { useOrders }        from '../../contexts/OrdersContext'
-import { useTasks }         from '../../contexts/TaskContext'
-import { useInvoices }      from '../../contexts/InvoiceContext'
-import { useAppointments }  from '../../contexts/AppointmentContext'
-import { useAuth }          from '../../contexts/AuthContext'
-import { useNotifications } from '../../contexts/NotificationContext'
-import { useGeneralSettings }      from '../../contexts/GeneralSettingsContext'
-import { usePayments }      from '../../contexts/PaymentContext'
+import { useCustomers }       from '../../contexts/CustomerContext'
+import { useOrders }          from '../../contexts/OrdersContext'
+import { useTasks }           from '../../contexts/TaskContext'
+import { useInvoices }        from '../../contexts/InvoiceContext'
+import { useAppointments }    from '../../contexts/AppointmentContext'
+import { useAuth }            from '../../contexts/AuthContext'
+import { useNotifications }   from '../../contexts/NotificationContext'
+import { useGeneralSettings } from '../../contexts/GeneralSettingsContext'
+import { usePayments }        from '../../contexts/PaymentContext'
+import { useAutonomousAgent } from '../../contexts/AgentContext'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 import Header    from '../../components/Header/Header'
@@ -133,21 +134,21 @@ const APPT_STATUS_COLORS = {
   cancelled: '#ef4444', missed: '#ef4444',
 }
 const ORDER_STATUS_STYLES = {
-  pending:     { bg: 'rgba(234,179,8,0.12)',   color: '#a16207', border: 'rgba(234,179,8,0.3)'   },
-  'in-progress':{ bg: 'rgba(59,130,246,0.12)', color: '#2563eb', border: 'rgba(59,130,246,0.3)'  },
-  completed:   { bg: 'rgba(21,128,61,0.12)',   color: '#15803d', border: 'rgba(21,128,61,0.3)'   },
-  delivered:   { bg: 'rgba(129,140,248,0.12)', color: '#4f46e5', border: 'rgba(129,140,248,0.3)' },
-  cancelled:   { bg: 'rgba(239,68,68,0.12)',   color: '#dc2626', border: 'rgba(239,68,68,0.3)'   },
+  pending:      { bg: 'rgba(234,179,8,0.12)',   color: '#a16207', border: 'rgba(234,179,8,0.3)'   },
+  'in-progress':{ bg: 'rgba(59,130,246,0.12)',  color: '#2563eb', border: 'rgba(59,130,246,0.3)'  },
+  completed:    { bg: 'rgba(21,128,61,0.12)',   color: '#15803d', border: 'rgba(21,128,61,0.3)'   },
+  delivered:    { bg: 'rgba(129,140,248,0.12)', color: '#4f46e5', border: 'rgba(129,140,248,0.3)' },
+  cancelled:    { bg: 'rgba(239,68,68,0.12)',   color: '#dc2626', border: 'rgba(239,68,68,0.3)'   },
 }
 const TASK_STATUS_STYLES = {
-  completed: { bg: 'rgba(21,128,61,0.12)',   color: '#15803d', border: 'rgba(21,128,61,0.3)'   },
-  overdue:   { bg: 'rgba(239,68,68,0.12)',   color: '#dc2626', border: 'rgba(239,68,68,0.3)'   },
-  pending:   { bg: 'rgba(234,179,8,0.12)',   color: '#a16207', border: 'rgba(234,179,8,0.3)'   },
+  completed: { bg: 'rgba(21,128,61,0.12)',  color: '#15803d', border: 'rgba(21,128,61,0.3)'  },
+  overdue:   { bg: 'rgba(239,68,68,0.12)',  color: '#dc2626', border: 'rgba(239,68,68,0.3)'  },
+  pending:   { bg: 'rgba(234,179,8,0.12)',  color: '#a16207', border: 'rgba(234,179,8,0.3)'  },
 }
 
 const STAGES = [
   { value: 'measurement_taken', label: 'Measurement Taken', icon: 'straighten'    },
-  { value: 'fabric_ready',      label: 'Fabric Ready',      icon: 'layers'  },
+  { value: 'fabric_ready',      label: 'Fabric Ready',      icon: 'layers'        },
   { value: 'cutting',           label: 'Cutting',           icon: 'content_cut'   },
   { value: 'weaving',           label: 'Weaving',           icon: 'texture'       },
   { value: 'sewing',            label: 'Sewing',            icon: 'send'          },
@@ -160,21 +161,18 @@ const STAGES = [
 ]
 
 // ─────────────────────────────────────────────────────────────
-// SKELETON PAGE  (react-loading-skeleton)
+// SKELETON PAGE
 // ─────────────────────────────────────────────────────────────
 
 function SkeletonPage() {
   return (
     <div className={styles.skeletonPage}>
-      {/* Hero */}
       <div className={styles.skHero}>
         <Skeleton width={80}  height={12} borderRadius={4} />
         <Skeleton width={160} height={32} borderRadius={6} style={{ marginTop: 6 }} />
         <Skeleton width={240} height={11} borderRadius={4} style={{ marginTop: 8 }} />
         <Skeleton width={100} height={10} borderRadius={4} style={{ marginTop: 6, opacity: 0.5 }} />
       </div>
-
-      {/* Stat cards */}
       <div className={styles.skStatsGrid}>
         {[0, 1, 2, 3].map(i => (
           <div key={i} className={styles.skStatCard}>
@@ -185,8 +183,6 @@ function SkeletonPage() {
           </div>
         ))}
       </div>
-
-      {/* Revenue card */}
       <div className={styles.skFullCard}>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
           <Skeleton width={90}  height={10} borderRadius={4} />
@@ -195,8 +191,6 @@ function SkeletonPage() {
         </div>
         <Skeleton width={88} height={88} circle />
       </div>
-
-      {/* Customer card */}
       <div className={styles.skFullCard} style={{ flexDirection: 'column', gap: 12 }}>
         <Skeleton width={110} height={10} borderRadius={4} />
         <Skeleton width={80}  height={36} borderRadius={5} />
@@ -210,8 +204,6 @@ function SkeletonPage() {
           <Skeleton width={24} height={11} borderRadius={4} />
         </div>
       </div>
-
-      {/* List sections */}
       {[0, 1].map(s => (
         <div key={s} className={styles.skSection}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -377,24 +369,18 @@ function NotifBanner({ onEnable, onDismiss }) {
   )
 }
 
-// ── STAT CARD — icon now uses var(--icon-color), larger size ──
 function StatCard({ card, navigate }) {
   const [showTip, setShowTip] = useState(false)
   const isEmpty = card.value === 0
 
   return (
-    <div
-      className={styles.statCard}
-      onClick={() => navigate(card.route)}
-    >
+    <div className={styles.statCard} onClick={() => navigate(card.route)}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-        {/* Icon — monochrome, larger */}
         <div className={styles.statIconWrap}>
           <span className="mi" style={{ fontSize: '1.75rem', color: 'var(--icon-color)' }}>
             {card.desktopIcon}
           </span>
         </div>
-
         {card.tooltip && (
           <div style={{ position: 'relative' }}>
             <span
@@ -421,21 +407,11 @@ function StatCard({ card, navigate }) {
           </div>
         )}
       </div>
-
-      <div
-        className={styles.statValue}
-        style={{
-          marginTop: '12px',
-          color:   isEmpty ? 'var(--text3)' : 'var(--text)',
-          opacity: isEmpty ? 0.45 : 1,
-        }}
-      >
+      <div className={styles.statValue} style={{ marginTop: '12px', color: isEmpty ? 'var(--text3)' : 'var(--text)', opacity: isEmpty ? 0.45 : 1 }}>
         {card.value}
       </div>
       <div className={styles.statLabel}>{card.label}</div>
-      {card.sub && (
-        <div className={styles.statSub} style={{ color: card.subColor }}>{card.sub}</div>
-      )}
+      {card.sub && <div className={styles.statSub} style={{ color: card.subColor }}>{card.sub}</div>}
       <Delta delta={card.delta} positiveIsGood={card.positiveIsGood} />
     </div>
   )
@@ -501,7 +477,11 @@ function Home({ onMenuClick, onGoToCustomer }) {
   } = useAppointments()
   const { pushEnabled, requestPushPermission } = useNotifications()
   const { generalSettings }    = useGeneralSettings()
-  const { allPayments } = usePayments()
+  const { allPayments }        = usePayments()
+
+  // ── Agent draft count for bot badge ──────────────────────
+  const { drafts } = useAutonomousAgent()
+  const agentPendingCount = drafts.length
 
   // ── Loading state ─────────────────────────────────────────
   const noCustomersYet  = !loadingCustomers && customers.length === 0
@@ -582,7 +562,6 @@ function Home({ onMenuClick, onGoToCustomer }) {
   }).length
   const newCustLastMonth = customers.filter(c => c.date && isDateInLastMonth(c.date)).length
 
-  // ── Top customer ──────────────────────────────────────────
   const topCustomer = (() => {
     if (!customers.length) return { name: '—', orderCount: 0, totalSpend: 0 }
     const counts = {}
@@ -638,18 +617,12 @@ function Home({ onMenuClick, onGoToCustomer }) {
     if (!due) return false
     return new Date(due + 'T23:59:59') < new Date()
   }
-  const unpaidInvoices  = allInvoices.filter(i => i.status !== 'paid' && !isInvOverdue(i))
-  const overdueInvoices = allInvoices.filter(i => isInvOverdue(i))
-  const totalUnpaid     = unpaidInvoices.length
-  const totalOverdue    = overdueInvoices.length
-  const invThisWeek     = allInvoices.filter(i => i.createdAt && new Date(i.createdAt) >= weekAgo).length
-  const invLastWeek     = allInvoices.filter(i => {
-    if (!i.createdAt) return false; const d = new Date(i.createdAt)
-    return d >= twoWksAgo && d < weekAgo
-  }).length
+  const unpaidInvoices      = allInvoices.filter(i => i.status !== 'paid' && !isInvOverdue(i))
+  const overdueInvoices     = allInvoices.filter(i => isInvOverdue(i))
+  const totalUnpaid         = unpaidInvoices.length
+  const totalOverdue        = overdueInvoices.length
   const invoicesDueThisWeek = unpaidInvoices.filter(i => dueThisWeek(getInvDueDate(i))).length
   const invoicesDueToday    = unpaidInvoices.filter(i => getInvDueDate(i) === todayStr).length
-
   const zeroPaidInvoices    = allInvoices.filter(i => i.status === 'unpaid')
   const zeroPaidDueThisWeek = zeroPaidInvoices.filter(i => dueThisWeek(getInvDueDate(i))).length
   const zeroPaidDueToday    = zeroPaidInvoices.filter(i => getInvDueDate(i) === todayStr).length
@@ -660,19 +633,10 @@ function Home({ onMenuClick, onGoToCustomer }) {
   const tasksDueToday    = pendingTasks.filter(t => t.dueDate === todayStr).length
   const tasksDueThisWeek = pendingTasks.filter(t => dueThisWeek(t.dueDate)).length
   const tasksThisWeek    = tasks.filter(t => t.createdAt && new Date(t.createdAt) >= weekAgo).length
-  const tasksLastWeek    = tasks.filter(t => {
-    if (!t.createdAt) return false; const d = new Date(t.createdAt)
-    return d >= twoWksAgo && d < weekAgo
-  }).length
 
   // ── Appointments ──────────────────────────────────────────
   const todayCount   = todayAppointments.length
   const apptThisWeek = upcoming.filter(a => dueThisWeek(a.date)).length
-  const apptLastWeek = recentAppts.filter(a => {
-    if (!a.date) return false
-    const d = new Date(a.date + 'T00:00:00')
-    return d >= twoWksAgo && d < weekAgo
-  }).length
 
   // ── Revenue ───────────────────────────────────────────────
   const calcRevenue = (sinceDate, beforeDate = null) => {
@@ -734,7 +698,7 @@ function Home({ onMenuClick, onGoToCustomer }) {
     route: '/invoices',
   })
 
-  // ── Recent lists — capped at 3 ────────────────────────────
+  // ── Recent lists ──────────────────────────────────────────
   const recentOrders       = [...pendingOrders].slice(0, 3)
   const recentTasks        = [...tasks]
     .sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0))
@@ -777,45 +741,25 @@ function Home({ onMenuClick, onGoToCustomer }) {
 
   const statCards = [
     {
-      desktopIcon:    'shopping_bag',
-      value:          pendingOrders.length,
-      label:          'Active Orders',
-      sub:            ordersSub?.text ?? null,
-      subColor:       ordersSub?.color ?? 'var(--text3)',
-      delta:          null,
-      positiveIsGood: true,
-      route:          '/orders',
+      desktopIcon: 'shopping_bag', value: pendingOrders.length, label: 'Active Orders',
+      sub: ordersSub?.text ?? null, subColor: ordersSub?.color ?? 'var(--text3)',
+      delta: null, positiveIsGood: true, route: '/orders',
     },
     {
-      desktopIcon:    'receipt_long',
-      value:          zeroPaidInvoices.length,
-      label:          'Unpaid Invoices',
-      sub:            invoicesSub?.text ?? null,
-      subColor:       invoicesSub?.color ?? 'var(--text3)',
-      delta:          null,
-      positiveIsGood: false,
-      route:          '/invoices',
-      tooltip:        'Only invoices with no payment recorded yet.',
+      desktopIcon: 'receipt_long', value: zeroPaidInvoices.length, label: 'Unpaid Invoices',
+      sub: invoicesSub?.text ?? null, subColor: invoicesSub?.color ?? 'var(--text3)',
+      delta: null, positiveIsGood: false, route: '/invoices',
+      tooltip: 'Only invoices with no payment recorded yet.',
     },
     {
-      desktopIcon:    'event',
-      value:          todayCount,
-      label:          "Today's Appts",
-      sub:            apptSub?.text ?? null,
-      subColor:       apptSub?.color ?? 'var(--text3)',
-      delta:          null,
-      positiveIsGood: true,
-      route:          '/appointments',
+      desktopIcon: 'event', value: todayCount, label: "Today's Appts",
+      sub: apptSub?.text ?? null, subColor: apptSub?.color ?? 'var(--text3)',
+      delta: null, positiveIsGood: true, route: '/appointments',
     },
     {
-      desktopIcon:    'task_alt',
-      value:          pendingTasks.length,
-      label:          'Pending Tasks',
-      sub:            tasksSub?.text ?? null,
-      subColor:       tasksSub?.color ?? 'var(--text3)',
-      delta:          null,
-      positiveIsGood: false,
-      route:          '/tasks',
+      desktopIcon: 'task_alt', value: pendingTasks.length, label: 'Pending Tasks',
+      sub: tasksSub?.text ?? null, subColor: tasksSub?.color ?? 'var(--text3)',
+      delta: null, positiveIsGood: false, route: '/tasks',
     },
   ]
 
@@ -834,7 +778,12 @@ function Home({ onMenuClick, onGoToCustomer }) {
   // ─────────────────────────────────────────────────────────
   return (
     <div className={styles.pageWrapper}>
-      <Header onMenuClick={onMenuClick} />
+
+      {/* ── agentPendingCount wired to real draft count ── */}
+      <Header
+        onMenuClick={onMenuClick}
+        agentPendingCount={agentPendingCount}
+      />
 
       <main className={styles.main}>
 
@@ -858,20 +807,16 @@ function Home({ onMenuClick, onGoToCustomer }) {
               </p>
             </section>
 
-            {/* ── NOTIFICATION BANNER ── */}
             {showBanner && <NotifBanner onEnable={handleEnable} onDismiss={handleDismiss} />}
 
-            {/* ── URGENT STRIP ── */}
             <UrgentStrip items={urgentItems} navigate={navigate} />
 
-            {/* 1. STAT CARDS GRID ── */}
             <section className={styles.statsGrid}>
               {statCards.map((card, i) => (
                 <StatCard key={i} card={card} navigate={navigate} />
               ))}
             </section>
 
-            {/* 2. REVENUE CARD ── */}
             {!revenueGoal ? (
               <div className={styles.revenueCard} onClick={() => setShowGoalModal(true)}
                 style={{ justifyContent: 'flex-start', gap: '20px' }}>
@@ -914,7 +859,6 @@ function Home({ onMenuClick, onGoToCustomer }) {
               </div>
             )}
 
-            {/* 3. CUSTOMER INSIGHTS CARD ── */}
             <div className={styles.customerCard} onClick={() => navigate('/customers')}>
               <div className={styles.customerCardHeader}>
                 <span className={styles.customerCardSectionLabel}>Customer Insights</span>
@@ -946,7 +890,6 @@ function Home({ onMenuClick, onGoToCustomer }) {
               <RevenueGoalModal onSave={handleSaveGoal} onClose={() => setShowGoalModal(false)} />
             )}
 
-            {/* ── UPCOMING APPOINTMENTS ── */}
             {recentAppointments.length > 0 && (
               <section className={styles.section}>
                 <div className={styles.sectionHeader}>
@@ -989,7 +932,6 @@ function Home({ onMenuClick, onGoToCustomer }) {
               </section>
             )}
 
-            {/* ── RECENT APPOINTMENTS ── */}
             {pastAppointments.length > 0 && (
               <section className={styles.section}>
                 <div className={styles.sectionHeader}>
@@ -1044,7 +986,6 @@ function Home({ onMenuClick, onGoToCustomer }) {
               </section>
             )}
 
-            {/* ── QUICK ACTIONS — desktop only ── */}
             <section className={styles.quickActionsDesktop}>
               <h3 className={styles.sectionTitle}>Quick Actions</h3>
               <div className={styles.statsGrid}>
@@ -1066,7 +1007,6 @@ function Home({ onMenuClick, onGoToCustomer }) {
               </div>
             </section>
 
-            {/* ── RECENT ORDERS ── */}
             {recentOrders.length > 0 && (
               <section className={styles.section}>
                 <div className={styles.sectionHeader}>
@@ -1084,11 +1024,8 @@ function Home({ onMenuClick, onGoToCustomer }) {
                     const dueDateShort = dueDateRaw ? `Due ${formatDateShort(dueDateRaw)}`
                       : order.due ? `Due ${order.due}` : null
                     return (
-                      <div
-                        key={order.id}
-                        className={`${styles.listItem} ${isLast ? styles.listItemLast : ''}`}
-                        onClick={() => setDetailOrder(order)}
-                      >
+                      <div key={order.id} className={`${styles.listItem} ${isLast ? styles.listItemLast : ''}`}
+                        onClick={() => setDetailOrder(order)}>
                         <OrderMosaic items={itemsList} />
                         <div className={styles.listInfo}>
                           <div className={styles.listDesc}>{order.desc ?? 'Order'}</div>
@@ -1107,9 +1044,7 @@ function Home({ onMenuClick, onGoToCustomer }) {
                           <div className={styles.listPrice}>{priceStr}</div>
                           {order.qty > 1 && <div className={styles.listQty}>{order.qty} items</div>}
                           <StatusPill status={order.status} />
-                          {dueDateShort && (
-                            <div className={styles.listDueRight}>{dueDateShort}</div>
-                          )}
+                          {dueDateShort && <div className={styles.listDueRight}>{dueDateShort}</div>}
                         </div>
                       </div>
                     )
@@ -1118,7 +1053,6 @@ function Home({ onMenuClick, onGoToCustomer }) {
               </section>
             )}
 
-            {/* ── RECENT TASKS ── */}
             {recentTasks.length > 0 && (
               <section className={styles.section}>
                 <div className={styles.sectionHeader}>
@@ -1135,7 +1069,11 @@ function Home({ onMenuClick, onGoToCustomer }) {
                     return (
                       <div key={task.id} className={`${styles.listItem} ${isLast ? styles.listItemLast : ''}`}>
                         <div className={styles.listOuter}
-                          style={overdue ? { borderColor: 'rgba(239,68,68,0.35)', background: 'rgba(239,68,68,0.05)' } : task.done ? { borderColor: 'rgba(21,128,61,0.3)', background: 'rgba(21,128,61,0.04)' } : {}}>
+                          style={overdue
+                            ? { borderColor: 'rgba(239,68,68,0.35)', background: 'rgba(239,68,68,0.05)' }
+                            : task.done
+                            ? { borderColor: 'rgba(21,128,61,0.3)', background: 'rgba(21,128,61,0.04)' }
+                            : {}}>
                           <div className={styles.listInner}>
                             <span className="mi" style={{ fontSize: '1.3rem', color: iconColor }}>{catIcon}</span>
                           </div>
@@ -1151,11 +1089,10 @@ function Home({ onMenuClick, onGoToCustomer }) {
                           {(() => {
                             const statusKey = overdue ? 'overdue' : task.done ? 'completed' : 'pending'
                             const sty = TASK_STATUS_STYLES[statusKey]
-                            const label = statusKey.charAt(0).toUpperCase() + statusKey.slice(1)
                             return (
                               <span className={styles.statusPill}
                                 style={{ background: sty.bg, color: sty.color, borderColor: sty.border }}>
-                                {label}
+                                {statusKey.charAt(0).toUpperCase() + statusKey.slice(1)}
                               </span>
                             )
                           })()}
@@ -1170,7 +1107,6 @@ function Home({ onMenuClick, onGoToCustomer }) {
               </section>
             )}
 
-            {/* ── ORDER DETAIL MODAL ── */}
             {detailOrder && (
               <OrderDetailModal
                 order={detailOrder}
