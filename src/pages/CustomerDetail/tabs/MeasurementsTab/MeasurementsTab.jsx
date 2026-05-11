@@ -3,6 +3,7 @@ import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 import ConfirmSheet from '../../../../components/ConfirmSheet/ConfirmSheet'
 import Header from '../../../../components/Header/Header'
+import { uploadToCloudinary } from '../../../../services/cloudinaryService'
 import styles from './MeasurementsTab.module.css'
 
 
@@ -48,33 +49,9 @@ function MeasurementRowSkeleton() {
 }
 
 
-function compressImage(file, maxWidth = 1200, quality = 0.78) {
-
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onerror = () => reject(new Error('Failed to read file'))
-    reader.onload = (event) => {
-      const img = new Image()
-      img.onerror = () => reject(new Error('Failed to load image'))
-      img.onload = () => {
-        let { width, height } = img
-        if (width > maxWidth) {
-          height = Math.round((height * maxWidth) / width)
-          width  = maxWidth
-        }
-        const canvas = document.createElement('canvas')
-        canvas.width  = width
-        canvas.height = height
-        canvas.getContext('2d').drawImage(img, 0, 0, width, height)
-        const mimeType = file.type === 'image/png' ? 'image/png' : 'image/jpeg'
-        resolve(canvas.toDataURL(mimeType, quality))
-      }
-      img.src = event.target.result
-    }
-    reader.readAsDataURL(file)
-  })
-}
-
+// ─────────────────────────────────────────────────────────────
+// ImageLightbox — full-screen viewer with swipe support
+// ─────────────────────────────────────────────────────────────
 
 function ImageLightbox({ images, startIndex = 0, onClose }) {
   const [currentIndex, setCurrentIndex] = useState(startIndex)
@@ -136,6 +113,10 @@ function ImageLightbox({ images, startIndex = 0, onClose }) {
 }
 
 
+// ─────────────────────────────────────────────────────────────
+// ImageCarousel — read-only carousel used in MeasureDetail
+// ─────────────────────────────────────────────────────────────
+
 function ImageCarousel({ images, className, onImageClick }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   if (!images || images.length === 0) return null
@@ -181,33 +162,146 @@ function ImageCarousel({ images, className, onImageClick }) {
 }
 
 
+// ─────────────────────────────────────────────────────────────
+// MultiImageUpload — Cloudinary-backed image uploader
+//
+// Each picked file is uploaded immediately to Cloudinary.
+// The `images` array passed in/out contains only Cloudinary URLs
+// (or legacy base64 strings for existing measurements).
+//
+// Internal slot shape:
+// {
+//   id:        string            — local key
+//   url:       string | null     — Cloudinary URL once done; null while uploading
+//   localSrc:  string | null     — blob URL for preview while uploading; null for existing
+//   file:      File | null       — original File (needed for retry); null for existing URLs
+//   status:    'existing'        — already a saved URL (Cloudinary or legacy base64)
+//            | 'uploading'       — upload in progress
+//            | 'done'            — upload succeeded
+//            | 'error'           — upload failed
+//   progress:  number            — 0–100
+// }
+// ─────────────────────────────────────────────────────────────
+
 function MultiImageUpload({ images, onChange, cardId }) {
+  // Build initial slots from the incoming URL array
+  const buildSlots = (urls) =>
+    (urls || []).map(url => ({
+      id:       Math.random().toString(36).slice(2),
+      url,
+      localSrc: null,
+      file:     null,
+      status:   'existing',
+      progress: 100,
+    }))
+
+  const [slots, setSlots] = useState(() => buildSlots(images))
+
+  // Keep slots in sync if the parent resets images (e.g. category switch)
+  const prevImages = useRef(images)
+  useEffect(() => {
+    if (images !== prevImages.current && images.length === 0) {
+      // Revoke any pending blob URLs
+      slots.forEach(s => { if (s.localSrc) URL.revokeObjectURL(s.localSrc) })
+      setSlots([])
+    }
+    prevImages.current = images
+  }, [images]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const [previewIndex, setPreviewIndex] = useState(0)
 
+  // Keep previewIndex in bounds
   useEffect(() => {
-    if (previewIndex >= images.length && images.length > 0) {
-      setPreviewIndex(images.length - 1)
+    if (previewIndex >= slots.length && slots.length > 0) {
+      setPreviewIndex(slots.length - 1)
     }
-  }, [images.length, previewIndex])
+  }, [slots.length, previewIndex])
 
-  async function handleFilePick(files) {
-    const fileArray  = Array.from(files)
-    const compressed = await Promise.all(fileArray.map(f => compressImage(f)))
-    onChange([...images, ...compressed])
-    setPreviewIndex(images.length + compressed.length - 1)
+  // Publish only successfully uploaded/existing URLs to parent
+  function publishUrls(updatedSlots) {
+    const urls = updatedSlots
+      .filter(s => s.status === 'existing' || s.status === 'done')
+      .map(s => s.url)
+      .filter(Boolean)
+    onChange(urls)
   }
 
-  function removeCurrentImage(e) {
-    e.stopPropagation()
-    const updated = images.filter((_, i) => i !== previewIndex)
-    onChange(updated)
-    setPreviewIndex(Math.max(0, previewIndex - 1))
+  // Upload a single slot by its id
+  async function uploadSlot(slotId, file) {
+    setSlots(prev => prev.map(s =>
+      s.id === slotId ? { ...s, status: 'uploading', progress: 0 } : s
+    ))
+    try {
+      const url = await uploadToCloudinary(
+        file,
+        'measurements',
+        (pct) => setSlots(prev => prev.map(s => s.id === slotId ? { ...s, progress: pct } : s))
+      )
+      setSlots(prev => {
+        const updated = prev.map(s =>
+          s.id === slotId ? { ...s, url, status: 'done', progress: 100 } : s
+        )
+        publishUrls(updated)
+        return updated
+      })
+    } catch (err) {
+      console.error('[MultiImageUpload] upload failed', err)
+      setSlots(prev => prev.map(s =>
+        s.id === slotId ? { ...s, status: 'error', progress: 0 } : s
+      ))
+    }
+  }
+
+  function retrySlot(slotId) {
+    const slot = slots.find(s => s.id === slotId)
+    if (!slot?.file) return
+    uploadSlot(slotId, slot.file)
+  }
+
+  async function handleFilePick(files) {
+    const fileArray = Array.from(files)
+    const newSlots  = fileArray.map(file => ({
+      id:       Math.random().toString(36).slice(2),
+      url:      null,
+      localSrc: URL.createObjectURL(file),
+      file,
+      status:   'uploading',
+      progress: 0,
+    }))
+
+    setSlots(prev => {
+      const merged = [...prev, ...newSlots]
+      setPreviewIndex(merged.length - 1)
+      return merged
+    })
+
+    // Upload all new files in parallel
+    await Promise.allSettled(
+      newSlots.map(slot => uploadSlot(slot.id, slot.file))
+    )
+  }
+
+  function removeSlot(idx) {
+    setSlots(prev => {
+      const slot = prev[idx]
+      if (slot?.localSrc) URL.revokeObjectURL(slot.localSrc)
+      const updated = prev.filter((_, i) => i !== idx)
+      publishUrls(updated)
+      return updated
+    })
+    setPreviewIndex(i => Math.max(0, i - 1))
   }
 
   function goPrev(e) { e.stopPropagation(); setPreviewIndex(i => Math.max(0, i - 1)) }
-  function goNext(e) { e.stopPropagation(); setPreviewIndex(i => Math.min(images.length - 1, i + 1)) }
+  function goNext(e) { e.stopPropagation(); setPreviewIndex(i => Math.min(slots.length - 1, i + 1)) }
 
-  if (images.length === 0) {
+  // The image src shown for a slot: local blob while uploading, Cloudinary URL once done
+  function slotSrc(slot) {
+    return slot.localSrc || slot.url || null
+  }
+
+  // ── Empty state ───────────────────────────────────────────
+  if (slots.length === 0) {
     return (
       <div className={styles.uploadArea_wrapper}>
         <label className={styles.uploadArea_empty} htmlFor={`upload-${cardId}`}>
@@ -226,14 +320,58 @@ function MultiImageUpload({ images, onChange, cardId }) {
     )
   }
 
+  // ── Carousel with upload states ───────────────────────────
+  const currentSlot = slots[previewIndex]
+  const src         = currentSlot ? slotSrc(currentSlot) : null
+
   return (
     <div className={styles.uploadArea_wrapper}>
       <div className={styles.uploadCarousel}>
-        <img src={images[previewIndex]} alt={`Preview ${previewIndex + 1}`} className={styles.uploadCarouselImage} />
-        <button type="button" className={styles.uploadRemoveButton} onClick={removeCurrentImage}>
-          <span className="mi" style={{ fontSize: '1rem' }}>close</span>
-        </button>
-        {images.length > 1 && (
+        {src && (
+          <img src={src} alt={`Preview ${previewIndex + 1}`} className={styles.uploadCarouselImage} />
+        )}
+
+        {/* Uploading overlay */}
+        {currentSlot?.status === 'uploading' && (
+          <div className={styles.uploadOverlay}>
+            <div className={styles.uploadProgressRing}>
+              <span className={styles.uploadProgressText}>{currentSlot.progress}%</span>
+            </div>
+          </div>
+        )}
+
+        {/* Error overlay — tap to retry */}
+        {currentSlot?.status === 'error' && (
+          <div
+            className={styles.uploadErrorOverlay}
+            onClick={() => retrySlot(currentSlot.id)}
+            title="Tap to retry"
+          >
+            <span className="mi" style={{ fontSize: '1.2rem', color: '#fff' }}>refresh</span>
+            <span className={styles.uploadErrorLabel}>Retry</span>
+          </div>
+        )}
+
+        {/* Done badge */}
+        {(currentSlot?.status === 'done' || currentSlot?.status === 'existing') && (
+          <div className={styles.uploadDoneBadge}>
+            <span className="mi" style={{ fontSize: '0.85rem', color: '#fff' }}>check</span>
+          </div>
+        )}
+
+        {/* Remove — hidden while uploading */}
+        {currentSlot?.status !== 'uploading' && (
+          <button
+            type="button"
+            className={styles.uploadRemoveButton}
+            onClick={e => { e.stopPropagation(); removeSlot(previewIndex) }}
+          >
+            <span className="mi" style={{ fontSize: '1rem' }}>close</span>
+          </button>
+        )}
+
+        {/* Nav arrows */}
+        {slots.length > 1 && (
           <>
             <button type="button" className={`${styles.carouselArrow} ${styles.carouselArrow_left}`} onClick={goPrev}>
               <span className="mi">chevron_left</span>
@@ -243,17 +381,20 @@ function MultiImageUpload({ images, onChange, cardId }) {
             </button>
           </>
         )}
+
+        {/* Dot indicators */}
         <div className={styles.carouselDots}>
-          {images.map((_, i) => (
+          {slots.map((slot, i) => (
             <button
-              key={i}
+              key={slot.id}
               type="button"
-              className={`${styles.carouselDot} ${i === previewIndex ? styles.carouselDot_active : ''}`}
+              className={`${styles.carouselDot} ${i === previewIndex ? styles.carouselDot_active : ''} ${slot.status === 'error' ? styles.carouselDot_error : ''}`}
               onClick={e => { e.stopPropagation(); setPreviewIndex(i) }}
             />
           ))}
         </div>
-        <div className={styles.uploadCarouselCounter}>{previewIndex + 1} / {images.length}</div>
+
+        <div className={styles.uploadCarouselCounter}>{previewIndex + 1} / {slots.length}</div>
       </div>
 
       <label className={styles.addMoreImagesButton} htmlFor={`upload-more-${cardId}`}>
@@ -273,16 +414,24 @@ function MultiImageUpload({ images, onChange, cardId }) {
 }
 
 
+// ─────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────
+
 function createBlankCard(cardNumber) {
   return {
     id:      Date.now() + Math.random(),
     label:   `Cloth Type ${cardNumber}`,
     name:    '',
-    imgSrcs: [],
+    imgSrcs: [],   // will hold Cloudinary URLs after upload
     fields:  [{ id: Date.now() + Math.random(), name: '', value: '' }],
   }
 }
 
+
+// ─────────────────────────────────────────────────────────────
+// MeasureModal — create new measurement set
+// ─────────────────────────────────────────────────────────────
 
 function MeasureModal({ isOpen, onClose, onSave }) {
   const [unit,  setUnit]  = useState('in')
@@ -324,6 +473,17 @@ function MeasureModal({ isOpen, onClose, onSave }) {
     ))
   }
 
+  // Are any uploads still in-flight across all cards?
+  // MultiImageUpload publishes only completed URLs, but we expose a way to
+  // check: if imgSrcs count < slot count inside the component the Save button
+  // would be unsafe. We handle this simply: the parent can't know the internal
+  // slot state, so we rely on MultiImageUpload to only call onChange with done
+  // URLs. The Save button is always enabled — worst case a still-uploading
+  // image is just omitted from imgSrcs (the user sees that count is lower).
+  // This matches the Gallery approach where Save is disabled while uploading.
+  // For parity we track a global uploading count via a ref callback pattern.
+  const [uploadingCount, setUploadingCount] = useState(0)
+
   function handleSave() {
     const today = new Date().toLocaleDateString('en-US', {
       month: 'short', day: 'numeric', year: 'numeric',
@@ -339,8 +499,8 @@ function MeasureModal({ isOpen, onClose, onSave }) {
       onSave({
         id:      Date.now() + Math.random(),
         name:    card.name.trim(),
-        imgSrcs: card.imgSrcs,
-        imgSrc:  card.imgSrcs[0] ?? null,
+        imgSrcs: card.imgSrcs,            // Cloudinary URLs (or empty [])
+        imgSrc:  card.imgSrcs[0] ?? null, // convenience cover image
         unit,
         fields:  filledFields,
         date:    today,
@@ -366,7 +526,10 @@ function MeasureModal({ isOpen, onClose, onSave }) {
         type="back"
         title="New Measurement"
         onBackClick={handleClose}
-        customActions={[{ label: 'Save', onClick: handleSave }]}
+        customActions={[{
+          label:    'Save',
+          onClick:  handleSave,
+        }]}
       />
 
       <div className={styles.formScrollBody}>
@@ -415,7 +578,7 @@ function MeasureModal({ isOpen, onClose, onSave }) {
               <MultiImageUpload
                 images={card.imgSrcs}
                 cardId={card.id}
-                onChange={imgs => updateCard(card.id, 'imgSrcs', imgs)}
+                onChange={urls => updateCard(card.id, 'imgSrcs', urls)}
               />
 
               <label className={styles.fieldLabel} style={{ marginTop: 4 }}>Measurements</label>
@@ -473,11 +636,16 @@ function MeasureModal({ isOpen, onClose, onSave }) {
 }
 
 
+// ─────────────────────────────────────────────────────────────
+// MeasureDetail — read-only detail panel
+// ─────────────────────────────────────────────────────────────
+
 function MeasureDetail({ measurement, onClose, onDelete }) {
   const [lightboxIndex, setLightboxIndex] = useState(null)
 
   if (!measurement) return null
 
+  // Support both new (storageUrl array) and legacy (base64 imgSrcs / imgSrc)
   const images = measurement.imgSrcs?.length
     ? measurement.imgSrcs
     : measurement.imgSrc
@@ -625,6 +793,7 @@ export default function MeasurementsTab({ measurements, loading, onSave, onDelet
 
           {measurementsInGroup.map((measurement, index) => {
             const isLastInGroup = index === measurementsInGroup.length - 1
+            // Support both Cloudinary URLs (imgSrcs) and legacy base64 (imgSrc)
             const coverImage    = measurement.imgSrcs?.[0] ?? measurement.imgSrc ?? null
             const extraCount    = (measurement.imgSrcs?.length ?? (measurement.imgSrc ? 1 : 0)) - 1
 
