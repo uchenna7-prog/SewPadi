@@ -6,6 +6,7 @@ import Header           from '../../components/Header/Header'
 import ConfirmSheet     from '../../components/ConfirmSheet/ConfirmSheet'
 import Toast            from '../../components/Toast/Toast'
 import SharePortfolioModal from '../../components/SharePortfolioModal/SharePortfolioModal'
+import { uploadToCloudinary } from '../../services/cloudinaryService'
 import styles           from './Gallery.module.css'
 import BottomNav from '../../components/BottomNav/BottomNav'
 
@@ -115,30 +116,105 @@ function ManageDressTypesSheet({ isOpen, onClose, tabId, types, onSave, photos }
   )
 }
 
+// ── UPLOAD STATUS per photo ─────────────────────────────────────
+// status: 'idle' | 'uploading' | 'done' | 'error'
+
 // ── ADD PHOTO MODAL ─────────────────────────────────────────────
 
 function AddPhotoModal({ isOpen, onClose, onSave, dressTypes, activeMainTab }) {
-  const [category,      setCategory]     = useState(activeMainTab || 'completed_works')
-  const [photos,        setPhotos]       = useState([])
+  const [category,      setCategory]      = useState(activeMainTab || 'completed_works')
+  // Each entry: { localSrc, name, caption, clothingType, price, storageUrl, status, progress, error }
+  const [photos,        setPhotos]        = useState([])
   const [captionErrors, setCaptionErrors] = useState({})
-  const [typeErrors,    setTypeErrors]   = useState({})
+  const [typeErrors,    setTypeErrors]    = useState({})
   const fileInputRef   = useRef(null)
   const cameraInputRef = useRef(null)
 
   const typeOptions = dressTypes[category] || []
 
+  // ── Upload a single file to Cloudinary ──
+  const uploadFile = async (file, idx) => {
+    setPhotos(prev => prev.map((p, i) =>
+      i === idx ? { ...p, status: 'uploading', progress: 0, error: null } : p
+    ))
+    try {
+      const url = await uploadToCloudinary(
+        file,
+        'gallery',
+        (pct) => setPhotos(prev => prev.map((p, i) => i === idx ? { ...p, progress: pct } : p))
+      )
+      setPhotos(prev => prev.map((p, i) =>
+        i === idx ? { ...p, storageUrl: url, status: 'done', progress: 100 } : p
+      ))
+    } catch (err) {
+      console.error('[Gallery] upload failed', err)
+      setPhotos(prev => prev.map((p, i) =>
+        i === idx ? { ...p, status: 'error', error: 'Upload failed. Tap to retry.' } : p
+      ))
+    }
+  }
+
+  // ── Handle file selection — build entries then upload each ──
   const handleFiles = (files) => {
     const defaultType = typeOptions[0]?.id || ''
-    Array.from(files).forEach(file => {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setPhotos(prev => [...prev, { src: e.target.result, name: file.name, caption: '', clothingType: defaultType, price: '' }])
-      }
-      reader.readAsDataURL(file)
+    const newEntries = Array.from(files).map(file => ({
+      file,
+      localSrc:    URL.createObjectURL(file),
+      name:        file.name,
+      caption:     '',
+      clothingType: defaultType,
+      price:       '',
+      storageUrl:  null,
+      status:      'idle',   // will immediately become 'uploading'
+      progress:    0,
+      error:       null,
+    }))
+
+    setPhotos(prev => {
+      const startIdx = prev.length
+      const merged = [...prev, ...newEntries]
+      // Kick off uploads after state update
+      newEntries.forEach((_, i) => {
+        const globalIdx = startIdx + i
+        // Use setTimeout so the state setter above has resolved
+        setTimeout(() => uploadFile(newEntries[i].file, globalIdx), 0)
+      })
+      return merged
     })
   }
 
-  const removePhoto = (idx) => setPhotos(prev => prev.filter((_, i) => i !== idx))
+  // ── Retry a failed upload ──
+  const retryUpload = (idx) => {
+    const photo = photos[idx]
+    if (!photo?.file) return
+    uploadFile(photo.file, idx)
+  }
+
+  const removePhoto = (idx) => {
+    setPhotos(prev => {
+      const entry = prev[idx]
+      if (entry?.localSrc) URL.revokeObjectURL(entry.localSrc)
+      return prev.filter((_, i) => i !== idx)
+    })
+    setCaptionErrors(prev => {
+      const next = {}
+      Object.entries(prev).forEach(([k, v]) => {
+        const ki = parseInt(k)
+        if (ki < idx) next[ki] = v
+        else if (ki > idx) next[ki - 1] = v
+      })
+      return next
+    })
+    setTypeErrors(prev => {
+      const next = {}
+      Object.entries(prev).forEach(([k, v]) => {
+        const ki = parseInt(k)
+        if (ki < idx) next[ki] = v
+        else if (ki > idx) next[ki - 1] = v
+      })
+      return next
+    })
+  }
 
   const updatePhoto = (idx, field, value) => {
     setPhotos(prev => prev.map((p, i) => i === idx ? { ...p, [field]: value } : p))
@@ -147,14 +223,22 @@ function AddPhotoModal({ isOpen, onClose, onSave, dressTypes, activeMainTab }) {
   }
 
   const reset = () => {
+    // Revoke any blob URLs to avoid memory leaks
+    photos.forEach(p => { if (p.localSrc) URL.revokeObjectURL(p.localSrc) })
     setCategory(activeMainTab || 'completed_works')
     setPhotos([]); setCaptionErrors({}); setTypeErrors({})
   }
 
   const handleClose = () => { reset(); onClose() }
 
+  // Are any uploads still in flight?
+  const anyUploading = photos.some(p => p.status === 'uploading')
+  // Are there any hard errors that haven't been retried?
+  const anyError     = photos.some(p => p.status === 'error')
+
   const handleSave = () => {
-    if (photos.length === 0) return
+    if (photos.length === 0 || anyUploading) return
+
     const capErrs = {}; const typErrs = {}
     photos.forEach((p, i) => {
       if (!p.caption.trim()) capErrs[i] = true
@@ -163,24 +247,27 @@ function AddPhotoModal({ isOpen, onClose, onSave, dressTypes, activeMainTab }) {
     if (Object.keys(capErrs).length || Object.keys(typErrs).length) {
       setCaptionErrors(capErrs); setTypeErrors(typErrs); return
     }
+
     const dateStr = new Date().toISOString()
     photos.forEach(p => {
       const typeLabel = typeOptions.find(t => t.id === p.clothingType)?.label || p.clothingType
       onSave({
-        id: Date.now() + Math.random(),
-        src: p.src, category,
-        caption: p.caption.trim(),
-        clothingType: p.clothingType,
+        id:               Date.now() + Math.random(),
+        storageUrl:       p.storageUrl,   // ← Cloudinary URL (never base64)
+        category,
+        caption:          p.caption.trim(),
+        clothingType:     p.clothingType,
         clothingTypeLabel: typeLabel,
-        price: category === 'completed_works' && p.price.trim() ? p.price.trim() : null,
-        customerId:   null,
-        customerName: null,
-        date: dateStr,
+        price:            category === 'completed_works' && p.price.trim() ? p.price.trim() : null,
+        customerId:       null,
+        customerName:     null,
+        date:             dateStr,
       })
     })
     reset(); onClose()
   }
 
+  // When category changes, reset clothingType to first option of new category
   useEffect(() => {
     const defaultType = (dressTypes[category] || [])[0]?.id || ''
     setPhotos(prev => prev.map(p => ({ ...p, clothingType: defaultType })))
@@ -194,7 +281,11 @@ function AddPhotoModal({ isOpen, onClose, onSave, dressTypes, activeMainTab }) {
         type="back"
         title="Add Photo"
         onBackClick={handleClose}
-        customActions={[{ label: 'Save', onClick: handleSave, disabled: photos.length === 0 }]}
+        customActions={[{
+          label:    anyUploading ? 'Uploading…' : 'Save',
+          onClick:  handleSave,
+          disabled: photos.length === 0 || anyUploading || anyError,
+        }]}
       />
 
       <div className={styles.modalBody}>
@@ -219,11 +310,45 @@ function AddPhotoModal({ isOpen, onClose, onSave, dressTypes, activeMainTab }) {
             {photos.map((p, i) => (
               <div key={i} className={styles.photoEntry}>
                 <div className={styles.photoEntryTop}>
+
+                  {/* Thumbnail with upload overlay */}
                   <div className={styles.previewThumb}>
-                    <img src={p.src} alt={p.name} className={styles.previewImg} />
-                    <button className={styles.previewRemove} onClick={() => removePhoto(i)}>
-                      <span className="mi" style={{ fontSize: '0.9rem' }}>close</span>
-                    </button>
+                    <img src={p.localSrc} alt={p.name} className={styles.previewImg} />
+
+                    {/* Uploading progress overlay */}
+                    {p.status === 'uploading' && (
+                      <div className={styles.uploadOverlay}>
+                        <div className={styles.uploadProgressRing}>
+                          <span className={styles.uploadProgressText}>{p.progress}%</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Done checkmark */}
+                    {p.status === 'done' && (
+                      <div className={styles.uploadDoneBadge}>
+                        <span className="mi" style={{ fontSize: '0.85rem', color: '#fff' }}>check</span>
+                      </div>
+                    )}
+
+                    {/* Error — tap thumb to retry */}
+                    {p.status === 'error' && (
+                      <div
+                        className={styles.uploadErrorOverlay}
+                        onClick={() => retryUpload(i)}
+                        title="Tap to retry"
+                      >
+                        <span className="mi" style={{ fontSize: '1.1rem', color: '#fff' }}>refresh</span>
+                        <span className={styles.uploadErrorLabel}>Retry</span>
+                      </div>
+                    )}
+
+                    {/* Remove button — hidden while uploading */}
+                    {p.status !== 'uploading' && (
+                      <button className={styles.previewRemove} onClick={() => removePhoto(i)}>
+                        <span className="mi" style={{ fontSize: '0.9rem' }}>close</span>
+                      </button>
+                    )}
                   </div>
 
                   <div className={styles.photoEntryFields}>
@@ -288,6 +413,14 @@ function AddPhotoModal({ isOpen, onClose, onSave, dressTypes, activeMainTab }) {
                         </div>
                       </div>
                     )}
+
+                    {/* Per-photo error hint */}
+                    {p.status === 'error' && (
+                      <p className={styles.photoUploadError}>
+                        <span className="mi" style={{ fontSize: '0.85rem' }}>error_outline</span>
+                        {p.error}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -343,6 +476,8 @@ function Lightbox({ photo, photos, onClose, onDelete }) {
   }, [idx, hasPrev, hasNext, photos, onClose])
 
   const cat = CATEGORY_MAP[current.category]
+  // Support legacy base64 (src) and new Cloudinary URLs (storageUrl)
+  const imgSrc = current.storageUrl || current.src
 
   return (
     <div className={styles.lightboxOverlay} onClick={onClose}>
@@ -363,7 +498,7 @@ function Lightbox({ photo, photos, onClose, onDelete }) {
               <span className="mi" style={{ fontSize: '1.6rem' }}>chevron_left</span>
             </button>
           )}
-          <img src={current.src || current.storageUrl} alt={current.caption || 'Photo'} className={styles.lightboxImg} />
+          <img src={imgSrc} alt={current.caption || 'Photo'} className={styles.lightboxImg} />
           {hasNext && (
             <button className={`${styles.navBtn} ${styles.navRight}`} onClick={() => setCurrent(photos[idx + 1])}>
               <span className="mi" style={{ fontSize: '1.6rem' }}>chevron_right</span>
@@ -551,6 +686,9 @@ export default function Gallery({ onMenuClick }) {
     }
   }
 
+  // Resolve image src — supports both legacy base64 (src) and Cloudinary (storageUrl)
+  const resolveImgSrc = (photo) => photo.storageUrl || photo.src
+
   return (
     <div className={styles.page} ref={pageRef}>
       <Header title="Gallery" onMenuClick={onMenuClick} />
@@ -662,7 +800,11 @@ export default function Gallery({ onMenuClick }) {
                     style={{ animationDelay: `${i * 0.03}s` }}
                     onClick={() => setLightboxPhoto(photo)}
                   >
-                    <img src={photo.src || photo.storageUrl} alt={photo.caption || 'photo'} className={styles.thumbImg} />
+                    <img
+                      src={resolveImgSrc(photo)}
+                      alt={photo.caption || 'photo'}
+                      className={styles.thumbImg}
+                    />
                     <div className={styles.thumbBadge}>
                       <span className="mi" style={{ fontSize: '0.8rem' }}>{CATEGORY_MAP[photo.category]?.icon}</span>
                     </div>
