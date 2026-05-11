@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "tailorflow-62b0a"
-  }
+  },
+  "targets": {
+    "tailorflow-62b0a": {
+      "hosting": {
+        "sewpadi": [
+          "sewpadi"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }
