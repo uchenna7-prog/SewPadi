@@ -3,9 +3,9 @@
 // All Firestore calls for customers live here.
 // Data path: users/{uid}/customers/{customerId}
 //
-// This keeps Firebase completely out of your components.
-// Orders and tasks follow the exact same pattern — just swap
-// 'customers' for 'orders' or 'tasks' and copy this file.
+// Photo storage: Cloudinary URL stored in `data.photo`.
+// Legacy documents may contain a base64 string in `photo` —
+// the UI renders both transparently via <img src={customer.photo} />.
 // ─────────────────────────────────────────────────────────────
 
 import {
@@ -33,11 +33,30 @@ function customerDoc(uid, customerId) {
   return doc(db, 'users', uid, 'customers', customerId)
 }
 
+// ── Internal guard ────────────────────────────────────────────
+
+/**
+ * Throws if `data.photo` is a base64 string.
+ * All profile photos must be uploaded to Cloudinary first;
+ * the caller should pass the resulting URL as `data.photo`.
+ */
+function rejectBase64Photo(data) {
+  if (typeof data.photo === 'string' && data.photo.startsWith('data:image')) {
+    throw new Error(
+      '[customerService] base64 profile photos are no longer supported. ' +
+      'Upload to Cloudinary first and pass the URL as data.photo.'
+    )
+  }
+}
+
 // ── CRUD ─────────────────────────────────────────────────────
 
 export async function addCustomer(uid, data) {
+  rejectBase64Photo(data)
   const ref = await addDoc(customersRef(uid), {
     ...data,
+    // Normalise: null if no photo rather than undefined
+    photo:     data.photo ?? null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
@@ -57,22 +76,23 @@ export async function getAllCustomers(uid) {
 }
 
 export async function updateCustomer(uid, customerId, data) {
+  rejectBase64Photo(data)
   await updateDoc(customerDoc(uid, customerId), {
     ...data,
+    photo:     data.photo ?? null,
     updatedAt: serverTimestamp(),
   })
 }
 
 export async function deleteCustomer(uid, customerId) {
   await deleteDoc(customerDoc(uid, customerId))
+  // NOTE: Cloudinary deletion from the client requires a signed request.
+  // Add a Cloud Function call here later if needed.
 }
 
 // ── Real-time listener ────────────────────────────────────────
-// NOTE: No orderBy here — orderBy('createdAt') on a snapshot requires
-// a Firestore composite index and silently returns nothing if the index
-// isn't ready or if createdAt hasn't been written yet (server timestamp
-// is null locally for a brief moment after addDoc).
-// We sort client-side instead, which is instant and always correct.
+// Sorted client-side to avoid a Firestore composite index requirement
+// (server timestamps are briefly null after addDoc on the optimistic snapshot).
 
 export function subscribeToCustomers(uid, callback, onError) {
   const q = query(customersRef(uid))
@@ -83,7 +103,6 @@ export function subscribeToCustomers(uid, callback, onError) {
       const customers = snap.docs
         .map(d => ({ id: d.id, ...d.data() }))
         .sort((a, b) => {
-          // Sort newest first using createdAt if available, else 0
           const aTime = a.createdAt?.toMillis?.() ?? 0
           const bTime = b.createdAt?.toMillis?.() ?? 0
           return bTime - aTime

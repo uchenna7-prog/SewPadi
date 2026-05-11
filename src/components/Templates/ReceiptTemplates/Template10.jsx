@@ -40,14 +40,21 @@ export function ReceiptTemplate10({ receipt, customer, brand }) {
         <div>
           <div className={styles.logoRow}>
             <div className={styles.logoSquare}>
-  {brand.logo
-    ? <img src={brand.logo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-    : <span className="mi" style={{ fontSize: 14, color: 'var(--brand-primary)' }}>checkroom</span>
-  }
-</div>
-            <span className={styles.companyName}>{(brand.name || brand.ownerName || '').toUpperCase()}</span>
+              {brand.logo
+                ? <img src={brand.logo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                : <span className="mi" style={{ fontSize: 14, color: 'var(--brand-primary)' }}>checkroom</span>
+              }
+            </div>
+
+            <div>
+
+              <span className={styles.companyName}>{(brand.name || brand.ownerName || '').toUpperCase()}</span>
+              {brand.tagline  && <div className={styles.companySub}>{brand.tagline}</div>}
+              
+            </div>
+           
           </div>
-          {brand.tagline  && <div className={styles.companySub}>{brand.tagline}</div>}
+
           {brand.address  && <div className={styles.companyAddress}>{brand.address}</div>}
         </div>
         <div className={styles.receiptTitle} style={{ color : accentColor }}>RECEIPT</div>
@@ -60,14 +67,14 @@ export function ReceiptTemplate10({ receipt, customer, brand }) {
 
       <div className={styles.billShip}>
         <div>
-          <span className={styles.billLabel}>Received From :</span>
+          <span className={styles.billLabel}>Received From: </span>
           <div><strong>{customer.name}</strong></div>
           {customer.phone   && <div>{customer.phone}</div>}
           {customer.email   && <div>{customer.email}</div>}
           {customer.address && <div>{customer.address}</div>}
         </div>
         <div>
-          <span className={styles.billLabel}>Received By :</span>
+          <span className={styles.billLabel}>Received By: </span>
           <div><strong>{brand.name || brand.ownerName}</strong></div>
           {brand.phone   && <div>{brand.phone}</div>}
           {brand.email   && <div>{brand.email}</div>}

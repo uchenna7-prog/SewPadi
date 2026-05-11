@@ -637,7 +637,7 @@ export default function Portfolio() {
         <div className={styles.footerDividerFaint} />
         <div className={styles.footerBottom}>
           <p className={styles.footerPowered}>
-            {brandName} © {new Date().getFullYear()} · Powered by <span className={styles.footerPoweredBrand}>TailorFlow</span>
+            {brandName} © {new Date().getFullYear()} · Powered by <span className={styles.footerPoweredBrand}>SewPadi</span>
           </p>
         </div>
       </footer>

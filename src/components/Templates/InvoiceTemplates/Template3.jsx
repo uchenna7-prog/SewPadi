@@ -44,9 +44,27 @@ export function InvoiceTemplate3({ invoice, customer, brand }) {
             <div className={styles.title}>INVOICE</div>
 
             <div style={{ textAlign : 'right', fontSize : 9 }}>
-              <div>ISSUE DATE : <strong>{invoice.date}</strong></div>
-              <div>DUE DATE : <strong>{dueDate}</strong></div>
-              <div>INVOICE # : <strong>{invoice.number}</strong></div>
+
+              <div className={styles.invoiceInfos}>
+
+                <span>ISSUE DATE </span>
+                <span><strong>{invoice.date}</strong></span> 
+                
+              </div>
+
+              <div className={styles.invoiceInfos}>
+
+                <span>DUE DATE </span>
+                <span><strong>{dueDate}</strong></span>
+                
+              </div>
+
+              <div className={styles.invoiceInfos}>
+
+                <span>INVOICE # </span>
+                <span><strong>{invoice.number}</strong></span>
+                
+              </div>
             </div>
 
           </div>

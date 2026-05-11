@@ -45,8 +45,25 @@ export function ReceiptTemplate3({ receipt, customer, brand }) {
             <div className={styles.title}>receipt</div>
 
             <div style={{ textAlign : 'right', fontSize : 9 }}>
-              <div>ISSUE DATE : <strong>{receipt.date}</strong></div>
-              <div>receipt # : <strong>{receipt.number}</strong></div>
+              <div className={styles.receiptInfos}>
+
+                <span>
+                   ISSUE DATE
+                </span>
+                <span>
+                  <strong>{receipt.date}</strong>
+                </span>
+                
+              </div>
+              <div className={styles.receiptInfos}>
+                <span>
+                  receipt # 
+                </span>
+                <span>
+                  <strong>{receipt.number}</strong>
+                </span>
+                
+              </div>
             </div>
 
           </div>

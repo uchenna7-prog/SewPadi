@@ -303,7 +303,7 @@ function PhoneField({ label, hint, localValue, onLocalChange, country, onCountry
 // Personal info helpers
 // ─────────────────────────────────────────────────────────────
 
-const PERSONAL_KEY = 'tailorflow_personal'
+const PERSONAL_KEY = 'sewpadi_personal'
 
 const MONTHS = [
   'January','February','March','April','May','June',
@@ -558,7 +558,7 @@ function BrandModal({ onBack, showToast }) {
       </FieldGroup>
       <FieldGroup>
         <Field label="Shop / Brand Name">
-          <TextInput value={local.brandName} onChange={set('brandName')} placeholder="e.g. Stitched by Amara" />
+          <TextInput value={local.brandName} onChange={set('brandName')} placeholder="e.g.Emeka Tailors" />
         </Field>
         <Field label="Tagline" hint="Short line shown under your name on coloured invoice templates.">
           <TextInput value={local.brandTagline} onChange={set('brandTagline')} placeholder="e.g. Crafted with love, fitted for you" />
@@ -1114,7 +1114,7 @@ function Avatar({ name, logo, size = 72 }) {
 }
 
 function getOrSetJoinDate() {
-  const key      = 'tailorflow_joined'
+  const key      = 'SewPadi_joined'
   const existing = localStorage.getItem(key)
   if (existing) return existing
   const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -1350,7 +1350,7 @@ export default function Profile({ onMenuClick, isPremium = false, onUpgrade = ()
         <SectionHeader icon="workspace_premium" label="My Plan" />
         <div className={styles.row}>
           <div className={styles.planLeft}>
-            <div className={styles.planName}>{isPremium ? 'TailorFlow Pro' : 'Free Plan'}</div>
+            <div className={styles.planName}>{isPremium ? 'SewPadi Pro' : 'Free Plan'}</div>
             <div className={styles.planSub}>
               {isPremium
                 ? 'All features unlocked — invoice customisation, branded PDFs & more'

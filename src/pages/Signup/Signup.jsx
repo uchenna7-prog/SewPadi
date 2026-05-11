@@ -207,7 +207,7 @@ function StepAccount({ data, onChange, errors }) {
     <div className={styles.stepContent}>
       <div className={styles.stepIntro}>
         <div className={styles.stepIntroTitle}>Create your account</div>
-        <div className={styles.stepIntroSub}>Your login details for TailorFlow</div>
+        <div className={styles.stepIntroSub}>Your login details for SewPadi</div>
       </div>
       <Field label="Email Address" error={errors.email}>
         <TextInput type="email" value={data.email} onChange={v => onChange('email', v)} placeholder="you@email.com" icon="mail" />
@@ -526,9 +526,9 @@ export default function Signup() {
 
       // Save brand + account settings to localStorage — SettingsContext reads this on mount
       try {
-        const existingRaw = localStorage.getItem('tailorflow_profile_settings')
+        const existingRaw = localStorage.getItem('sewpadi_profile_settings')
         const existing    = existingRaw ? JSON.parse(existingRaw) : { ...DEFAULTS }
-        localStorage.setItem('tailorflow_profile_settings', JSON.stringify({
+        localStorage.setItem('sewpadi_profile_settings', JSON.stringify({
           ...existing,
           brandName:       finalData.brandName.trim(),
           brandTagline:    finalData.brandTagline.trim(),
@@ -597,7 +597,7 @@ export default function Signup() {
         }
         <div className={styles.topLogo}>
           <span className="mi" style={{ fontSize: '1.3rem', color: 'var(--accent)' }}>content_cut</span>
-          <span className={styles.topLogoText}>TailorFlow</span>
+          <span className={styles.topLogoText}>SewPadi</span>
         </div>
         {/* Skip button visible only on payment step */}
         {isPaymentStep

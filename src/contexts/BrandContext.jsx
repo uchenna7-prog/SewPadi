@@ -8,7 +8,7 @@ import { DEFAULT_COLOUR_ID } from '../config/brandPalette'
 // Personal info loader (mirrors Profile.jsx)
 // ─────────────────────────────────────────────────────────────
 
-const PERSONAL_KEY = 'tailorflow_personal'
+const PERSONAL_KEY = 'sewpadi_personal'
 
 function loadPersonal() {
   try {

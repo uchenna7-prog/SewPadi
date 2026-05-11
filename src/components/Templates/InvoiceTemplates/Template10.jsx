@@ -37,22 +37,28 @@ export function InvoiceTemplate10({ invoice, customer, brand }) {
         <div>
           <div className={styles.logoRow}>
             <div className={styles.logoSquare}>
-  {brand.logo
-    ? <img src={brand.logo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-    : <span className="mi" style={{ fontSize: 14, color: 'var(--brand-primary)' }}>checkroom</span>
-  }
-</div>
-            <span className={styles.companyName}>{(brand.name || brand.ownerName || '').toUpperCase()}</span>
+              {brand.logo
+                ? <img src={brand.logo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                : <span className="mi" style={{ fontSize: 14, color: 'var(--brand-primary)' }}>checkroom</span>
+              }
+            </div>
+            
+            <div>
+               <span className={styles.companyName}>{(brand.name || brand.ownerName || '').toUpperCase()}</span>
+                {brand.tagline && <div className={styles.companySub}>{brand.tagline}</div>}
+
+            </div>
+           
           </div>
-          {brand.tagline && <div className={styles.companySub}>{brand.tagline}</div>}
+         
           {brand.address && <div className={styles.companyAddress}>{brand.address}</div>}
         </div>
         <div className={styles.invoiceTitle} style={{ color : accentColor }}>INVOICE</div>
       </div>
       <div className={styles.numberBar}>
         <span>INVOICE # {invoice.number}</span><span>|</span>
-        <span>DATE : {invoice.date}</span><span>|</span>
-        <span>DUE : {dueDate}</span>
+        <span>DATE: {invoice.date}</span><span>|</span>
+        <span>DUE: {dueDate}</span>
       </div>
       <div className={styles.billShip}>
         <div>

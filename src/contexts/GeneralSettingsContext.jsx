@@ -6,7 +6,7 @@ import { createContext, useContext, useState, useEffect } from 'react'
 // STORAGE KEY
 // ─────────────────────────────────────────────────────────────
 
-const STORAGE_KEY = 'tailorflow_general_settings'
+const STORAGE_KEY = 'sewpadi_general_settings'
 
 // ─────────────────────────────────────────────────────────────
 // DEFAULTS

@@ -5,8 +5,8 @@ import BottomNav from '../../components/BottomNav/BottomNav'
 const CONTACT = {
   whatsapp:     '+234 9079116980',
   phone:        '+234 9079116980',
-  email:        'support@tailorflow.app',
-  website:      'www.tailorflow.app',
+  email:        'support@SewPadi.app',
+  website:      'www.SewPadi.app',
   businessName: 'Tailor Flow',
   billingName:  'Tailor Flow Technologies',
   address:      'Choba Uniport',

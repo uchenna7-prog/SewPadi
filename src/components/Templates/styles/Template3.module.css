@@ -44,6 +44,21 @@
   font-weight: 900; 
 }
 
+.invoiceInfos ,.receiptInfos {
+  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  gap:3px;
+  flex-wrap: wrap;
+  font-size: 9px;
+}
+
+.invoiceInfos span,.receiptInfos span{
+  white-space: nowrap;
+  font-size: 9px;
+}
+
+
 .orderDescriptionRow {
   display: flex;
   gap:5px;

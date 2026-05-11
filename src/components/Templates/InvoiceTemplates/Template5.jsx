@@ -39,7 +39,11 @@ export function InvoiceTemplate5({ invoice, customer, brand }) {
 
         <div className={styles.topRight}>
           <div>{invoice.date}</div>
-          <div><strong>Invoice No : {invoice.number}</strong></div>
+          <div>
+            <strong>Invoice #</strong>
+            <strong>  {invoice.number}</strong>
+            
+            </div>
         </div>
 
       </div>

@@ -40,7 +40,7 @@ export function InvoiceTemplate1({ invoice, customer, brand }) {
 
         </div>
 
-        <div style={{ textAlign : 'right' }}>
+        <div style={{ textAlign : 'right' }} className={styles.invoiceInfos}>
 
           <div>
             <span className={styles.metaKey}>INVOICE # </span>

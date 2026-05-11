@@ -41,7 +41,10 @@ export function ReceiptTemplate5({ receipt, customer, brand }) {
 
         <div className={styles.topRight}>
           <div>{receipt.date}</div>
-          <div><strong>receipt No : {receipt.number}</strong></div>
+          <div>
+            <strong>receipt #</strong>
+            <strong> {receipt.number}</strong>
+          </div>
         </div>
 
       </div>

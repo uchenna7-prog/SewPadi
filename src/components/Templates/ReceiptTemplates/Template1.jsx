@@ -37,7 +37,7 @@ export function ReceiptTemplate1({ receipt, customer, brand }) {
 
         </div>
 
-        <div style={{ textAlign : 'right' }}>
+        <div style={{ textAlign : 'right' }} className={styles.receiptInfos}>
 
           <div>
             <span className={styles.metaKey}>RECEIPT # </span>

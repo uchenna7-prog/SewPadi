@@ -20,8 +20,8 @@ import { useAppointments } from './AppointmentContext'
 import { useCustomers }    from './CustomerContext'
 import { useReviews }      from './ReviewContext'
 
-const STORAGE_KEY  = 'tailorflow_read_notifs'
-const PUSHED_KEY   = 'tailorflow_pushed_notifs'
+const STORAGE_KEY  = 'sewpadi_read_notifs'
+const PUSHED_KEY   = 'sewpadi_pushed_notifs'
 const VAPID_KEY    = 'BAe8t_ReMQne5iBlUJyfwd3HQ8N-TcLJoSH2ai0QSWOQhrSLrbJeQnGENUm01yBoRkynmlnRE-86S_9dFOVaRdM'
 
 function loadReadIds() {

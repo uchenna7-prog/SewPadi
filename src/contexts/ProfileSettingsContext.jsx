@@ -8,7 +8,7 @@ import { saveBrandToFirestore } from '../services/brandService'
 // STORAGE KEY
 // ─────────────────────────────────────────────────────────────
 
-const STORAGE_KEY = 'tailorflow_profile_settings'
+const STORAGE_KEY = 'sewpadi_profile_settings'
 
 // ─────────────────────────────────────────────────────────────
 // DEFAULTS
@@ -94,7 +94,7 @@ export function ProfileSettingsProvider({ children }) {
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(profileSettings))
-      localStorage.removeItem('tailorflow_brand_logo') // clean up old key
+      localStorage.removeItem('sewpadi_brand_logo') // clean up old key
     } catch {
       // Ignore storage quota errors
     }

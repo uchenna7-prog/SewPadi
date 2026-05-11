@@ -81,7 +81,7 @@ function formatMoney(currency = '₦', amount) {
 
 function getCurrency() {
   try {
-    const settings = JSON.parse(localStorage.getItem('tailorflow_general_settings') || '{}')
+    const settings = JSON.parse(localStorage.getItem('sewpadi_general_settings') || '{}')
     return settings.invoiceCurrency || '₦'
   } catch {
     return '₦'

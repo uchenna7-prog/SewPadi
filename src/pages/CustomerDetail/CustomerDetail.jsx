@@ -405,8 +405,8 @@ export default function CustomerDetail({ onMenuClick }) {
     let localStorageSettingsSnap = {}
     try { 
       localStorageSettingsSnap = {
-        ...JSON.parse(localStorage.getItem('tailorflow_profile_settings') || '{}'), 
-        ...JSON.parse(localStorage.getItem('tailorflow_general_settings') || '{}')
+        ...JSON.parse(localStorage.getItem('sewpadi_profile_settings') || '{}'), 
+        ...JSON.parse(localStorage.getItem('sewpadi_general_settings') || '{}')
       }
     } 
     catch {
@@ -503,8 +503,8 @@ export default function CustomerDetail({ onMenuClick }) {
 
     try { 
       localStorageSettingsSnap = {
-        ...JSON.parse(localStorage.getItem('tailorflow_profile_settings') || '{}'), 
-        ...JSON.parse(localStorage.getItem('tailorflow_general_settings') || '{}')
+        ...JSON.parse(localStorage.getItem('sewpadi_profile_settings') || '{}'), 
+        ...JSON.parse(localStorage.getItem('sewpadi_general_settings') || '{}')
       }
     } 
     catch {

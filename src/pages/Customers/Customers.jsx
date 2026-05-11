@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate }                 from 'react-router-dom'
 import { useCustomers }                from '../../contexts/CustomerContext'
 import { usePremium }                  from '../../contexts/PremiumContext'
-import { useBodyMeasurementImages } from '../../contexts/BodyMeasurementImagesContext'
+import { useBodyMeasurementImages }    from '../../contexts/BodyMeasurementImagesContext'
+import { uploadToCloudinary }          from '../../services/cloudinaryService'
 import Header                          from '../../components/Header/Header'
 import styles                          from './Customers.module.css'
 import BottomNav from '../../components/BottomNav/BottomNav'
@@ -81,7 +82,6 @@ function CountryCodePicker({ selected, onSelect }) {
   const [loading, setLoading]     = useState(false)
   const dropdownRef               = useRef(null)
 
-  // Fetch countries once when dropdown opens for the first time
   useEffect(() => {
     if (!open || countries.length > 0) return
     setLoading(true)
@@ -106,7 +106,6 @@ function CountryCodePicker({ selected, onSelect }) {
       .finally(() => setLoading(false))
   }, [open, countries.length])
 
-  // Close on outside click
   useEffect(() => {
     if (!open) return
     const handler = (e) => {
@@ -202,25 +201,32 @@ const DAYS   = Array.from({ length: 31 }, (_, i) => i + 1)
 function AddCustomerForm({ isOpen, onClose, onSave, isPremium }) {
   const { getBodyMeasurementConfig } = useBodyMeasurementImages()
 
-  const [formTab, setFormTab]         = useState('personal')
-  const [name, setName]               = useState('')
-  const [localPhone, setLocalPhone]   = useState('')
-  const [selectedCountry, setSelectedCountry] = useState(DEFAULT_COUNTRY)
-  const [phoneType, setPhoneType]     = useState('Mobile')
-  const [sex, setSex]                 = useState('')
-  const [bdayDay, setBdayDay]         = useState('')
-  const [bdayMonth, setBdayMonth]     = useState('')
-  const [email, setEmail]             = useState('')
-  const [address, setAddress]         = useState('')
-  const [notes, setNotes]             = useState('')
-  const [photo, setPhoto]             = useState(null)
+  const [formTab,          setFormTab]          = useState('personal')
+  const [name,             setName]             = useState('')
+  const [localPhone,       setLocalPhone]       = useState('')
+  const [selectedCountry,  setSelectedCountry]  = useState(DEFAULT_COUNTRY)
+  const [phoneType,        setPhoneType]        = useState('Mobile')
+  const [sex,              setSex]              = useState('')
+  const [bdayDay,          setBdayDay]          = useState('')
+  const [bdayMonth,        setBdayMonth]        = useState('')
+  const [email,            setEmail]            = useState('')
+  const [address,          setAddress]          = useState('')
+  const [notes,            setNotes]            = useState('')
+
+  // Photo state — separate local preview (blob URL) from the saved Cloudinary URL
+  const [photoLocalSrc,    setPhotoLocalSrc]    = useState(null)   // blob URL for preview
+  const [photoUrl,         setPhotoUrl]         = useState(null)   // Cloudinary URL (or null)
+  const [photoUploading,   setPhotoUploading]   = useState(false)
+  const [photoProgress,    setPhotoProgress]    = useState(0)
+  const [photoError,       setPhotoError]       = useState(null)
+
   const [showPremiumSheet, setShowPremiumSheet] = useState(false)
   const fileInputRef = useRef(null)
 
   const [bodyMeasurements, setBodyMeasurements] = useState({})
-  const [customFields, setCustomFields]         = useState([])
-  const [sexError, setSexError]                 = useState(false)
-  const [formInlineMsg, setFormInlineMsg]       = useState(null) // { text, ok }
+  const [customFields,     setCustomFields]     = useState([])
+  const [sexError,         setSexError]         = useState(false)
+  const [formInlineMsg,    setFormInlineMsg]    = useState(null)
   const formInlineMsgTimer                      = useRef(null)
 
   const initials        = getInitials(name) || '+'
@@ -237,15 +243,54 @@ function AddCustomerForm({ isOpen, onClose, onSave, isPremium }) {
 
   const handlePhotoPicker = () => {
     if (!isPremium) { setShowPremiumSheet(true); return }
+    // Don't allow re-picking while upload is in progress
+    if (photoUploading) return
     fileInputRef.current?.click()
   }
 
-  const handlePhotoChange = (e) => {
-    const file = e.target.files[0]
+  // Upload immediately on file selection
+  const handlePhotoChange = async (e) => {
+    const file = e.target.files?.[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = (ev) => setPhoto(ev.target.result)
-    reader.readAsDataURL(file)
+    // Reset input so same file can be re-selected after removal
+    if (fileInputRef.current) fileInputRef.current.value = ''
+
+    // Show local preview instantly via blob URL
+    const blobUrl = URL.createObjectURL(file)
+    setPhotoLocalSrc(blobUrl)
+    setPhotoUrl(null)
+    setPhotoError(null)
+    setPhotoProgress(0)
+    setPhotoUploading(true)
+
+    try {
+      const url = await uploadToCloudinary(file, 'customers', (pct) => setPhotoProgress(pct))
+      setPhotoUrl(url)
+    } catch (err) {
+      console.error('[Customers] photo upload failed', err)
+      setPhotoError('Upload failed. Tap photo to retry.')
+      setPhotoUrl(null)
+    } finally {
+      setPhotoUploading(false)
+      setPhotoProgress(0)
+    }
+  }
+
+  const handlePhotoRetry = () => {
+    // Re-open file picker to pick again; the blob URL for the failed file is
+    // still shown as the preview. We just let them pick fresh.
+    if (fileInputRef.current) fileInputRef.current.click()
+  }
+
+  const removePhoto = (e) => {
+    e.stopPropagation()
+    if (photoLocalSrc) URL.revokeObjectURL(photoLocalSrc)
+    setPhotoLocalSrc(null)
+    setPhotoUrl(null)
+    setPhotoError(null)
+    setPhotoUploading(false)
+    setPhotoProgress(0)
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   const updateBodyMeasure = (field, val) => {
@@ -265,10 +310,14 @@ function AddCustomerForm({ isOpen, onClose, onSave, isPremium }) {
   }
 
   const handleClose = () => {
+    if (photoLocalSrc) URL.revokeObjectURL(photoLocalSrc)
     setName(''); setLocalPhone(''); setSelectedCountry(DEFAULT_COUNTRY)
     setPhoneType('Mobile'); setSex('')
     setBdayDay(''); setBdayMonth(''); setEmail(''); setAddress('')
-    setNotes(''); setPhoto(null); setBodyMeasurements({}); setCustomFields([])
+    setNotes('')
+    setPhotoLocalSrc(null); setPhotoUrl(null); setPhotoError(null)
+    setPhotoUploading(false); setPhotoProgress(0)
+    setBodyMeasurements({}); setCustomFields([])
     setFormTab('personal'); setSexError(false); setFormInlineMsg(null)
     clearTimeout(formInlineMsgTimer.current)
     if (fileInputRef.current) fileInputRef.current.value = ''
@@ -283,34 +332,39 @@ function AddCustomerForm({ isOpen, onClose, onSave, isPremium }) {
       const builtPhone = buildPhoneNumber(localPhone, selectedCountry.dial_code)
       if (!localPhone.trim()) { showInlineMsg('Phone number is required', false); return }
       if (builtPhone === null) { showInlineMsg('Phone must be 10 digits (or 11 starting with 0)', false); return }
+      // Block proceeding while photo is still uploading
+      if (photoUploading) { showInlineMsg('Photo still uploading, please wait…', false); return }
       showInlineMsg('Personal info saved ✓', true)
       setFormTab('body')
       return
     }
 
     // ── Phase 2: Body Measurements tab ─────────────────────────
-    const allBody = { ...bodyMeasurements }
+    if (photoUploading) { showInlineMsg('Photo still uploading, please wait…', false); return }
+
+    const allBody    = { ...bodyMeasurements }
     customFields.forEach(f => { if (f.label.trim()) allBody[f.label.trim()] = f.value })
     const birthday   = bdayMonth && bdayDay ? `${bdayMonth}-${bdayDay}` : ''
     const builtPhone = buildPhoneNumber(localPhone, selectedCountry.dial_code)
     if (localPhone.trim() && builtPhone === null) {
-      onSave({ name, phone: '__INVALID_PHONE__', phoneType, sex, birthday, email, address, notes, photo, bodyMeasurements: allBody })
+      onSave({ name, phone: '__INVALID_PHONE__', phoneType, sex, birthday, email, address, notes, photo: photoUrl, bodyMeasurements: allBody })
       return
     }
     const phone = builtPhone || ''
-    onSave({ name, phone, phoneType, sex, birthday, email, address, notes, photo, bodyMeasurements: allBody })
+    // Pass the Cloudinary URL (photoUrl), not the blob (photoLocalSrc)
+    onSave({ name, phone, phoneType, sex, birthday, email, address, notes, photo: photoUrl, bodyMeasurements: allBody })
     handleClose()
   }
 
   const handleSkip = () => {
+    if (photoUploading) { showInlineMsg('Photo still uploading, please wait…', false); return }
     const birthday   = bdayMonth && bdayDay ? `${bdayMonth}-${bdayDay}` : ''
     const builtPhone = buildPhoneNumber(localPhone, selectedCountry.dial_code)
     const phone      = builtPhone || ''
-    onSave({ name, phone, phoneType, sex, birthday, email, address, notes, photo, bodyMeasurements: {} })
+    onSave({ name, phone, phoneType, sex, birthday, email, address, notes, photo: photoUrl, bodyMeasurements: {} })
     handleClose()
   }
 
-  // Live phone digit count for hint
   const phoneDigits = localPhone.replace(/\D/g, '')
   const phoneHint = (() => {
     if (!phoneDigits) return null
@@ -320,6 +374,9 @@ function AddCustomerForm({ isOpen, onClose, onSave, isPremium }) {
     if (phoneDigits.length === 11 && !phoneDigits.startsWith('0'))  return { ok: false, msg: '11-digit numbers must start with 0' }
     return { ok: false, msg: `${10 - phoneDigits.length} more digit${10 - phoneDigits.length !== 1 ? 's' : ''} needed` }
   })()
+
+  // The src shown in the photo circle: blob for preview, null if neither
+  const displayPhotoSrc = photoLocalSrc || photoUrl || null
 
   return (
     <>
@@ -342,7 +399,6 @@ function AddCustomerForm({ isOpen, onClose, onSave, isPremium }) {
           <button className={`${styles.formTab} ${formTab === 'body'     ? styles.formTabActive : ''}`} onClick={() => setFormTab('body')}>Body Measurements</button>
         </div>
 
-        {/* Inline status banner */}
         {formInlineMsg && (
           <div className={`${styles.formInlineMsg} ${formInlineMsg.ok ? styles.formInlineMsgOk : styles.formInlineMsgErr}`}>
             <span className="mi" style={{ fontSize: '0.95rem' }}>{formInlineMsg.ok ? 'check_circle' : 'error_outline'}</span>
@@ -353,21 +409,73 @@ function AddCustomerForm({ isOpen, onClose, onSave, isPremium }) {
         <div className={styles.formBody}>
           {formTab === 'personal' && (
             <>
-              <div className={styles.photoPicker} onClick={handlePhotoPicker} style={{ position: 'relative' }}>
-                {photo
-                  ? <img src={photo} alt="Profile" className={styles.photoPreview} />
-                  : <div className={styles.photoInitials}>{initials}</div>
-                }
-                <div className={styles.camBadge}>
-                  {isPremium
-                    ? <span className="mi" style={{ fontSize: '0.9rem' }}>photo_camera</span>
-                    : <span className="mi" style={{ fontSize: '0.9rem' }}>lock</span>
+              {/* ── Photo picker ───────────────────────────────── */}
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <div
+                  className={styles.photoPicker}
+                  onClick={photoError ? handlePhotoRetry : handlePhotoPicker}
+                  style={{ position: 'relative' }}
+                >
+                  {displayPhotoSrc
+                    ? <img src={displayPhotoSrc} alt="Profile" className={styles.photoPreview} />
+                    : <div className={styles.photoInitials}>{initials}</div>
                   }
+
+                  {/* Uploading overlay */}
+                  {photoUploading && (
+                    <div className={styles.photoUploadOverlay}>
+                      <span className={styles.photoUploadProgress}>{photoProgress}%</span>
+                    </div>
+                  )}
+
+                  {/* Error overlay — tap to retry */}
+                  {photoError && !photoUploading && (
+                    <div className={styles.photoErrorOverlay}>
+                      <span className="mi" style={{ fontSize: '1.1rem', color: '#fff' }}>refresh</span>
+                    </div>
+                  )}
+
+                  {/* Camera / lock badge — hidden while uploading */}
+                  {!photoUploading && !photoError && (
+                    <div className={styles.camBadge}>
+                      {isPremium
+                        ? <span className="mi" style={{ fontSize: '0.9rem' }}>photo_camera</span>
+                        : <span className="mi" style={{ fontSize: '0.9rem' }}>lock</span>
+                      }
+                    </div>
+                  )}
+
+                  {isPremium && (
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      hidden
+                      onChange={handlePhotoChange}
+                    />
+                  )}
                 </div>
-                {isPremium && (
-                  <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={handlePhotoChange} />
+
+                {/* Remove button — shown once a photo is picked and not uploading */}
+                {displayPhotoSrc && !photoUploading && (
+                  <button
+                    type="button"
+                    className={styles.photoRemoveBtn}
+                    onClick={removePhoto}
+                    title="Remove photo"
+                  >
+                    <span className="mi" style={{ fontSize: '0.75rem' }}>close</span>
+                  </button>
                 )}
               </div>
+
+              {/* Upload error hint */}
+              {photoError && (
+                <p className={styles.photoErrorHint}>
+                  <span className="mi" style={{ fontSize: '0.85rem', verticalAlign: 'middle' }}>error_outline</span>
+                  {' '}{photoError}
+                </p>
+              )}
 
               <div className={styles.inputGroup}>
                 <label className={styles.inputLabel}>Full Name *</label>
@@ -593,6 +701,7 @@ export default function Customers({ onMenuClick }) {
     const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     const hasMeasurements = Object.keys(bodyMeasurements || {}).length > 0
     try {
+      // `photo` here is already a Cloudinary URL (or null) — never base64
       await addCustomer({ name, phone, phoneType, sex, birthday, email, address, notes, photo, bodyMeasurements, date: today })
       showToast(hasMeasurements ? `${name} saved with measurements ✓` : `${name} added — no measurements saved`)
     } catch (err) {

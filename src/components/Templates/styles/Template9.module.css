@@ -11,22 +11,20 @@
   background: var(--brand-gradient);
   color: var(--brand-on-primary);
   padding: 10px 16px;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
   align-items: center;
-  gap: 8px;
+  gap: 12px 20px;
   opacity: 0.88;
   font-size: 9px;
-  flex-wrap: wrap;
 }
 .header > div:first-child {
    display: flex;
    flex-direction: row;
    text-align: left;
    min-width: 0;
-   flex: 1;
-
 }
+
 .logoArea {
   flex: 1;
   min-width: 0;
@@ -45,14 +43,15 @@
   flex-shrink: 0; 
   background: rgba(255,255,255,0.25); 
   border: 1.5px solid rgba(255,255,255,0.6);
-  overflow: hidden;                          /* clips image to circle */
-  box-shadow: 0 0 0 2px rgba(255,255,255,0.15); /* soft outer glow on colored bg */
+  overflow: hidden;                         
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.15);
 }
 .companyName {
   font-size: 10px; 
-   font-weight: 900; 
-   letter-spacing: 0.05em; 
-   color: var(--brand-on-primary); 
+  font-weight: 900;
+  letter-spacing: 0.05em; 
+  color: var(--brand-on-primary); 
+  word-break: break-word;
 }
 .tagline{
    font-size: 7.5px;
@@ -65,9 +64,40 @@
   line-height: 1.6;
   opacity: 0.88;
   flex-shrink: 0;
+  word-break: break-word;
   text-align: right;
-  max-width: 38%;
 }
+
+@media(max-width:520px){
+
+  .header{
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap:4px 12px;
+
+  }
+
+  .logoArea{
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+
+
+  .headerRight:first-of-type{
+    grid-column: 2;
+    grid-row: 1;
+    text-align: right;
+    }
+
+  .headerRight:last-of-type{
+    grid-column: 2;
+    grid-row: 2;
+    text-align: right;
+    }
+
+}
+
 .invoiceRow, .receiptRow { 
    display: flex; 
    justify-content: space-between; 

@@ -26,6 +26,20 @@
   margin-top: 3px; 
 }
 
+.invoiceInfos > div,.receiptInfos > div{
+  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  gap:3px;
+  flex-wrap: wrap;
+  font-size: 9px;
+}
+
+.invoiceInfos span,.receiptInfos span{
+  white-space: nowrap;
+  font-size: 9px;
+}
+
 
 .titleRow { 
   display: flex; 

@@ -57,7 +57,7 @@ export function ReceiptTemplate11({ receipt, customer, brand }) {
 
         </div>
 
-        {brand.address && <div className={styles.companyInfo}>{brand.address}</div>}
+        {brand.address && <div className={styles.companyInfo} >{brand.address}</div>}
 
         <div className={styles.companyInfo} style={{ textAlign : 'right' }}>
           {brand.website && <div>{brand.website}</div>}

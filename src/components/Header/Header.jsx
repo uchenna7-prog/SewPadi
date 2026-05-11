@@ -111,7 +111,7 @@ function Header({
     '/agent':     'Agent',
   }
 
-  const pageTitle     = title || PAGE_TITLES[location.pathname] || 'TailorFlow'
+  const pageTitle     = title || PAGE_TITLES[location.pathname] || 'SewPadi'
   const showBotButton = type === 'default' && location.pathname === '/'
 
   const openNotif  = () => { setNotifTab('all'); setNotifOpen(true) }
@@ -243,7 +243,7 @@ function Header({
                 className={styles.iconBtn}
                 onClick={handleBotClick}
                 aria-label="Open Agent"
-                title="Stitch — TailorFlow Agent"
+                title="Stitch — SewPadi Agent"
               >
                 <BotIcon />
                 {agentPendingCount > 0 && (

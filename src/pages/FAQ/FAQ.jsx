@@ -13,16 +13,16 @@ const FAQS = [
     icon: 'rocket_launch',
     items: [
       {
-        q: 'What is TailorFlow?',
-        a: 'TailorFlow is a mobile CRM built specifically for tailors and fashion designers. It helps you manage customers, track measurements, create invoices, assign tasks, and grow your business — all from your phone.',
+        q: 'What is SewPadi?',
+        a: 'SewPadi is a mobile CRM built specifically for tailors and fashion designers. It helps you manage customers, track measurements, create invoices, assign tasks, and grow your business — all from your phone.',
       },
       {
-        q: 'Do I need to create an account to use TailorFlow?',
-        a: 'You can use TailorFlow without an account. Your data is saved locally on your device. An account will be required in a future update to enable cloud sync and backup across devices.',
+        q: 'Do I need to create an account to use SewPadi?',
+        a: 'You can use SewPadi without an account. Your data is saved locally on your device. An account will be required in a future update to enable cloud sync and backup across devices.',
       },
       {
         q: 'Is my data safe if I uninstall the app?',
-        a: 'Currently, data is stored on your device. If you uninstall or clear the app data, your records will be lost. We recommend exporting your data regularly. Cloud backup is coming soon with TailorFlow Pro.',
+        a: 'Currently, data is stored on your device. If you uninstall or clear the app data, your records will be lost. We recommend exporting your data regularly. Cloud backup is coming soon with SewPadi Pro.',
       },
     ],
   },
@@ -40,7 +40,7 @@ const FAQS = [
       },
       {
         q: 'Can I contact a customer directly from the app?',
-        a: 'Yes. On the customer detail page, tap the phone or WhatsApp icon to call or send a WhatsApp message directly to the customer without leaving TailorFlow.',
+        a: 'Yes. On the customer detail page, tap the phone or WhatsApp icon to call or send a WhatsApp message directly to the customer without leaving SewPadi.',
       },
     ],
   },
@@ -72,14 +72,14 @@ const FAQS = [
       },
       {
         q: 'Can I customise how my invoice looks?',
-        a: 'Yes — this is a Pro feature. With TailorFlow Pro you can choose from multiple invoice templates, set your brand colour, upload your logo, add a custom footer message, and configure tax lines.',
+        a: 'Yes — this is a Pro feature. With SewPadi Pro you can choose from multiple invoice templates, set your brand colour, upload your logo, add a custom footer message, and configure tax lines.',
       },
       {
         q: 'Can I share or print an invoice?',
         a: 'Yes. Once an invoice is generated you can share it as a PDF via WhatsApp, email, or any other app on your phone. Printing is also supported through your device\'s share sheet.',
       },
       {
-        q: 'What currency does TailorFlow use?',
+        q: 'What currency does SewPadi use?',
         a: 'The default currency is Naira (₦). You can change this to Dollars, Pounds, or Euros in Settings → Invoice Settings (Pro feature).',
       },
     ],
@@ -99,11 +99,11 @@ const FAQS = [
     ],
   },
   {
-    category: 'TailorFlow Pro',
+    category: 'SewPadi Pro',
     icon: 'workspace_premium',
     items: [
       {
-        q: 'What do I get with TailorFlow Pro?',
+        q: 'What do I get with SewPadi Pro?',
         a: 'Pro unlocks invoice customisation (templates, brand colour, logo, tax lines, custom footer), branded PDF exports, priority support, and all future premium features as they are released.',
       },
       {
@@ -184,7 +184,7 @@ export default function FAQ({ onMenuClick }) {
 
       <div className={styles.scrollArea}>
 
-        <p className={styles.pageSub}>Frequently asked questions about TailorFlow.</p>
+        <p className={styles.pageSub}>Frequently asked questions about SewPadi.</p>
 
         {/* ── SEARCH ── */}
         <div className={styles.searchPadding}>
