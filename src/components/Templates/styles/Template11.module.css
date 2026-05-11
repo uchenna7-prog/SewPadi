@@ -30,6 +30,7 @@
   color: #444;
   word-break: break-word;
   flex-shrink: 0;
+  text-align: right;
 }
 .logoCircle { 
   width: 46px; 
@@ -49,6 +50,7 @@
    letter-spacing: 0.05em; 
    color: var(--brand-primary-dark); 
 }
+
 .tagline{
    font-size: 7.5px;
 }

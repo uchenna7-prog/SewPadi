@@ -100,14 +100,14 @@ async function subscribeToPush() {
 }
 
 // ── Send a local push notification via SW ────────────────────
-async function sendLocalPush(title, body, icon = '/icons/icon-192.png') {
+async function sendLocalPush(title, body, icon = '/icons/icon192.png') {
   try {
     if (!('serviceWorker' in navigator)) return
     const reg = await navigator.serviceWorker.ready
     await reg.showNotification(title, {
       body,
       icon,
-      badge: '/icons/icon-192.png',
+      badge: '/icons/icon192.png',
       vibrate: [200, 100, 200],
       tag:  title, // prevents duplicate popups for same alert
     })
