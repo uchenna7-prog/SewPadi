@@ -1,3 +1,534 @@
+/* ── Header base ─────────────────────────────────────────────*/
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 110;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--bg);
+  min-height: 56px;
+
+  /* Smooth transition for shadow */
+  transition:
+    box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Scrolled state — fully opaque + shadow glides in ────── */
+/* NOTE: No transparency/blur — content must never bleed through */
+.headerScrolled {
+  background: var(--bg);
+  box-shadow:
+    0 1px 0 var(--border),
+    0 4px 16px rgba(0, 0, 0, 0.07);
+}
+
+/* Dark mode — deeper shadow on true black */
+:global([data-theme="dark"]) .headerScrolled {
+  background: var(--bg);
+  box-shadow:
+    0 1px 0 var(--border),
+    0 4px 24px rgba(0, 0, 0, 0.5);
+}
+
+.leftSide {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+  transition: opacity 0.2s ease;
+}
+
+:global(.header-title) {
+  display: block;
+  max-width: 350px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rightActions {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-shrink: 0;
+}
+
+.customActionNode {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+}
+
+.iconBtn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text2);
+  border-radius: 10px;
+  transition: background 0.15s;
+  position: relative;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.iconBtn:hover  { background: var(--surface2); }
+.iconBtn:active { background: var(--surface2); }
+
+.textBtn {
+  background: var(--accent);
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 8px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 10px;
+  transition: opacity 0.15s, transform 0.1s;
+  color: var(--bg);
+  font-family: "Manrope", sans-serif;
+  text-transform: capitalize;
+}
+
+.textBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.textBtn:active {
+  opacity: 0.9;
+  transform: scale(0.96);
+}
+
+.hamburgerLines {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 18px;
+}
+
+.hamburgerLines span {
+  display: block;
+  height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+}
+
+@media (min-width: 769px) {
+  .iconBtn:has(.hamburgerLines) {
+    display: none;
+  }
+}
+
+/* ── Left avatar ─────────────────────────────────────────────*/
+.leftAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 1.5px solid var(--border2);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition:
+    opacity 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    margin-right 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.leftAvatarVisible {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  width: 32px;
+  margin-right: 0;
+  pointer-events: all;
+}
+
+.leftAvatarHidden {
+  opacity: 0;
+  transform: translateX(-12px) scale(0.6);
+  width: 0;
+  margin-right: -8px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.leftAvatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.leftAvatarInitials {
+  font-size: 0.55rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: 0.3px;
+  user-select: none;
+}
+
+/* ── Badges ──────────────────────────────────────────────────*/
+.notifDot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  min-width: 15px;
+  height: 15px;
+  border-radius: 10px;
+  background: var(--alert);
+  border: 2px solid var(--bg);
+  font-size: 0.5rem;
+  font-weight: 800;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.botBadge {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  min-width: 15px;
+  height: 15px;
+  border-radius: 10px;
+  background: #6366f1;
+  border: 2px solid var(--bg);
+  font-size: 0.5rem;
+  font-weight: 800;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* ── Notification overlay ────────────────────────────────────*/
+.notifOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease;
+}
+
+.notifPanel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  animation: slideDown 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(0); }
+}
+
+@media (min-width: 769px) {
+  .notifOverlay {
+    background: transparent;
+    backdrop-filter: none;
+    pointer-events: none;
+  }
+
+  .notifPanel {
+    position: fixed;
+    top: 56px;
+    right: 16px;
+    left: auto;
+    bottom: auto;
+    width: 380px;
+    max-height: 560px;
+    border-radius: 16px;
+    border: 1px solid var(--border2);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+    animation: dropIn 0.2s ease;
+    pointer-events: all;
+    overflow: hidden;
+  }
+
+  @keyframes dropIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}
+
+.notifHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.notifTitle {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text2);
+}
+
+.notifBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.notifItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  margin-bottom: 10px;
+}
+
+.notifItem.unread {
+  border-color: color-mix(in srgb, var(--alert) 30%, transparent);
+  background: var(--surface2);
+}
+
+.notifIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.notifContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.notifContent h5 {
+  font-size: 0.88rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.notifContent p {
+  font-size: 0.75rem;
+  color: var(--text2);
+  line-height: 1.4;
+}
+
+.notifTime {
+  display: block;
+  font-size: 0.62rem;
+  color: var(--text3);
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+.unreadDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--alert);
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.notifEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 80px;
+  gap: 10px;
+  text-align: center;
+}
+
+.notifEmpty span {
+  font-size: 2.5rem;
+  opacity: 0.2;
+}
+
+.notifEmpty p {
+  font-size: 0.85rem;
+  color: var(--text3);
+}
+
+.notifTabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.notifTabBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s;
+  font-family: "Manrope", sans-serif;
+}
+
+.notifTabActive {
+  color: var(--text);
+  font-weight: 800;
+}
+
+.notifTabActive::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+}
+
+.notifTabBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface2);
+  color: var(--text2);
+  font-size: 0.58rem;
+  font-weight: 800;
+  border-radius: 20px;
+  padding: 1px 5px;
+  min-width: 16px;
+  border: 1px solid var(--border2);
+}
+
+.notifTabBadgeAlert {
+  background: color-mix(in srgb, var(--alert) 12%, transparent);
+  color: var(--alert);
+  border-color: color-mix(in srgb, var(--alert) 30%, transparent);
+}
+
+.markAllBtn {
+  background: none;
+  border: none;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-family: "Manrope", sans-serif;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.markAllBtn:hover  { background: var(--surface2); }
+.markAllBtn:active { background: var(--surface); }
+
+.notifItemReview {
+  border-color: color-mix(in srgb, var(--alert) 30%, transparent) !important;
+  background: color-mix(in srgb, var(--alert) 6%, transparent) !important;
+}
+
+.notifReviewHint {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--alert);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+  margin-bottom: 2px;
+}
+
+.headerAvatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 2px solid var(--border2);
+  color: var(--text);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: transform 0.15s, opacity 0.15s;
+  padding: 0;
+  user-select: none;
+}
+
+.headerAvatar:active {
+  transform: scale(0.9);
+  opacity: 0.8;
+}
+
+.headerAvatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 
 /* ── Custom title wrapper ────────────────────────────────────*/
 .customTitleWrap {
