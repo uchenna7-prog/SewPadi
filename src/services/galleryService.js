@@ -36,12 +36,33 @@ const DEFAULT_DRESS_TYPES = {
   inspiration:     [{ id: 'styles', label: 'Styles' }, { id: 'fabrics', label: 'Fabrics' }],
 }
 
+// ── Photos CRUD ───────────────────────────────────────────────
 
+/**
+ * Add a new gallery photo.
+ *
+ * Expects `data.storageUrl` — a Cloudinary URL returned after upload.
+ * Legacy documents may have `data.src` (base64); the UI handles both
+ * via `photo.storageUrl || photo.src` when rendering.
+ *
+ * NOTE: We no longer accept base64 here. The caller (Gallery.jsx /
+ * AddPhotoModal) must upload to Cloudinary first and pass the URL.
+ */
 export async function addPhoto(uid, data) {
+  // Guard: reject accidental base64 writes to keep Firestore docs small
+  if (data.storageUrl?.startsWith('data:image') || data.src?.startsWith('data:image')) {
+    throw new Error(
+      '[galleryService] addPhoto: base64 images are no longer supported. ' +
+      'Upload to Cloudinary first and pass storageUrl.'
+    )
+  }
+
   const ref = await addDoc(photosRef(uid), {
     ...data,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
+    // Ensure the canonical field name is always present
+    storageUrl: data.storageUrl ?? null,
+    createdAt:  serverTimestamp(),
+    updatedAt:  serverTimestamp(),
   })
   return ref.id
 }
@@ -55,11 +76,17 @@ export async function updatePhoto(uid, photoId, data) {
 
 export async function deletePhoto(uid, photoId) {
   await deleteDoc(photoDoc(uid, photoId))
+  // NOTE: Cloudinary deletion from the client requires a signed request.
+  // If you add a Cloud Function later, call it here with the photo's publicId.
 }
 
 /**
- * Real-time listener for all photos in a given main tab category.
- * Sorted client-side by createdAt desc (avoids composite index requirement).
+ * Real-time listener for all gallery photos, ordered newest-first.
+ * Sorted by createdAt desc (avoids a composite Firestore index requirement).
+ *
+ * Each document has either:
+ *   • storageUrl — Cloudinary URL (new photos)
+ *   • src        — legacy base64 string (old photos, still readable)
  */
 export function subscribeToPhotos(uid, callback, onError) {
   const q = query(photosRef(uid), orderBy('createdAt', 'desc'))
