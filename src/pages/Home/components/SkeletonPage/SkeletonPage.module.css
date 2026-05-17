@@ -58,22 +58,6 @@
 }
 
 
-@media (max-width: 600px) {
-
-    .skeletonStatsGrid { 
-        grid-template-columns: repeat(2, 1fr); 
-        gap: 10px; 
-    }
-
-    .skeletonStatCard { 
-        padding: 14px 12px 12px; 
-        min-height: 120px; 
-    }
-
-
-}
-
-
 
 @media (min-width: 769px) {
 
@@ -91,3 +75,22 @@
 
 
 }
+
+
+
+@media (max-width: 600px) {
+
+    .skeletonStatsGrid { 
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 10px; 
+    }
+
+    .skeletonStatCard { 
+        padding: 14px 12px 12px; 
+        min-height: 120px; 
+    }
+
+
+}
+
+

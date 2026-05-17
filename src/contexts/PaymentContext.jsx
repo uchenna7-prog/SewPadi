@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
-import { useAuth }      from './AuthContext'
+import { useAuth } from './AuthContext'
 import { useCustomers } from './CustomerContext'
 import { subscribeToPayments } from '../services/paymentService'
 
