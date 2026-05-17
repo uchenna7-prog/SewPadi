@@ -12,7 +12,7 @@ export function SkeletonPage() {
         <Skeleton width={240} height={11} borderRadius={4} style={{ marginTop: 8 }} />
         <Skeleton width={100} height={10} borderRadius={4} style={{ marginTop: 6, opacity: 0.5 }} />
       </div>
-      <div className={styles.skletonStatsGrid}>
+      <div className={styles.skeletonStatsGrid}>
         {[0, 1, 2, 3].map(i => (
           <div key={i} className={styles.skeletonStatCard}>
             <Skeleton width={24} height={24} borderRadius={4} />
