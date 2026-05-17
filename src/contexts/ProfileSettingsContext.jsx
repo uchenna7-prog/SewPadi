@@ -1,34 +1,39 @@
-// src/contexts/ProfileSettingsContext.jsx
-
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useRef } from 'react'
 import { useAuth } from './AuthContext'
-import { saveBrandToFirestore } from '../services/brandService'
+import {
+  saveBrandDataToFirestore,
+  getBrandDataFromFirestore,
+  savePersonalInfosToFirestore,
+  getPersonalInfosFromFirestore,
+} from '../services/profileService'
 
-// ─────────────────────────────────────────────────────────────
-// STORAGE KEY
-// ─────────────────────────────────────────────────────────────
 
 const STORAGE_KEY = 'sewpadi_profile_settings'
 
-// ─────────────────────────────────────────────────────────────
-// DEFAULTS
-// ─────────────────────────────────────────────────────────────
 
 export const DEFAULTS = {
-  // Brand identity
+
+  personalFullName:   '',
+  personalEmail:      '',
+  personalPhone:      '',
+  personalCity:       '',
+  personalCountry:    '',
+  personalSex:        '',
+  personalBirthMonth: '',
+  personalBirthDay:   '',
+
+  
   brandName:     '',
   brandTagline:  '',
   brandColourId: 'classic-warm-black',
   brandColour:   '#1C1814',
-  brandLogo:     null,   // Firebase Storage URL or null
+  brandLogo:     null,
 
-  // Business contact
   brandPhone:   '',
   brandEmail:   '',
   brandAddress: '',
   brandWebsite: '',
 
-  // Business info
   brandFoundedYear:       '',
   brandTurnaround:        '',
   brandServiceArea:       '',
@@ -38,46 +43,45 @@ export const DEFAULTS = {
   brandFeaturedTechnique: '',
   brandMilestone:         '',
   brandSocials:           [],
-  brandSignature:         null,   // Firebase Storage URL or null
+  brandSignature:         null,
   brandPaymentTerms:      '',
 
-  // Account / payment details
   accountBank:   '',
   accountNumber: '',
   accountName:   '',
 }
 
 // ─────────────────────────────────────────────────────────────
-// LOAD FROM LOCALSTORAGE
+// SANITISE — strip invalid values after loading from storage
 // ─────────────────────────────────────────────────────────────
 
-function loadProfileSettings() {
-  let saved = {}
+function sanitise(settings) {
+  const out = { ...DEFAULTS, ...settings }
+
+  // Drop base64 blobs — too large for localStorage and stale after reload
+  if (out.brandLogo?.startsWith('data:'))      out.brandLogo      = null
+  if (out.brandSignature?.startsWith('data:')) out.brandSignature = null
+
+  // Legacy colour IDs stored as hex strings
+  if (!out.brandColourId || out.brandColourId.startsWith('#')) {
+    out.brandColourId = DEFAULTS.brandColourId
+  }
+
+  return out
+}
+
+// ─────────────────────────────────────────────────────────────
+// LOAD FROM LOCALSTORAGE (synchronous — safe for useState init)
+// ─────────────────────────────────────────────────────────────
+
+function loadFromStorage() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) saved = JSON.parse(raw)
+    if (raw) return sanitise(JSON.parse(raw))
   } catch {
-    // Corrupted storage — start fresh
+    // Corrupted storage — fall through to defaults
   }
-
-  const profileSettings = { ...DEFAULTS, ...saved }
-
-  // Migration: base64 logos are no longer supported — only Firebase Storage URLs
-  if (profileSettings.brandLogo?.startsWith('data:')) {
-    profileSettings.brandLogo = null
-  }
-
-  // Migration: base64 signatures are no longer supported — only Firebase Storage URLs
-  if (profileSettings.brandSignature?.startsWith('data:')) {
-    profileSettings.brandSignature = null
-  }
-
-  // Migration: brandColourId must be a palette ID, not a raw hex
-  if (!profileSettings.brandColourId || profileSettings.brandColourId.startsWith('#')) {
-    profileSettings.brandColourId = DEFAULTS.brandColourId
-  }
-
-  return profileSettings
+  return null // null signals "nothing in storage yet"
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -88,26 +92,96 @@ const ProfileSettingsContext = createContext(null)
 
 export function ProfileSettingsProvider({ children }) {
   const { user } = useAuth()
-  const [profileSettings, setProfileSettings] = useState(loadProfileSettings)
 
-  // Persist to localStorage on every change
+  // Start from localStorage if it exists; otherwise wait for Firestore
+  const [profileSettings, setProfileSettings] = useState(() => loadFromStorage() ?? { ...DEFAULTS })
+  const [isLoading, setIsLoading] = useState(!loadFromStorage())
+
+  // Track whether this is the very first render so the save effect doesn't
+  // fire before we've finished loading data from Firestore.
+  const isInitialised = useRef(false)
+
+  // ── 1. LOAD ────────────────────────────────────────────────
+  // Runs once when the user is available.
+  // If localStorage already had data we skip Firestore on boot (fast path).
   useEffect(() => {
+    if (!user?.uid) return
+
+    const cached = loadFromStorage()
+    if (cached) {
+      // Already hydrated from storage — mark ready immediately
+      isInitialised.current = true
+      setIsLoading(false)
+      return
+    }
+
+    // Nothing cached — fetch from Firestore
+    let cancelled = false
+
+    async function fetchFromFirestore() {
+      try {
+        const [brand, personal] = await Promise.all([
+          getBrandDataFromFirestore(user.uid),
+          getPersonalInfosFromFirestore(user.uid),
+        ])
+
+        if (cancelled) return
+
+        const merged = sanitise({ ...personal, ...brand })
+        setProfileSettings(merged)
+
+        // Persist to localStorage so next boot is instant
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
+        } catch {
+          // Quota exceeded — carry on without caching
+        }
+      } catch (err) {
+        if (!cancelled) return
+      } finally {
+        if (!cancelled) {
+          isInitialised.current = true
+          setIsLoading(false)
+        }
+      }
+    }
+
+    fetchFromFirestore()
+    return () => { cancelled = true }
+  }, [user?.uid]) // ← only re-run if the logged-in user changes
+
+  // ── 2. PERSIST TO LOCALSTORAGE ────────────────────────────
+  // Runs on every settings change, but not before init is complete.
+  useEffect(() => {
+    if (!isInitialised.current) return
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(profileSettings))
-      localStorage.removeItem('sewpadi_brand_logo') // clean up old key
     } catch {
-      // Ignore storage quota errors
+      // Ignore quota errors
     }
   }, [profileSettings])
 
-  // Sync brand fields to Firestore, debounced 1.5s to avoid hammering on every keystroke
+  // ── 3. SYNC TO FIRESTORE (debounced) ──────────────────────
+  // Waits 1.5 s after the last change before writing — avoids hammering
+  // Firestore on every keystroke.
   useEffect(() => {
+    if (!isInitialised.current) return
     if (!user?.uid) return
+
     const timer = setTimeout(() => {
-      saveBrandToFirestore(user.uid, profileSettings).catch(console.error)
+      // Split into the two service calls that mirror your data shape
+      saveBrandDataToFirestore(user.uid, profileSettings).catch(
+        
+      )
+      savePersonalInfosToFirestore(user.uid, profileSettings).catch(
+        
+      )
     }, 1500)
+
     return () => clearTimeout(timer)
   }, [user?.uid, profileSettings])
+
+  // ── UPDATERS ──────────────────────────────────────────────
 
   function updateProfileSetting(key, value) {
     setProfileSettings(prev => ({ ...prev, [key]: value }))
@@ -124,6 +198,7 @@ export function ProfileSettingsProvider({ children }) {
   return (
     <ProfileSettingsContext.Provider value={{
       profileSettings,
+      isLoading,
       updateProfileSetting,
       updateManyProfileSettings,
       resetProfileSettings,

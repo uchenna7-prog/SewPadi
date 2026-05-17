@@ -37,9 +37,9 @@ export function subscribeToAppointments(uid, onData, onError) {
 }
 
 
-export async function createAppointment(uid, apptData) {
+export async function addAppointment(uid, appointmentData) {
   return addDoc(appointmentsRef(uid), {
-    ...apptData,
+    ...appointmentData,
     createdAt: serverTimestamp(),
   })
 }

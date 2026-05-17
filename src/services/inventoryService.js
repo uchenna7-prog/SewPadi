@@ -1,6 +1,3 @@
-// src/services/inventoryService.js
-// Path: users/{uid}/inventory/{itemId}
-
 import {
   collection,
   doc,
@@ -23,7 +20,6 @@ function inventoryDoc(uid, itemId) {
   return doc(db, 'users', uid, 'inventory', itemId)
 }
 
-// Real-time listener
 export function subscribeToInventory(uid, onData, onError) {
   const q = query(inventoryCol(uid), orderBy('createdAt', 'desc'))
   return onSnapshot(
@@ -33,7 +29,6 @@ export function subscribeToInventory(uid, onData, onError) {
   )
 }
 
-// Create
 export async function createInventoryItem(uid, data) {
   return addDoc(inventoryCol(uid), {
     ...data,
@@ -42,7 +37,6 @@ export async function createInventoryItem(uid, data) {
   })
 }
 
-// Update full item
 export async function updateInventoryItem(uid, itemId, data) {
   return updateDoc(inventoryDoc(uid, itemId), {
     ...data,
@@ -50,7 +44,6 @@ export async function updateInventoryItem(uid, itemId, data) {
   })
 }
 
-// Adjust quantity (positive = restock, negative = use)
 export async function adjustInventoryQty(uid, itemId, delta) {
   return updateDoc(inventoryDoc(uid, itemId), {
     quantity: increment(delta),

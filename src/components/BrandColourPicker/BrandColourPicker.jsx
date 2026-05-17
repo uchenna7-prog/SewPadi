@@ -1,25 +1,22 @@
-// src/components/BrandColourPicker/BrandColourPicker.jsx
-// ─────────────────────────────────────────────────────────────
-// Replaces the raw <input type="color"> in BrandModal.
-// Style tabs across top → colour swatches below.
-// Selected colour gets a checkmark. No live preview — user picks
-// and saves, then sees it on their portfolio.
-// ─────────────────────────────────────────────────────────────
-
 import { useState } from 'react'
-import { STYLE_GROUPS, getPalettesByStyle, getPaletteById, DEFAULT_COLOUR_ID } from '../../config/brandPalette'
+import { 
+  STYLE_GROUPS, 
+  getPalettesByStyle, 
+  getPaletteById, 
+  DEFAULT_COLOUR_ID 
+} from '../../config/brandPalette'
 import styles from './BrandColourPicker.module.css'
 
+
 export default function BrandColourPicker({ value, onChange }) {
-  // value = colourId string e.g. "classic-deep-gold"
-  const selected     = getPaletteById(value) || getPaletteById(DEFAULT_COLOUR_ID)
+
+  const selected = getPaletteById(value) || getPaletteById(DEFAULT_COLOUR_ID)
   const [activeStyle, setActiveStyle] = useState(selected?.style || 'Classic')
-  const swatches     = getPalettesByStyle(activeStyle)
+  const swatches = getPalettesByStyle(activeStyle)
 
   return (
     <div className={styles.picker}>
 
-      {/* ── Style tabs ── */}
       <div className={styles.tabs}>
         {STYLE_GROUPS.map(style => (
           <button
@@ -33,7 +30,6 @@ export default function BrandColourPicker({ value, onChange }) {
         ))}
       </div>
 
-      {/* ── Colour swatches ── */}
       <div className={styles.swatches}>
         {swatches.map(colour => {
           const isSelected = value === colour.id
@@ -46,7 +42,7 @@ export default function BrandColourPicker({ value, onChange }) {
               aria-label={colour.label}
               title={colour.label}
             >
-              {/* Colour circle */}
+
               <span
                 className={styles.swatchCircle}
                 style={{ background: colour.tokens.primary }}
@@ -68,7 +64,6 @@ export default function BrandColourPicker({ value, onChange }) {
         })}
       </div>
 
-      {/* ── Selected colour summary ── */}
       {selected && (
         <div className={styles.selectedBar}>
           <span

@@ -1,0 +1,12 @@
+
+.statusPill {
+  display: inline-block; 
+  font-size: 0.6rem; 
+  font-weight: 700;
+  text-transform: capitalize; 
+  border: 1px solid; 
+  border-radius: 5px;
+  padding: 2px 7px; 
+  margin-top: 3px; 
+  letter-spacing: 0.2px;
+}

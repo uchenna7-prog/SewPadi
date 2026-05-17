@@ -1,0 +1,69 @@
+
+
+.urgentStrip {
+  background: color-mix(in srgb, #ef4444 6%, var(--surface));
+  border: 1px solid color-mix(in srgb, #ef4444 20%, transparent);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  animation: slideDown 0.3s ease;
+}
+.urgentStripHeader {
+  display: flex; 
+  align-items: center; 
+  gap: 6px; 
+  margin-bottom: 10px;
+}
+.urgentStripHeaderIcon { 
+    font-size: 0.95rem !important; 
+    color: #ef4444; 
+}
+.urgentStripTitle {
+  font-size: 0.65rem; 
+  font-weight: 800; 
+  text-transform: uppercase;
+  letter-spacing: 0.7px; 
+  color: #ef4444;
+}
+.urgentStripItems { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 2px; 
+}
+.urgentItem {
+  display: flex; 
+  align-items: center; 
+  gap: 8px;
+  background: none; 
+  border: none; 
+  padding: 7px 4px; 
+  border-radius: 8px;
+  cursor: pointer; 
+  font-family: inherit; 
+  width: 100%; 
+  text-align: left;
+  transition: background 0.12s;
+  border-bottom: 1px solid color-mix(in srgb, #ef4444 10%, transparent);
+}
+.urgentItem:last-child { 
+    border-bottom: none; 
+}
+.urgentItem:active { 
+    background: color-mix(in srgb, #ef4444 8%, transparent); 
+}
+.urgentItemIcon { 
+    font-size: 0.95rem !important; 
+    color: #ef4444; 
+    flex-shrink: 0; 
+}
+.urgentItemText {
+  font-size: 0.8rem; 
+  font-weight: 600; 
+  color: var(--text);
+  flex: 1; 
+  min-width: 0; 
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis;
+}
+

@@ -33,4 +33,3 @@ export const logout = ()=>{
   return signOut(auth);
 }
 
-

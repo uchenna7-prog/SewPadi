@@ -1,0 +1,181 @@
+.modalOverlay {
+  position: fixed; 
+  inset: 0; 
+  z-index: 300;
+  background: rgba(0,0,0,0.45);
+  display: flex; 
+  align-items: flex-end; 
+  justify-content: center;
+  animation: fadeIn 0.18s ease;
+}
+@keyframes fadeIn { 
+    from { 
+        opacity: 0; 
+    } 
+    to { 
+        opacity: 1; 
+    } 
+}
+
+.modalSheet {
+  background: var(--surface);
+  border-radius: 22px 22px 0 0;
+  padding: 12px 22px 32px;
+  width: 100%; 
+  max-width: 600px;
+  animation: slideUp 0.28s cubic-bezier(0.32,0.72,0,1);
+}
+@keyframes slideUp {
+  from { 
+    transform: translateY(60px); 
+    opacity: 0; 
+}
+  to { 
+    transform: translateY(0);    
+    opacity: 1; 
+}
+}
+.modalHandle { 
+    width: 36px; 
+    height: 4px; 
+    border-radius: 2px; 
+    background: var(--border2); 
+    margin: 0 auto 18px; 
+}
+.modalHeader { 
+    margin-bottom: 22px; 
+}
+.modalTitle  { 
+    font-size: 1.15rem; 
+    font-weight: 800; 
+    color: var(--text); 
+    margin: 0 0 4px; 
+}
+.modalSub { 
+    font-size: 0.78rem; 
+    color: var(--text3); 
+    margin: 0; 
+}
+
+.modalSection { 
+    margin-bottom: 18px; 
+}
+
+.modalSectionLabel {
+  font-size: 0.65rem; 
+  font-weight: 700; 
+  text-transform: uppercase;
+  letter-spacing: 0.7px; 
+  color: var(--text3); 
+  margin-bottom: 8px;
+}
+.periodTabs { 
+    display: flex; 
+    gap: 8px; 
+}
+.periodTab {
+  flex: 1; 
+  padding: 10px 0; 
+  border-radius: 10px;
+  border: 1.5px solid var(--border); 
+  background: var(--surface2);
+  color: var(--text2); 
+  font-size: 0.82rem; 
+  font-weight: 700;
+  font-family: inherit; 
+  cursor: pointer; 
+  transition: all 0.15s;
+}
+.periodTabActive {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+.goalInputRow { 
+    display: flex; 
+    gap: 8px; 
+}
+.currencySelect {
+  padding: 12px 10px; 
+  border-radius: 10px; 
+  border: 1.5px solid var(--border);
+  background: var(--surface2); 
+  color: var(--text); 
+  font-size: 0.85rem;
+  font-weight: 600; 
+  font-family: inherit; 
+  cursor: pointer; 
+  flex-shrink: 0;
+}
+.goalInput {
+  flex: 1; 
+  padding: 12px 14px; 
+  border-radius: 10px; 
+  border: 1.5px solid var(--border);
+  background: var(--surface2); 
+  color: var(--text); 
+  font-size: 0.95rem;
+  font-weight: 700; 
+  font-family: inherit; 
+  outline: none; 
+  transition: border-color 0.15s;
+}
+.goalInput:focus { 
+    border-color: var(--accent); 
+}
+.goalInput::placeholder { 
+    color: var(--text3); 
+    font-weight: 400; 
+}
+.periodHint {
+  font-size: 0.72rem; 
+  color: var(--text3); 
+  margin-bottom: 20px;
+  padding: 10px 12px; 
+  background: var(--surface2);
+  border-radius: 9px; 
+  border: 1px solid var(--border);
+}
+.modalSaveBtn {
+  width: 100%; 
+  padding: 14px; 
+  border-radius: 12px; 
+  border: none;
+  background: var(--accent); 
+  color: var(--bg); 
+  font-size: 0.9rem;
+  font-weight: 800; 
+  font-family: inherit; 
+  cursor: pointer;
+  transition: opacity 0.15s; 
+  margin-bottom: 10px;
+}
+.modalSaveBtn:disabled { 
+    opacity: 0.4; 
+    cursor: not-allowed; 
+}
+.modalSaveBtn:not(:disabled):active { 
+    opacity: 0.85; 
+}
+.modalCancelBtn {
+  width: 100%; 
+  padding: 12px; 
+  border-radius: 12px; 
+  border: none;
+  background: none; 
+  color: var(--text3); 
+  font-size: 0.85rem;
+  font-weight: 700; 
+  font-family: inherit; 
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+
+  .modalSheet { 
+    border-radius: 22px 22px 0 0; 
+    padding-bottom: calc(32px + var(--sb,0px)); 
+  }
+
+
+}

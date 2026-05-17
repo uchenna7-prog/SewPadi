@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { useCustomers } from '../../contexts/CustomerContext'
 import { useGallery }   from '../../contexts/GalleryContext'
-import { useBrand }     from '../../contexts/BrandContext'
+import { useProfileSettings } from '../../contexts/ProfileSettingsContext'
 import Header           from '../../components/Header/Header'
 import ConfirmSheet     from '../../components/ConfirmSheet/ConfirmSheet'
 import Toast            from '../../components/Toast/Toast'
@@ -549,7 +549,7 @@ function Lightbox({ photo, photos, onClose, onDelete }) {
 export default function Gallery({ onMenuClick }) {
   const { customers } = useCustomers()
   const { photos, dressTypes, loading, addPhoto, deletePhoto, updatePhoto, saveDressTypes } = useGallery()
-  const { brand }     = useBrand()
+  const { profileSettings } = useProfileSettings()
 
   const [activeTab,     setActiveTab]     = useState('completed_works')
   const [activeSubTabs, setActiveSubTabs] = useState({})
@@ -864,7 +864,7 @@ export default function Gallery({ onMenuClick }) {
       <SharePortfolioModal
         isOpen={shareOpen}
         onClose={() => setShareOpen(false)}
-        brandName={brand.name}
+        brandName={profileSettings.brandName}
         completedWorksPhotos={completedWorksPhotos}
       />
 

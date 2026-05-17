@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useProfileSettings } from '../../contexts/ProfileSettingsContext'
 import { useAuth } from '../../contexts/AuthContext'
 import { updateProfile } from 'firebase/auth'
-import { saveOwnerToFirestore, loadOwnerFromFirestore } from '../../services/ownerService'
+import { savePersonalInfosToFirestore, getPersonalInfosFromFirestore } from '../../services/profileService'
 import { uploadToCloudinary } from '../../services/cloudinaryService'
 import Header from '../../components/Header/Header'
 import Toast from '../../components/Toast/Toast'
@@ -303,7 +303,7 @@ function PhoneField({ label, hint, localValue, onLocalChange, country, onCountry
 // Personal info helpers
 // ─────────────────────────────────────────────────────────────
 
-const PERSONAL_KEY = 'sewpadi_personal'
+const PROFILE_SETTINGS_STORAGE_KEY = 'sewpadi_profile_settings'
 
 const MONTHS = [
   'January','February','March','April','May','June',
@@ -338,7 +338,12 @@ function loadPersonal(authUser) {
 }
 
 function savePersonalLocally(data) {
-  try { localStorage.setItem(PERSONAL_KEY, JSON.stringify(data)) } catch { /* ignore */ }
+  try { 
+    localStorage.setItem(PROFILE_SETTINGS_STORAGE_KEY, JSON.stringify({...profileSettings,...data})) 
+  } 
+  catch {
+  
+  }
 }
 
 function parseStoredPhone(stored) {
@@ -397,7 +402,7 @@ function PersonalModal({ personal, onBack, onSave, authUser }) {
       }
 
       if (authUser?.uid) {
-        await saveOwnerToFirestore(authUser.uid, updated)
+        await savePersonalInfosToFirestore(authUser.uid, updated)
       }
 
       onSave(updated)
@@ -1142,7 +1147,7 @@ export default function Profile({ onMenuClick, isPremium = false, onUpgrade = ()
 
   useEffect(() => {
     if (!user?.uid) return
-    loadOwnerFromFirestore(user.uid).then(data => {
+    getPersonalInfosFromFirestore(user.uid).then(data => {
       if (!data) return
       const merged = {
         fullName:   data.fullName   || personal.fullName   || '',

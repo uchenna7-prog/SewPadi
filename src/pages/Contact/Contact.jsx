@@ -7,8 +7,8 @@ const CONTACT = {
   phone:        '+234 9079116980',
   email:        'support@SewPadi.app',
   website:      'www.SewPadi.app',
-  businessName: 'Tailor Flow',
-  billingName:  'Tailor Flow Technologies',
+  businessName: 'Sew Padi',
+  billingName:  'Sew Padi Technologies',
   address:      'Choba Uniport',
 }
 

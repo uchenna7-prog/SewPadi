@@ -1,0 +1,26 @@
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 32px;
+  text-align: center;
+  flex: 1;
+  min-height: 0;
+}
+
+.emptyStateTitle {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+}
+
+.emptyStateSubtitle {
+  font-size: 0.8rem;
+  color: var(--text3);
+  margin: 0;
+  line-height: 1.5;
+}
+

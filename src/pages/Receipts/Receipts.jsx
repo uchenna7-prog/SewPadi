@@ -1,26 +1,16 @@
-// src/pages/Receipts/Receipts.jsx
-// ─────────────────────────────────────────────────────────────
-// Displays ALL receipts across ALL customers.
-// Subscribes to each customer's receipts subcollection live.
-// ─────────────────────────────────────────────────────────────
-
 import { useState, useEffect, useRef } from 'react'
-import { useAuth }           from '../../contexts/AuthContext'
-import { useCustomers }      from '../../contexts/CustomerContext'
+import { useAuth } from '../../contexts/AuthContext'
+import { useCustomers } from '../../contexts/CustomerContext'
 import { useGeneralSettings } from '../../contexts/GeneralSettingsContext'
-import { useOrders }         from '../../contexts/OrdersContext'
+import { useOrders } from '../../contexts/OrdersContext'
+import { formatMoney } from '../../utils/moneyUtils'
 import { subscribeToReceipts, deleteReceipt } from '../../services/receiptService'
 import ReceiptViewer from '../../components/ReceiptViewer/ReceiptViewer'
 import Header    from '../../components/Header/Header'
 import BottomNav from '../../components/BottomNav/BottomNav'
 import styles from './Receipts.module.css'
 
-// ── Helpers ───────────────────────────────────────────────────
 
-function fmt(currency = '₦', amount) {
-  const n = parseFloat(amount) || 0
-  return `${currency}${n.toLocaleString('en-NG', { minimumFractionDigits: 0 })}`
-}
 
 function formatDate(dateStr) {
   if (!dateStr) return 'Unknown Date'
@@ -160,7 +150,7 @@ function ReceiptCard({ receipt, currency, onTap, isLast, orderItems }) {
       </div>
 
       <div className={styles.receiptListRight}>
-        <div className={styles.receiptListAmount}>{fmt(currency, paid)}</div>
+        <div className={styles.receiptListAmount}>{formatMoney(currency, paid)}</div>
         <span className={styles.receiptStatusPill} style={{
           background: sty.bg,
           color:      sty.color,

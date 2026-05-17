@@ -1,59 +1,11 @@
-// src/components/OrderDetailModal/OrderDetailModal.jsx
 
 import { useState } from 'react'
 import { useOrders } from '../../contexts/OrdersContext'
 import { useAuth }   from '../../contexts/AuthContext'
+import { PRIORITY_BANNER_CONFIG,ORDER_STAGE_AUTO_STATUS,ORDER_STATUS_LABELS,ORDER_STAGES } from '../../datas/orderDatas'
 import styles from './OrderDetailModal.module.css'
 
-// ─────────────────────────────────────────────────────────────
-// CONSTANTS
-// ─────────────────────────────────────────────────────────────
 
-const STATUSES = [
-  { value: 'pending',     label: 'Pending'     },
-  { value: 'in-progress', label: 'In Progress' },
-  { value: 'completed',   label: 'Completed'   },
-  { value: 'delivered',   label: 'Delivered'   },
-  { value: 'cancelled',   label: 'Cancelled'   },
-]
-
-const STAGES = [
-  { value: 'measurement_taken', label: 'Measurement Taken', icon: 'straighten'    },
-  { value: 'fabric_ready',      label: 'Fabric Ready',      icon: 'layers'        },
-  { value: 'cutting',           label: 'Cutting',           icon: 'content_cut'   },
-  { value: 'weaving',           label: 'Weaving',           icon: 'texture'       },
-  { value: 'sewing',            label: 'Sewing',            icon: 'send'          },
-  { value: 'embroidery',        label: 'Embroidery',        icon: 'auto_awesome'  },
-  { value: 'fitting',           label: 'Fitting',           icon: 'accessibility' },
-  { value: 'adjustments',       label: 'Adjustments',       icon: 'tune'          },
-  { value: 'finishing',         label: 'Finishing',         icon: 'dry_cleaning'  },
-  { value: 'quality_check',     label: 'Quality Check',     icon: 'fact_check'    },
-  { value: 'ready',             label: 'Ready',             icon: 'check_circle'  },
-]
-
-const STAGE_AUTO_STATUS = {
-  measurement_taken: 'pending',
-  fabric_ready:      'pending',
-  cutting:           'in-progress',
-  weaving:           'in-progress',
-  sewing:            'in-progress',
-  embroidery:        'in-progress',
-  fitting:           'in-progress',
-  adjustments:       'in-progress',
-  finishing:         'in-progress',
-  quality_check:     'in-progress',
-  ready:             'completed',
-}
-
-const PRIORITY_CONFIG = {
-  normal: { label: 'Normal Priority', cls: 'priorityBanner_normal' },
-  urgent: { label: 'Urgent ★',        cls: 'priorityBanner_urgent' },
-  vip:    { label: 'VIP ★',           cls: 'priorityBanner_vip'   },
-}
-
-// ─────────────────────────────────────────────────────────────
-// HELPERS
-// ─────────────────────────────────────────────────────────────
 
 function formatFirestoreDate(ts) {
   if (!ts) return ''
@@ -113,8 +65,8 @@ export default function OrderDetailModal({ order, onClose, onGoToCustomer, onGen
   const overdue       = isOverdue(local)
   const dueTag        = daysUntil(local.dueRaw || local.dueDate)
   const placedOn      = local.takenAt || local.date || formatFirestoreDate(local.createdAt)
-  const stageObj      = STAGES.find(s => s.value === local.stage)
-  const priorityCfg   = PRIORITY_CONFIG[local.priority] ?? PRIORITY_CONFIG.normal
+  const stageObj      = ORDER_STAGES.find(s => s.value === local.stage)
+  const priorityCfg   = PRIORITY_BANNER_CONFIG[local.priority] ?? PRIORITY_BANNER_CONFIG.normal
 
   const subtotal      = Number(local.price         || 0)
   const shipping      = Number(local.shippingFee   || 0)
@@ -141,7 +93,7 @@ export default function OrderDetailModal({ order, onClose, onGoToCustomer, onGen
     const newStage = local.stage === stageValue ? null : stageValue
     try {
       await updateOrderStage(local.customerId, local.id, newStage)
-      const autoStatus = newStage ? STAGE_AUTO_STATUS[newStage] : null
+      const autoStatus = newStage ? ORDER_STAGE_AUTO_STATUS[newStage] : null
       if (autoStatus) {
         await updateOrderStatus(local.customerId, local.id, autoStatus)
         setLocal(p => ({ ...p, stage: newStage, status: autoStatus }))
@@ -167,7 +119,7 @@ export default function OrderDetailModal({ order, onClose, onGoToCustomer, onGen
 
   const handleShareReview = () => {
     const token   = local.reviewToken || crypto.randomUUID()
-    const url     = `https://tailorflow-62b0a.web.app/review/${user?.uid}/${token}`
+    const url     = `https://sewpadi.web.app/review/${user?.uid}/${token}`
     const name    = local.customerName || 'there'
     const msg     = encodeURIComponent(
       `Hi ${name}! 🙏 Thank you for your order.\n\nWe'd love your feedback — it only takes a minute:\n${url}\n\nYour review means a lot! ⭐`
@@ -213,7 +165,7 @@ export default function OrderDetailModal({ order, onClose, onGoToCustomer, onGen
         <div className={styles.body}>
 
           {/* Priority banner */}
-          <span className={`${styles.priorityBanner} ${styles[priorityCfg.cls]}`}>
+          <span className={`${styles.priorityBanner} ${styles[priorityCfg.className]}`}>
             {priorityCfg.label}
           </span>
 
@@ -236,7 +188,7 @@ export default function OrderDetailModal({ order, onClose, onGoToCustomer, onGen
               <div className={styles.infoCellLabel}>Status</div>
               <div className={`${styles.infoCellVal} ${styles.infoCellVal_status}`}
                 style={{ color: overdue ? '#ef4444' : undefined }}>
-                {overdue ? 'Overdue' : (STATUSES.find(s => s.value === local.status)?.label ?? 'Pending')}
+                {overdue ? 'Overdue' : (ORDER_STATUS_LABELS .find(s => s.value === local.status)?.label ?? 'Pending')}
               </div>
             </div>
             <div className={styles.infoCell}>
@@ -360,7 +312,7 @@ export default function OrderDetailModal({ order, onClose, onGoToCustomer, onGen
           <div className={styles.sectionCard}>
             <div className={styles.sectionLabel}>Change Stage</div>
             <div className={styles.chipWrap}>
-              {STAGES.map(s => (
+              {ORDER_STAGES.map(s => (
                 <button
                   key={s.value}
                   className={`${styles.stageChip} ${local.stage === s.value ? styles.stageChip_active : ''}`}
@@ -377,7 +329,7 @@ export default function OrderDetailModal({ order, onClose, onGoToCustomer, onGen
           <div className={styles.sectionCard}>
             <div className={styles.sectionLabel}>Change Status</div>
             <div className={styles.statusRow}>
-              {STATUSES.map(s => (
+              {ORDER_STATUS_LABELS .map(s => (
                 <button
                   key={s.value}
                   className={`${styles.statusBtn} ${local.status === s.value ? styles.statusBtn_active : ''}`}

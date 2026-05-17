@@ -4,33 +4,9 @@ import { ItemsTable } from "../components/ReceiptItemsTable/ReceiptItemsTable"
 import { LogoOrName } from "../components/LogoOrBrandName/LogoOrBrandName"
 import { calcTax} from "../utils/receiptUtils"
 
-export function ReceiptTemplate4({ receipt, customer, brand }) {
+export function ReceiptTemplate4({ receipt, customer, receiptBrandSettings }) {
 
-  const bannerBg = brand.colour || '#1C1814'
-  const { currency, showTax, taxRate: brandTaxRate } = brand
-  
-    const subtotal = receipt.items?.length > 0
-      ? receipt.items.reduce((sum, item) => sum + ((item.qty ?? 1) * (parseFloat(item.price) || 0)), 0)
-      : 0
-  
-    // Prefer frozen values from the receipt object; fall back to brand/calc
-    const shippingFee    = parseFloat(receipt.shippingFee)    || 0
-    const discountAmount = parseFloat(receipt.discountAmount) || 0
-    const discountType   = receipt.discountType   || null   // 'percent' | 'flat' | null
-    const discountValue  = parseFloat(receipt.discountValue)  || 0
-    const useTax         = receipt.taxRate != null ? receipt.taxRate > 0 : (showTax && brandTaxRate > 0)
-    const taxRate        = receipt.taxRate != null ? receipt.taxRate : brandTaxRate
-    const taxAmount      = parseFloat(receipt.taxAmount) || calcTax(subtotal, taxRate, useTax)
-    const grandTotal     = receipt.totalAmount != null
-      ? parseFloat(receipt.totalAmount)
-      : subtotal + shippingFee - discountAmount + taxAmount
-  
-    const discountLabel = discountType === 'percent'
-      ? `Discount (${discountValue}%)`
-      : 'Discount'
-  
-    const hasExtras = shippingFee > 0 || discountAmount > 0 || (useTax && taxAmount > 0)
-  
+  const bannerBg = receiptBrandSettings.colour || '#1C1814'
 
   return (
 
@@ -39,7 +15,7 @@ export function ReceiptTemplate4({ receipt, customer, brand }) {
       <div className={styles.customBanner} style={{ background : bannerBg }}>
 
         <div className={styles.customBannerLogo}>
-          <LogoOrName brand={brand} darkBg />
+          <LogoOrName receiptBrandSettings={receiptBrandSettings} darkBg />
         </div>
 
         <div className={styles.customBannerRight}>
@@ -58,9 +34,9 @@ export function ReceiptTemplate4({ receipt, customer, brand }) {
           <div className={styles.metaItem}>
 
             <div className={styles.metaLabel}>RECEIVED BY</div>
-            <div className={styles.metaVal}>{brand.name}</div>
-            {brand.phone   && <div className={styles.metaSub}>{brand.phone}</div>}
-            {brand.address && <div className={styles.metaSub}>{brand.address}</div>}
+            <div className={styles.metaVal}>{receiptBrandSettings.name}</div>
+            {receiptBrandSettings.phone   && <div className={styles.metaSub}>{receiptBrandSettings.phone}</div>}
+            {receiptBrandSettings.address && <div className={styles.metaSub}>{receiptBrandSettings.address}</div>}
 
           </div>
 
@@ -83,17 +59,17 @@ export function ReceiptTemplate4({ receipt, customer, brand }) {
 
         </div>
 
-        <ItemsTable receipt={receipt} brand={brand} />
-        <ReceiptPaymentSummary receipt={receipt} brand={brand} />
+        <ItemsTable receipt={receipt} receiptBrandSettings={receiptBrandSettings} />
+        <ReceiptPaymentSummary receipt={receipt} receiptBrandSettings={receiptBrandSettings} />
 
-        {brand.accountBank && (
+        {receiptBrandSettings.accountBank && (
           <div className={styles.paymentRow}>
             <strong style={{fontWeight :900,color :"var(--brand-primary-dark)"}}>Payment Details :</strong><br/>
 
               <div>
 
-                {brand.name && (
-                  <div>Received By  : {brand.name}</div>
+                {receiptBrandSettings.name && (
+                  <div>Received By  : {receiptBrandSettings.name}</div>
                 )}
                 
               </div>
@@ -102,7 +78,7 @@ export function ReceiptTemplate4({ receipt, customer, brand }) {
       </div>
 
       <div className={styles.footer}>
-        <div className={styles.footerText} >{brand.receiptFooter || 'Thank you for your patronage'}</div>
+        <div className={styles.footerText} >{receiptBrandSettings.footer || 'Thank you for your patronage'}</div>
       </div>
 
     </div>

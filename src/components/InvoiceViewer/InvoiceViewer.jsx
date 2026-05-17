@@ -1,9 +1,14 @@
 import { useRef, useState } from 'react'
-import { useBrand } from '../../contexts/BrandContext'
+import { useGeneralSettings } from '../../contexts/GeneralSettingsContext'
+import { useProfileSettings } from '../../contexts/ProfileSettingsContext'
+import { TEMPLATE_MAPPINGS } from '../Templates/datas/invoiceTemplateMappings'
+import { buildInvoiceWhatsAppMessage, } from './utils'
+import { sharePDF, downloadPDF } from '../../utils/pdfUtils'
+import { getBrandCSSVars } from '../../utils/cssVariablesUtils'
+import { useInvoiceBrandSettings } from '../../hooks/useInvoiceBrandSettings'
 import Header from '../Header/Header'
 import styles from './InvoiceViewer.module.css'
-import { TEMPLATE_MAPPINGS } from '../Templates/datas/invoiceTemplateMappings'
-import { getBrandCSSVars, buildInvoiceWhatsAppMessage, downloadPDF, sharePDF } from './utils'
+
 
 const STATUS_LABELS = {
   unpaid:    'Unpaid',
@@ -13,22 +18,28 @@ const STATUS_LABELS = {
 }
 
 export default function InvoiceViewer({
-  invoice: currentInvoice,
+  invoice: snapShotedInvoice,
   customer,
   onClose,
   onDelete,
   showToast,
 }) {
-  const { brand } = useBrand()
+
+  const { generalSettings } = useGeneralSettings()
+  const { profileSettings } = useProfileSettings()
+
+  const INVOICE_BRAND_SETTINGS = useInvoiceBrandSettings()
+
+
   const paperRef = useRef(null)
-  const [invoice, setInvoice]      = useState(currentInvoice)
+  const [invoice, setInvoice] = useState(snapShotedInvoice)
   const [pdfLoading, setPdfLoading]   = useState(false)
   const [shareLoading, setShareLoading] = useState(false)
 
-  const templateKey = invoice.template || brand.invoiceTemplate || 'invoiceTemplate1'
+  const templateKey = invoice.template || generalSettings.invoiceTemplate || 'invoiceTemplate1'
   const Template = TEMPLATE_MAPPINGS[templateKey] || TEMPLATE_MAPPINGS.invoiceTemplate1
-  const effectiveBrand = invoice.brandSnapshot ? { ...brand, ...invoice.brandSnapshot } : brand
-  const brandCSSVars = getBrandCSSVars(effectiveBrand.colour)
+  const snapShotedInvoiceBrandSettings = invoice.brandSnapshot ? { ...INVOICE_BRAND_SETTINGS, ...invoice.brandSnapshot } : INVOICE_BRAND_SETTINGS
+  const brandCSSVars = getBrandCSSVars(snapShotedInvoiceBrandSettings.colour)
   const filename = `Invoice-${invoice.number}-${customer.name.replace(/\s+/g, '_')}.pdf`
 
   const handleDownload = async () => {
@@ -39,10 +50,12 @@ export default function InvoiceViewer({
       const exactHeight = Math.ceil(paperRef.current.getBoundingClientRect().height)
       await downloadPDF(paperRef.current, filename, brandCSSVars, exactHeight)
       showToast?.('PDF downloaded ✓')
-    } catch (err) {
-      console.error(err)
+    } 
+    catch (err) {
+
       showToast?.('PDF failed — please try again.')
-    } finally {
+    } 
+    finally {
       setPdfLoading(false)
     }
   }
@@ -53,7 +66,7 @@ export default function InvoiceViewer({
     showToast?.('Preparing…')
     try {
       const exactHeight = Math.ceil(paperRef.current.getBoundingClientRect().height)
-      const message = buildInvoiceWhatsAppMessage(invoice, customer, effectiveBrand)
+      const message = buildInvoiceWhatsAppMessage(invoice, customer, snapShotedInvoiceBrandSettings)
       await sharePDF(paperRef.current, filename, message, brandCSSVars, exactHeight)
       showToast?.('Shared ✓')
     } catch (err) {
@@ -85,63 +98,30 @@ export default function InvoiceViewer({
           {
             icon:    'delete',
             onClick: () => onDelete(invoice.id),
-            style:   { color: '#ef4444' },
+            outlined: true ,
+            color: 'var(--danger)',
           },
         ]}
       />
 
       <div className={styles.scrollArea}>
 
-        {/* Status badge */}
         <div className={styles.statusRow}>
           <div className={`${styles.statusBadge} ${styles[`status_${invoice.status}`]}`}>
             {STATUS_LABELS[invoice.status] || invoice.status}
           </div>
         </div>
 
-        {/* Mobile layout */}
         <div className={styles.mobileLayout}>
+          
           <div className={styles.paperWrap}>
             <div ref={paperRef} className={styles.paperInner} style={brandCSSVars}>
-              <Template invoice={invoice} customer={customer} brand={effectiveBrand} />
+              <Template invoice={invoice} customer={customer} invoiceBrandSettings={ snapShotedInvoiceBrandSettings} />
             </div>
           </div>
 
-          {invoice.notes && (
-            <div className={styles.notesBox}>
-              <div className={styles.notesLabel}>Notes</div>
-              <div className={styles.notesText}>{invoice.notes}</div>
-            </div>
-          )}
         </div>
 
-        {/* Desktop layout */}
-        <div className={styles.desktopLayout}>
-          <div className={styles.statusRow}>
-            <div className={`${styles.statusBadge} ${styles[`status_${invoice.status}`]}`}>
-              {STATUS_LABELS[invoice.status] || invoice.status}
-            </div>
-          </div>
-          <div className={styles.desktopColumns}>
-            <div className={styles.previewCol}>
-              <div className={styles.paperWrap}>
-                <div className={styles.paperInner} ref={paperRef} style={brandCSSVars}>
-                  <Template invoice={invoice} customer={customer} brand={effectiveBrand} />
-                </div>
-              </div>
-            </div>
-            <div className={styles.metaCol}>
-              {invoice.notes && (
-                <div className={styles.notesBox}>
-                  <div className={styles.notesLabel}>Notes</div>
-                  <div className={styles.notesText}>{invoice.notes}</div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div style={{ height: 32 }} />
       </div>
     </div>
   )

@@ -1,0 +1,108 @@
+.deleteSheet {
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  padding: 28px 22px calc(28px + var(--sb, 0px));
+  width: 100%;
+  animation: sheetUp 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.deleteSheet::before {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border2);
+  margin: -12px auto 20px;
+}
+
+.deleteIconWrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.deleteTitle {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text);
+  text-align: center;
+  margin: 0 0 10px;
+}
+
+.deleteMessage {
+  font-size: 0.82rem;
+  color: var(--text2);
+  text-align: center;
+  line-height: 1.55;
+  margin: 0 0 10px;
+}
+
+.deleteWarning {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--danger);
+  text-align: center;
+  margin: 0 0 24px;
+  padding: 10px 14px;
+  background: rgba(239, 68, 68, 0.07);
+  border-radius: 10px;
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+.deleteActions { display: flex; flex-direction: column; gap: 10px; }
+
+.deleteCancelBtn {
+  background: var(--surface2);
+  color: var(--text2);
+  padding: 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.deleteCancelBtn:active { background: var(--surface); }
+
+.deleteConfirmBtn {
+  background: var(--danger);
+  color: #ffffff;
+  padding: 16px;
+  border-radius: 12px;
+  font-weight: 800;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: opacity 0.15s;
+}
+
+.deleteConfirmBtn:active { opacity: 0.82; }
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 5000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: overlayIn 0.22s ease;
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

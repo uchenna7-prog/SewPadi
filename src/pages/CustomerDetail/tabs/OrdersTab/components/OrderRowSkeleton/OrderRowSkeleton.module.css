@@ -1,0 +1,39 @@
+.orderRow {
+  display:      flex;
+  align-items:  center;
+  gap:          12px;
+  padding:      12px 0;
+  cursor:       pointer;
+  transition:   background 0.15s;
+  background:   var(--bg);
+  position:     relative;
+}
+
+.orderRow::after {
+  content:    '';
+  position:   absolute;
+  bottom:     0;
+  left:       0;
+  right:      0;
+  height:     1px;
+  background: var(--border);
+}
+
+.orderRow_last::after {
+  display: none;
+}
+
+.orderRow:active {
+  background: var(--surface);
+}
+
+.orderRowInfo {
+  flex:      1;
+  min-width: 0;
+}
+
+.orderRowRight {
+  text-align:  right;
+  flex-shrink: 0;
+}
+

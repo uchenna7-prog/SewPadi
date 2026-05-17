@@ -2,23 +2,25 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 import { useAuth } from './AuthContext'
 import {
   subscribeToTasks,
-  addTask    as fsAdd,
-  updateTask as fsUpdate,
-  toggleTask as fsToggle,
-  deleteTask as fsDelete,
+  addTask as addTaskToDb,
+  updateTask as updateTaskInDb,
+  toggleTask as toogleTaskInDb,
+  deleteTask as deleteTaskFromDb,
 } from '../services/taskService'
 
 const TaskContext = createContext(null)
 
 export function TaskProvider({ children }) {
+
   const { user } = useAuth()
 
-  const [tasks,   setTasks]   = useState([])
+  const [tasks, setTasks]   = useState([])
   const [loading, setLoading] = useState(true)
-  const [error,   setError]   = useState(null)
+  const [error, setError]   = useState(null)
 
-  // ── Real-time listener — all tasks for this user ──────────
+ 
   useEffect(() => {
+
     if (!user) {
       setTasks([])
       setLoading(false)
@@ -28,61 +30,73 @@ export function TaskProvider({ children }) {
     setLoading(true)
     setError(null)
 
-    const unsub = subscribeToTasks(
+    const unsubscribe = subscribeToTasks(
       user.uid,
-      (data) => { setTasks(data); setLoading(false) },
-      (err)  => { setError(err.message); setLoading(false) }
+      (data) => { 
+        setTasks(data); 
+        setLoading(false) 
+      },
+      (err)  => { 
+        setError(err.message); 
+        setLoading(false) 
+      }
     )
 
-    return unsub
+    return unsubscribe
   }, [user])
 
-  // ── CRUD ─────────────────────────────────────────────────
+
 
   const addTask = useCallback(async (data) => {
+
     if (!user) return
     try {
       const { id: _localId, ...taskData } = data
-      return await fsAdd(user.uid, taskData)
-    } catch (err) {
+      return await addTaskToDb(user.uid, taskData)
+    } 
+    catch (err) {
       setError(err.message)
-      throw err
+
     }
   }, [user])
 
   const updateTask = useCallback(async (id, data) => {
+
     if (!user) return
     try {
-      await fsUpdate(user.uid, String(id), data)
-    } catch (err) {
+      await updateTaskInDb(user.uid, String(id), data)
+    } 
+    catch (err) {
       setError(err.message)
-      throw err
     }
   }, [user])
 
-  // Toggle done/undone
+
   const toggleTask = useCallback(async (id, currentDone) => {
+
     if (!user) return
     try {
-      await fsToggle(user.uid, String(id), currentDone)
-    } catch (err) {
+      await toogleTaskInDb(user.uid, String(id), currentDone)
+    } 
+    catch (err) {
       setError(err.message)
-      throw err
+
     }
   }, [user])
 
   const deleteTask = useCallback(async (id) => {
     if (!user) return
     try {
-      await fsDelete(user.uid, String(id))
-    } catch (err) {
+      await deleteTaskFromDb(user.uid, String(id))
+    } 
+    catch (err) {
       setError(err.message)
-      throw err
+
     }
   }, [user])
 
   const getTask = useCallback((id) => {
-    return tasks.find(t => String(t.id) === String(id)) ?? null
+    return tasks.find(task => String(task.id) === String(id)) ?? null
   }, [tasks])
 
   return (
@@ -103,6 +117,5 @@ export function TaskProvider({ children }) {
 
 export function useTasks() {
   const ctx = useContext(TaskContext)
-  if (!ctx) throw new Error('useTasks must be used inside TaskProvider')
   return ctx
 }

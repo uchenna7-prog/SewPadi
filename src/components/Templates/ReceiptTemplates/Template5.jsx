@@ -1,26 +1,24 @@
 import styles from "../styles/Template5.module.css"
 import { calcTax} from "../utils/receiptUtils"
 import { ReceiptPaymentSummary } from "../components/ReceiptPaymentSummary/ReceiptPaymentSummary"
-import { formatCurrency } from "../../../utils/formatCurrency"
+import { formatMoney } from "../../../utils/moneyUtils"
 
-export function ReceiptTemplate5({ receipt, customer, brand }) {
+export function ReceiptTemplate5({ receipt, customer, receiptBrandSettings }) {
 
 
-  const { currency, showTax, receiptTaxRate: brandTaxRate } = brand
+  const { currency, showTax, receiptTaxRate: receiptBrandSettingsTaxRate } = receiptBrandSettings
 
   const subtotal = receipt.items?.length > 0
     ? receipt.items.reduce((sum, item) => sum + ((item.qty ?? 1) * (parseFloat(item.price) || 0)), 0)
     : 0
-
-  // Prefer frozen values from the receipt object; fall back to brand/calc
-  const shippingFee    = parseFloat(receipt.shippingFee)    || 0
+  const shippingFee = parseFloat(receipt.shippingFee) || 0
   const discountAmount = parseFloat(receipt.discountAmount) || 0
-  const discountType   = receipt.discountType   || null   // 'percent' | 'flat' | null
-  const discountValue  = parseFloat(receipt.discountValue)  || 0
-  const useTax         = receipt.taxRate != null ? receipt.taxRate > 0 : (showTax && brandTaxRate > 0)
-  const taxRate        = receipt.taxRate != null ? receipt.taxRate : brandTaxRate
-  const taxAmount      = parseFloat(receipt.taxAmount) || calcTax(subtotal, taxRate, useTax)
-  const grandTotal     = receipt.totalAmount != null
+  const discountType = receipt.discountType || null 
+  const discountValue = parseFloat(receipt.discountValue)  || 0
+  const useTax = receipt.taxRate != null ? receipt.taxRate > 0 : (showTax && receiptBrandSettingsTaxRate > 0)
+  const taxRate = receipt.taxRate != null ? receipt.taxRate : receiptBrandSettingsTaxRate
+  const taxAmount = parseFloat(receipt.taxAmount) || calcTax(subtotal, taxRate, useTax)
+  const grandTotal = receipt.totalAmount != null
     ? parseFloat(receipt.totalAmount)
     : subtotal + shippingFee - discountAmount + taxAmount
 
@@ -86,9 +84,9 @@ export function ReceiptTemplate5({ receipt, customer, brand }) {
             return (
               <tr key={i} className={styles.tableRow}>
                 <td className={styles.colDesc}>{item.name}</td>
-                <td className={styles.colPrice}>{ formatCurrency(currency, unitPrice)}</td>
+                <td className={styles.colPrice}>{ formatMoney(currency, unitPrice)}</td>
                 <td className={styles.colQty}>{qty}</td>
-                <td className={styles.colTotal}>{ formatCurrency(currency, lineAmount)}</td>
+                <td className={styles.colTotal}>{ formatMoney(currency, lineAmount)}</td>
               </tr>
             );
           })}
@@ -102,27 +100,27 @@ export function ReceiptTemplate5({ receipt, customer, brand }) {
           <div className={styles.breakdownBlock}>
             <div className={styles.breakdownRow}>
               <span className={styles.breakdownKey}>Subtotal</span>
-              <span className={styles.breakdownVal}>{ formatCurrency(currency, subtotal)}</span>
+              <span className={styles.breakdownVal}>{ formatMoney(currency, subtotal)}</span>
             </div>
 
             {shippingFee > 0 && (
               <div className={styles.breakdownRow}>
                 <span className={styles.breakdownKey}>Shipping &amp; Delivery</span>
-                <span className={styles.breakdownVal}>{ formatCurrency(currency, shippingFee)}</span>
+                <span className={styles.breakdownVal}>{ formatMoney(currency, shippingFee)}</span>
               </div>
             )}
 
             {discountAmount > 0 && (
               <div className={styles.breakdownRow}>
                 <span className={`${styles.breakdownKey} ${styles.breakdownKeyDiscount}`}>{discountLabel}</span>
-                <span className={`${styles.breakdownVal} ${styles.breakdownValDiscount}`}>−{ formatCurrency(currency, discountAmount)}</span>
+                <span className={`${styles.breakdownVal} ${styles.breakdownValDiscount}`}>−{ formatMoney(currency, discountAmount)}</span>
               </div>
             )}
 
             {useTax && taxAmount > 0 && (
               <div className={styles.breakdownRow}>
                 <span className={styles.breakdownKey}>VAT ({taxRate}%)</span>
-                <span className={styles.breakdownVal}>{ formatCurrency(currency, taxAmount)}</span>
+                <span className={styles.breakdownVal}>{ formatMoney(currency, taxAmount)}</span>
               </div>
             )}
           </div>
@@ -131,35 +129,35 @@ export function ReceiptTemplate5({ receipt, customer, brand }) {
         {/* Grand total bar — always shown, full width */}
         <div className={styles.orderTotalWrap}>
           <div className={styles.orderTotalLabel}>Order Total</div>
-          <div className={styles.orderTotalValue}>{ formatCurrency(currency, grandTotal)}</div>
+          <div className={styles.orderTotalValue}>{ formatMoney(currency, grandTotal)}</div>
         </div>
         
         
 
       </div>
 
-      <ReceiptPaymentSummary receipt={receipt} brand={brand} isTemplate5={true} />
+      <ReceiptPaymentSummary receipt={receipt} receiptBrandSettings={receiptBrandSettings} isTemplate5={true} />
 
     
       <div className={styles.footer}>
        
-        {brand.accountBank ? (
+        {receiptBrandSettings.accountBank ? (
           
           <div className={styles.footerItem}>
             
             <div className={styles.footerLabel}>Payment Details</div>
             
-              {brand.name && (
-                <div>Received By: {brand.name}</div>
+              {receiptBrandSettings.name && (
+                <div>Received By: {receiptBrandSettings.name}</div>
               )}
 
           </div>
         )  : <div />}
         <div className={styles.footerItem} style={{ textAlign : 'right' }}>
-          <div><strong>{brand.name || brand.ownerName}</strong></div>
-          {brand.phone   && <div>{brand.phone}</div>}
-          {brand.email   && <div>{brand.email}</div>}
-          {brand.address && <div>{brand.address}</div>}
+          <div><strong>{receiptBrandSettings.name || receiptBrandSettings.ownerName}</strong></div>
+          {receiptBrandSettings.phone   && <div>{receiptBrandSettings.phone}</div>}
+          {receiptBrandSettings.email   && <div>{receiptBrandSettings.email}</div>}
+          {receiptBrandSettings.address && <div>{receiptBrandSettings.address}</div>}
         </div>
       </div>
     </div>

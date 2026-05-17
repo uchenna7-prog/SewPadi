@@ -8,7 +8,7 @@
   gap: 5px;
   align-items: baseline;
   padding: 10px 0 12px;
-  border-bottom: 1.5px solid var(--brand-primary-dark, #a07d20);
+  border-bottom: 1.5px solid var(--brand-primary-dark);
 }
 
 .orderText {
@@ -21,7 +21,6 @@
 }
 
 
-/* ── Table ── */
 .tableEl {
   width: 100%;
   border-collapse: collapse;
@@ -73,7 +72,7 @@ th.colAmount, td.colAmount {
   text-align: center;
 }
 
-/* Body cell text styles */
+
 .itemName {
   font-size: 10px;
   font-weight: 600;
@@ -101,13 +100,11 @@ th.colAmount, td.colAmount {
   white-space: nowrap;
 }
 
-/* tbody bottom border */
+
 .tableEl tbody {
-  border-bottom: 1.5px solid var(--brand-primary-dark, #a07d20);
+  border-bottom: 1.5px solid var(--brand-primary-dark);
 }
 
-
-/* ── Summary block — right-aligned, half width ── */
 .summaryBlock {
   margin-left: auto;
   width: 55%;
@@ -146,10 +143,10 @@ th.colAmount, td.colAmount {
   font-weight: 700;
 }
 
-/* Partial divider — matches half-width block, not full bleed */
+
 .summaryDivider {
   height: 1.5px;
-  background: var(--brand-primary-dark, #a07d20);
+  background: var(--brand-primary-dark);
   margin: 8px 0;
 }
 
@@ -164,7 +161,7 @@ th.colAmount, td.colAmount {
 .summaryTotalKey {
   font-size: 13px;
   font-weight: 900;
-  color: var(--brand-primary-dark, #a07d20);
+  color: var(--brand-primary-dark);
   letter-spacing: 0.03em;
 }
 

@@ -1,0 +1,113 @@
+.section { 
+    margin-bottom: 22px; 
+}
+
+.listSection { 
+    position: relative; 
+}
+
+.listDivider { 
+    height: 1px; 
+    background: var(--border); 
+    width: calc(100% + 40px); 
+    margin-left: -20px; 
+}
+
+.listItem {
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+  padding: 12px 0;
+  background: var(--bg); 
+  position: relative; 
+  cursor: pointer;
+}
+.listItem::after {
+  content: ''; 
+  position: absolute; 
+  bottom: 0; 
+  left: 0; 
+  right: -20px;
+  height: 1px; 
+  background: var(--border);
+}
+
+.listItemLast::after { 
+    display: none; 
+}
+
+.listItem:active { 
+    background: var(--surface); 
+}
+
+.listOuter {
+  width: 80px; 
+  height: 80px; 
+  border-radius: 12px;
+  background: var(--surface); 
+  border: 1px solid var(--border);
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  flex-shrink: 0;
+}
+
+.listInner {
+  width: 58px; 
+  height: 58px; 
+  border-radius: 10px;
+  background: var(--surface2);
+  display: flex; 
+  align-items: center;
+  justify-content: center; 
+  overflow: hidden;
+}
+
+.listInfo { 
+    flex: 1; 
+    min-width: 0; 
+}
+
+.listDesc { 
+    font-size: 0.9rem; 
+    font-weight: 600; 
+    color: var(--text); 
+    margin-bottom: 3px; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+}
+
+.listStageLine {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 0.72rem; font-weight: 600; color: var(--accent); margin-top: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+
+.listRight { 
+    text-align: right; 
+    flex-shrink: 0; 
+}
+
+.listPrice { 
+    font-size: 0.88rem; 
+    font-weight: 700; 
+    color: var(--text); 
+    white-space: nowrap; 
+}
+
+.listQty { 
+    font-size: 0.65rem; 
+    color: var(--text3); 
+    margin-top: 2px; 
+}
+
+.listDueRight {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #ef4444;
+  margin-top: 4px;
+  letter-spacing: 0.1px;
+  white-space: nowrap;
+}

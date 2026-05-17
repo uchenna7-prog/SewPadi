@@ -1,20 +1,3 @@
-// src/pages/AllPayments/AllPayments.jsx
-// ─────────────────────────────────────────────────────────────
-// Global payments feed — every installment from every customer
-// appears as its own row, grouped by date.
-//
-// Data shape reminder:
-//   payment (Firestore doc) {
-//     id, customerId, customerName,
-//     orderId, orderDesc, orderPrice,
-//     status, date (payment creation date),
-//     installments: [{ id, amount, method, date }]
-//   }
-//
-// Each installment row = one real money movement on a specific day.
-// Two installments for the same order on different days → two rows.
-// ─────────────────────────────────────────────────────────────
-
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { useNavigate }  from 'react-router-dom'
 import { usePayments }  from '../../contexts/PaymentContext'

@@ -1,0 +1,50 @@
+.revenueCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.revenueCard:active { 
+    background: var(--surface2); 
+}
+
+.revenueCardLeft  { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 4px; 
+    min-width: 0; 
+}
+
+.revenueEmptyIconWrap {
+  width: 48px; 
+  height: 48px; 
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border: 1.5px dashed color-mix(in srgb, var(--accent) 30%, transparent);
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  flex-shrink: 0;
+}
+
+.revenueEmptyTitle { 
+    font-size: 0.95rem; 
+    font-weight: 800; 
+    color: var(--text); 
+    margin-bottom: 1px; 
+}
+
+.revenueEmptySub { 
+    font-size: 0.75rem; 
+    color: var(--text3); 
+    font-weight: 450; 
+    line-height: 1.3; 
+}

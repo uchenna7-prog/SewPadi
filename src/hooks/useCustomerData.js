@@ -1,26 +1,24 @@
-// src/hooks/useCustomerData.js
-
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 
 import {
   subscribeToMeasurements,
-  addMeasurement    as fsAddMeasurement,
-  deleteMeasurement as fsDeleteMeasurement,
+  addMeasurement as addMeasurementToDb,
+  deleteMeasurement as deleteMeasurementFromDb,
 } from '../services/measurementService'
 
 import {
   subscribeToOrders,
-  addOrder          as fsAddOrder,
-  updateOrderStatus as fsUpdateOrderStatus,
-  deleteOrder       as fsDeleteOrder,
+  addOrder as addOrderToDb,
+  updateOrderStatus as updateOrderStatusInDb,
+  deleteOrder as deleteOrderFromDb,
 } from '../services/orderService'
 
 import {
   subscribeToInvoices,
-  addInvoice          as fsAddInvoice,
-  updateInvoiceStatus as fsUpdateInvoiceStatus,
-  deleteInvoice       as fsDeleteInvoice,
+  addInvoice as addInvoiceToDb,
+  updateInvoiceStatus as updateInvoiceStatusInDb,
+  deleteInvoice as deleteInvoiceFromDb,
 } from '../services/invoiceService'
 
 import {
@@ -155,6 +153,7 @@ import {
 
 
 export function useCustomerData(customerId) {
+
   const { user } = useAuth()
 
   const [measurements,        setMeasurements]        = useState([])
@@ -192,32 +191,38 @@ export function useCustomerData(customerId) {
 
     const unsubMeasurements = subscribeToMeasurements(
       user.uid, customerId,
-      (data) => { setMeasurements(data); setMeasurementsLoading(false) },
-      (err)  => { console.error('[useCustomerData] measurements:', err); setMeasurementsLoading(false) }
+      (data) => { 
+        setMeasurements(data); 
+        setMeasurementsLoading(false) 
+      },
+      (err)  => { setMeasurementsLoading(false) }
     )
 
     const unsubOrders = subscribeToOrders(
       user.uid, customerId,
-      (data) => { setOrders(data); setOrdersLoading(false) },
-      (err)  => { console.error('[useCustomerData] orders:', err); setOrdersLoading(false) }
+      (data) => { 
+        setOrders(data); 
+        setOrdersLoading(false) 
+      },
+      (err)  => { setOrdersLoading(false) }
     )
 
     const unsubInvoices = subscribeToInvoices(
       user.uid, customerId,
       (data) => { setInvoices(data); setInvoicesLoading(false) },
-      (err)  => { console.error('[useCustomerData] invoices:', err); setInvoicesLoading(false) }
+      (err)  => {  setInvoicesLoading(false) }
     )
 
     const unsubPayments = subscribeToPayments(
       user.uid, customerId,
       (data) => { setPayments(data); setPaymentsLoading(false) },
-      (err)  => { console.error('[useCustomerData] payments:', err); setPaymentsLoading(false) }
+      (err)  => {  setPaymentsLoading(false) }
     )
 
     const unsubReceipts = subscribeToReceipts(
       user.uid, customerId,
       (data) => { setReceipts(data); setReceiptsLoading(false) },
-      (err)  => { console.error('[useCustomerData] receipts:', err); setReceiptsLoading(false) }
+      (err)  => {  setReceiptsLoading(false) }
     )
 
     return () => {
@@ -234,15 +239,22 @@ export function useCustomerData(customerId) {
 
   const saveMeasurement = useCallback(async (entry) => {
     if (!user || !customerId) return
+
     const { id: _localId, ...data } = entry
-    try { await fsAddMeasurement(user.uid, customerId, data) }
-    catch (err) { console.error('[useCustomerData] saveMeasurement:', err); throw err }
+    try { 
+      await addMeasurementToDb(user.uid, customerId, data) 
+    }
+    catch (err) { 
+      
+    }
   }, [user, customerId])
 
   const deleteMeasurement = useCallback(async (id) => {
     if (!user || !customerId) return
-    try { await fsDeleteMeasurement(user.uid, customerId, String(id)) }
-    catch (err) { console.error('[useCustomerData] deleteMeasurement:', err); throw err }
+    try { 
+      await deleteMeasurementFromDb(user.uid, customerId, String(id)) 
+    }
+    catch (err) {  }
   }, [user, customerId])
 
 
@@ -251,19 +263,19 @@ export function useCustomerData(customerId) {
   const saveOrder = useCallback(async (order) => {
     if (!user || !customerId) return
     const { id: _localId, ...data } = order
-    try { await fsAddOrder(user.uid, customerId, data) }
+    try { await addOrderToDb(user.uid, customerId, data) }
     catch (err) { console.error('[useCustomerData] saveOrder:', err); throw err }
   }, [user, customerId])
 
   const updateOrderStatus = useCallback(async (id, status) => {
     if (!user || !customerId) return
-    try { await fsUpdateOrderStatus(user.uid, customerId, String(id), status) }
+    try { await updateOrderStatusInDb(user.uid, customerId, String(id), status) }
     catch (err) { console.error('[useCustomerData] updateOrderStatus:', err); throw err }
   }, [user, customerId])
 
   const deleteOrder = useCallback(async (id) => {
     if (!user || !customerId) return
-    try { await fsDeleteOrder(user.uid, customerId, String(id)) }
+    try { await deleteOrderFromDb(user.uid, customerId, String(id)) }
     catch (err) { console.error('[useCustomerData] deleteOrder:', err); throw err }
   }, [user, customerId])
 
@@ -271,22 +283,33 @@ export function useCustomerData(customerId) {
   // ── INVOICES ─────────────────────────────────────────────
 
   const saveInvoice = useCallback(async (invoice) => {
+
     if (!user || !customerId) return
-    try { await fsAddInvoice(user.uid, customerId, invoice) }
-    catch (err) { console.error('[useCustomerData] saveInvoice:', err); throw err }
+    try { 
+      await addInvoiceToDb(user.uid, customerId, invoice) 
+    }
+    catch (err) {  }
   }, [user, customerId])
 
   const updateInvoiceStatus = useCallback(async (id, status) => {
+
     if (!user || !customerId) return
-    try { await fsUpdateInvoiceStatus(user.uid, customerId, String(id), status) }
-    catch (err) { console.error('[useCustomerData] updateInvoiceStatus:', err); throw err }
+    try { 
+      await updateInvoiceStatusInDb(user.uid, customerId, String(id), status) 
+    }
+    catch (err) {  }
   }, [user, customerId])
 
   const deleteInvoice = useCallback(async (id) => {
+
     if (!user || !customerId) return
-    try { await fsDeleteInvoice(user.uid, customerId, String(id)) }
-    catch (err) { console.error('[useCustomerData] deleteInvoice:', err); throw err }
+    try { 
+      await deleteInvoiceFromDb(user.uid, customerId, String(id)) 
+    }
+    catch (err) {  }
   }, [user, customerId])
+
+
 
 
   // ── PAYMENTS ─────────────────────────────────────────────
@@ -294,19 +317,19 @@ export function useCustomerData(customerId) {
   const savePayment = useCallback(async (paymentData) => {
     if (!user || !customerId) return
     try { await fsCreatePayment(user.uid, customerId, paymentData) }
-    catch (err) { console.error('[useCustomerData] savePayment:', err); throw err }
+    catch (err) {  }
   }, [user, customerId])
 
   const updatePayment = useCallback(async (paymentId, paymentData) => {
     if (!user || !customerId) return
     try { await fsUpdatePayment(user.uid, customerId, paymentId, paymentData) }
-    catch (err) { console.error('[useCustomerData] updatePayment:', err); throw err }
+    catch (err) {  }
   }, [user, customerId])
 
   const deletePayment = useCallback(async (paymentId) => {
     if (!user || !customerId) return
     try { await fsDeletePayment(user.uid, customerId, paymentId) }
-    catch (err) { console.error('[useCustomerData] deletePayment:', err); throw err }
+    catch (err) {  }
   }, [user, customerId])
 
 
@@ -315,13 +338,13 @@ export function useCustomerData(customerId) {
   const saveReceipt = useCallback(async (receiptData) => {
     if (!user || !customerId) return
     try { return await fsAddReceipt(user.uid, customerId, receiptData) }
-    catch (err) { console.error('[useCustomerData] saveReceipt:', err); throw err }
+    catch (err) {  }
   }, [user, customerId])
 
   const deleteReceipt = useCallback(async (receiptId) => {
     if (!user || !customerId) return
     try { await fsDeleteReceipt(user.uid, customerId, receiptId) }
-    catch (err) { console.error('[useCustomerData] deleteReceipt:', err); throw err }
+    catch (err) {  }
   }, [user, customerId])
 
 

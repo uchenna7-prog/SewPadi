@@ -1,0 +1,234 @@
+.fullScreenModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  animation: paymentsSlideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes paymentsSlideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0);    }
+}
+
+.modalBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  padding-bottom: 100px;
+  -webkit-overflow-scrolling: touch;
+}
+
+
+
+.detailInfoCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.detailInfoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.detailInfoRow:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.detailInfoLabel {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detailInfoValue {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+  text-align: right;
+  max-width: 60%;
+}
+
+
+.breakdownCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.breakdownRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--text2);
+  margin-bottom: 10px;
+}
+
+.breakdownRow:last-child { margin-bottom: 0; }
+
+.paymentProgressTrack {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  margin-top: 14px;
+  overflow: hidden;
+}
+
+.paymentProgressFill {
+  height: 100%;
+  background: #22c55e;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+
+/* ── INSTALLMENT LIST ── */
+
+.installmentList {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.installmentRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.installmentRow:last-child { border-bottom: none; }
+
+.installmentIconOuter {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.installmentIconInner {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.installmentRowInfo { flex: 1; }
+
+.installmentAmount {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.installmentDate {
+  font-size: 0.7rem;
+  color: var(--text3);
+  margin-top: 2px;
+}
+
+.installmentReceivedBadge {
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  background: rgba(34, 197, 94, 0.08);
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+.installmentMethodBadge {
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: var(--text3);
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  padding: 2px 6px;
+  border-radius: 5px;
+}
+
+
+.addInstallmentBtn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1.5px dashed var(--border2);
+  background: transparent;
+  color: var(--text2);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.addInstallmentBtn:active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+
+.fieldGroup {
+  margin-bottom: 20px;
+}
+
+
+
+.chipRow {
+  display: flex;
+  gap: 8px;
+}
+
+.typeChip {
+  flex: 1;
+  padding: 10px 4px;
+  border-radius: 10px;
+  border: 1px solid var(--border2);
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--text3);
+  cursor: pointer;
+  background: transparent;
+  text-align: center;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.typeChipActive { font-weight: 800; }
+
+
+
+

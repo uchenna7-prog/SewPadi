@@ -1,32 +1,16 @@
 import { useState, useRef, useEffect } from 'react'
-import { useNavigate }                 from 'react-router-dom'
-import { useCustomers }                from '../../contexts/CustomerContext'
-import { usePremium }                  from '../../contexts/PremiumContext'
-import { useBodyMeasurementImages }    from '../../contexts/BodyMeasurementImagesContext'
-import { uploadToCloudinary }          from '../../services/cloudinaryService'
-import Header                          from '../../components/Header/Header'
-import styles                          from './Customers.module.css'
+import { useNavigate } from 'react-router-dom'
+import { useCustomers } from '../../contexts/CustomerContext'
+import { usePremium } from '../../contexts/PremiumContext'
+import { useBodyMeasurementImages } from '../../contexts/BodyMeasurementImagesContext'
+import { uploadToCloudinary } from '../../services/cloudinaryService'
+import Header from '../../components/Header/Header'
+import Toast from '../../components/Toast/Toast'
+import styles from './Customers.module.css'
 import BottomNav from '../../components/BottomNav/BottomNav'
+import { getInitials, getBirthdayStr} from './utils'
 
-function getInitials(name) {
-  if (!name) return ''
-  const parts = name.trim().split(/\s+/)
-  if (parts.length === 1) return parts[0][0].toUpperCase()
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-}
 
-function getBirthdayStr(birthday) {
-  if (!birthday) return ''
-  const today = new Date()
-  const [month, day] = birthday.split('-').map(Number)
-  if (today.getMonth() + 1 === month && today.getDate() === day) return '🎂 Today!'
-  const d = new Date(2000, month - 1, day)
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-}
-
-function Toast({ message }) {
-  return <div className={`${styles.toast} ${message ? styles.toastShow : ''}`}>{message}</div>
-}
 
 function ConfirmSheet({ customer, onConfirm, onCancel }) {
   if (!customer) return null

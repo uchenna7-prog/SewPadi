@@ -1,0 +1,90 @@
+
+.receiptRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  cursor: pointer;
+  background: var(--bg);
+  position: relative;
+  transition: background 0.15s;
+}
+
+.receiptRow::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 3.5%;
+  right: 0;
+  height: 1px;
+  background: var(--border);
+}
+
+.receiptRowLast::after {
+  display: none;
+}
+
+.receiptRow:active {
+  background: var(--surface);
+}
+
+.receiptRowInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.receiptRowTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.receiptRowItemCount {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--text2);
+  display: inline-block;
+  align-self: flex-start;
+}
+
+.receiptRowDate {
+  font-size: 0.68rem;
+  font-weight: 400;
+  color: var(--text3);
+}
+
+.receiptRowRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  flex-shrink: 0;
+  min-width: 86px;
+}
+
+.receiptStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.6rem;
+  font-weight: 800;
+  border: 1px solid;
+  border-radius: 6px;
+  padding: 2px 7px;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+
+.receiptRowAmount {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+

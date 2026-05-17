@@ -1,24 +1,18 @@
-// src/pages/Appointments/Appointments.jsx
-// ─────────────────────────────────────────────────────────────
-// Client appointment manager.
-// Unlike Tasks (personal to-dos), appointments are client-facing
-// — things you literally cannot afford to miss.
-// ─────────────────────────────────────────────────────────────
-
-import { useState, useRef, useCallback, useEffect } from 'react'
-import { useAuth }      from '../../contexts/AuthContext'
+import { 
+  useState, 
+  useRef, 
+  useCallback, 
+  useEffect 
+} from 'react'
+import { useAuth } from '../../contexts/AuthContext'
 import { useCustomers } from '../../contexts/CustomerContext'
-import { useOrders }    from '../../contexts/OrdersContext'
-import { subscribeToOrders }       from '../../services/orderService'
-import {
-  subscribeToAppointments,
-  createAppointment,
-  updateAppointment,
-  deleteAppointment,
-} from '../../services/appointmentService'
-import Header       from '../../components/Header/Header'
+import { useOrders } from '../../contexts/OrdersContext'
+import { subscribeToOrders } from '../../services/orderService'
+import { useAppointments } from '../../contexts/AppointmentContext'
+import { subscribeToAppointments } from '../../services/appointmentService'
+import Header from '../../components/Header/Header'
 import ConfirmSheet from '../../components/ConfirmSheet/ConfirmSheet'
-import Toast        from '../../components/Toast/Toast'
+import Toast from '../../components/Toast/Toast'
 import styles from './Appointments.module.css'
 import BottomNav from '../../components/BottomNav/BottomNav'
 
@@ -653,8 +647,10 @@ function AppointmentDetail({ appt, onClose, onStatusChange, onDelete }) {
 // ── Main Page ─────────────────────────────────────────────────
 
 export default function Appointments({ onMenuClick }) {
-  const { user }       = useAuth()
+
+  const { user } = useAuth()
   const { customers }  = useCustomers()
+  const { addAppointment,updateAppointment,deleteAppointment } = useAppointments()
   const { allOrders }  = useOrders()
 
   // Build orderId → items[] lookup for mosaic thumbnails
@@ -702,9 +698,10 @@ export default function Appointments({ onMenuClick }) {
   const handleAdd = async (apptData) => {
     if (!user) return
     try {
-      await createAppointment(user.uid, apptData)
+      await addAppointment(user.uid, apptData)
       showToast('Appointment saved ✓')
-    } catch {
+    } 
+    catch {
       showToast('Failed to save appointment.')
     }
   }

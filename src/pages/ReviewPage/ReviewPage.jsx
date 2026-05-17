@@ -1,14 +1,3 @@
-// src/pages/ReviewPage/ReviewPage.jsx
-// ─────────────────────────────────────────────────────────────
-// Public page — no auth required.
-// Route: /review/:uid/:token
-//
-// The tailor sends this link via WhatsApp. The customer opens
-// it, fills in their name, rating and review, and submits.
-// The submission writes directly to Firestore with status:'pending'.
-// The tailor is then notified and can approve or reject.
-// ─────────────────────────────────────────────────────────────
-
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { collection, addDoc, getDocs, query, where, serverTimestamp } from 'firebase/firestore'
@@ -82,8 +71,8 @@ export default function ReviewPage() {
     async function init() {
       try {
         // Load brand name from publicProfile
-        const { getBrandFromFirestore } = await import('../../services/brandService')
-        const brand = await getBrandFromFirestore(uid)
+        const { getBrandDataFromFirestore } = await import('../../services/profileService')
+        const brand = await getBrandDataFromFirestore(uid)
         setTailorName(brand?.brandName || brand?.name || 'Your tailor')
 
         // Check if a review with this token already exists

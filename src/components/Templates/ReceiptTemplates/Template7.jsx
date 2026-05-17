@@ -1,25 +1,24 @@
 import styles from "../styles/Template7.module.css"
 import { calcTax } from "../utils/receiptUtils"
 import { ReceiptPaymentSummary } from "../components/ReceiptPaymentSummary/ReceiptPaymentSummary"
-import { formatCurrency } from "../../../utils/formatCurrency"
+import { formatMoney } from "../../../utils/moneyUtils"
 
-export function ReceiptTemplate7({ receipt, customer, brand }) {
-  const accentColor = brand.colour || '#1C1814'
-  const { currency, showTax, receiptTaxRate: brandTaxRate } = brand
+export function ReceiptTemplate7({ receipt, customer, receiptBrandSettings }) {
+  const accentColor = receiptBrandSettings.colour || '#1C1814'
+  const { currency, showTax, receiptTaxRate: receiptBrandSettingsTaxRate } = receiptBrandSettings
 
   const subtotal = receipt.items?.length > 0
     ? receipt.items.reduce((sum, item) => sum + ((item.qty ?? 1) * (parseFloat(item.price) || 0)), 0)
     : 0
 
-  // Prefer frozen values from the receipt object; fall back to brand/calc
-  const shippingFee    = parseFloat(receipt.shippingFee)    || 0
+  const shippingFee = parseFloat(receipt.shippingFee)    || 0
   const discountAmount = parseFloat(receipt.discountAmount) || 0
-  const discountType   = receipt.discountType   || null   // 'percent' | 'flat' | null
+  const discountType = receipt.discountType   || null 
   const discountValue  = parseFloat(receipt.discountValue)  || 0
-  const useTax         = receipt.taxRate != null ? receipt.taxRate > 0 : (showTax && brandTaxRate > 0)
-  const taxRate        = receipt.taxRate != null ? receipt.taxRate : brandTaxRate
-  const taxAmount      = parseFloat(receipt.taxAmount) || calcTax(subtotal, taxRate, useTax)
-  const grandTotal     = receipt.totalAmount != null
+  const useTax = receipt.taxRate != null ? receipt.taxRate > 0 : (showTax && receiptBrandSettingsTaxRate > 0)
+  const taxRate = receipt.taxRate != null ? receipt.taxRate : receiptBrandSettingsTaxRate
+  const taxAmount = parseFloat(receipt.taxAmount) || calcTax(subtotal, taxRate, useTax)
+  const grandTotal = receipt.totalAmount != null
     ? parseFloat(receipt.totalAmount)
     : subtotal + shippingFee - discountAmount + taxAmount
 
@@ -38,8 +37,8 @@ export function ReceiptTemplate7({ receipt, customer, brand }) {
       <div className={styles.header}>
 
         <div className={styles.logoCircle} style={{ borderColor : accentColor }}>
-          {brand.logo
-            ? <img src={brand.logo} alt="" style={{ width: "100%", height: "100%", objectFit: 'cover', borderRadius: '50%', display: 'block' }} />
+          {receiptBrandSettings.logo
+            ? <img src={receiptBrandSettings.logo} alt="" style={{ width: "100%", height: "100%", objectFit: 'cover', borderRadius: '50%', display: 'block' }} />
              : <span className="mi" style={{ fontSize : 13, color : accentColor }}>checkroom</span>
           }
         </div>
@@ -67,11 +66,11 @@ export function ReceiptTemplate7({ receipt, customer, brand }) {
           <div className={styles.fromLabel}>FROM :</div>
           <div className={styles.fromDivider} />
           {[
-            ['NAME :', brand.ownerName || brand.name],
-            ['COMPANY :', (brand.name || '')],
-            ['PHONE :', (brand.phone || '')],
-            ['EMAIL :', (brand.email || '')],
-            ['ADDRESS :', (brand.address || '')]
+            ['NAME :', receiptBrandSettings.ownerName || receiptBrandSettings.name],
+            ['COMPANY :', (receiptBrandSettings.name || '')],
+            ['PHONE :', (receiptBrandSettings.phone || '')],
+            ['EMAIL :', (receiptBrandSettings.email || '')],
+            ['ADDRESS :', (receiptBrandSettings.address || '')]
           ].filter(([,v]) => v).map(([l, v]) => (
             <div key={l} className={styles.infoRow}>
               <span className={styles.infoKey}>{l}</span>
@@ -132,9 +131,9 @@ export function ReceiptTemplate7({ receipt, customer, brand }) {
                   <td className={styles.colSn}>{i + 1}</td>
                   <td className={styles.colDesc}>{item.name}</td>
                   <td className={styles.colQty}>{qty}</td>
-                  <td className={styles.colPrice}>{ formatCurrency(currency, unitPrice)}</td>
+                  <td className={styles.colPrice}>{ formatMoney(currency, unitPrice)}</td>
                   <td className={styles.colTotal} style={{ color : accentColor }}>
-                    { formatCurrency(currency, lineAmount)}
+                    { formatMoney(currency, lineAmount)}
                   </td>
                 </tr>
               );
@@ -145,32 +144,31 @@ export function ReceiptTemplate7({ receipt, customer, brand }) {
         <div>
         
           
-          {/* Breakdown rows — only shown when there are extras beyond subtotal */}
           {hasExtras && (
             <div className={styles.breakdownBlock}>
               <div className={styles.breakdownRow}>
                 <span className={styles.breakdownKey}>Subtotal</span>
-                <span className={styles.breakdownVal}>{ formatCurrency(currency, subtotal)}</span>
+                <span className={styles.breakdownVal}>{ formatMoney(currency, subtotal)}</span>
               </div>
   
               {shippingFee > 0 && (
                 <div className={styles.breakdownRow}>
                   <span className={styles.breakdownKey}>Shipping &amp; Delivery</span>
-                  <span className={styles.breakdownVal}>{ formatCurrency(currency, shippingFee)}</span>
+                  <span className={styles.breakdownVal}>{ formatMoney(currency, shippingFee)}</span>
                 </div>
               )}
   
               {discountAmount > 0 && (
                 <div className={styles.breakdownRow}>
                   <span className={`${styles.breakdownKey} ${styles.breakdownKeyDiscount}`}>{discountLabel}</span>
-                  <span className={`${styles.breakdownVal} ${styles.breakdownValDiscount}`}>−{ formatCurrency(currency, discountAmount)}</span>
+                  <span className={`${styles.breakdownVal} ${styles.breakdownValDiscount}`}>−{ formatMoney(currency, discountAmount)}</span>
                 </div>
               )}
   
               {useTax && taxAmount > 0 && (
                 <div className={styles.breakdownRow}>
                   <span className={styles.breakdownKey}>VAT ({taxRate}%)</span>
-                  <span className={styles.breakdownVal}>{ formatCurrency(currency, taxAmount)}</span>
+                  <span className={styles.breakdownVal}>{ formatMoney(currency, taxAmount)}</span>
                 </div>
               )}
             </div>
@@ -179,26 +177,26 @@ export function ReceiptTemplate7({ receipt, customer, brand }) {
           {/* Grand total bar — always shown, full width */}
           <div className={styles.orderTotalWrap}>
             <div className={styles.orderTotalLabel}>Order Total</div>
-            <div className={styles.orderTotalValue}>{ formatCurrency(currency, grandTotal)}</div>
+            <div className={styles.orderTotalValue}>{ formatMoney(currency, grandTotal)}</div>
           </div>
 
         </div>
 
-         <ReceiptPaymentSummary receipt={receipt} brand={brand} />
+         <ReceiptPaymentSummary receipt={receipt} receiptBrandSettings={receiptBrandSettings} />
          
       </div>
     
       
       <div className={styles.footer}>
-        {brand.accountBank && (
+        {receiptBrandSettings.accountBank && (
         
         <div className={styles.footerLeft}>
           
            <div>
             <h3 className={styles.footerLabel}>Payment Details:</h3>
 
-            {brand.name && (
-              <div>Received By: {brand.name}</div>
+            {receiptBrandSettings.name && (
+              <div>Received By: {receiptBrandSettings.name}</div>
             )}
             
           </div>
@@ -206,9 +204,9 @@ export function ReceiptTemplate7({ receipt, customer, brand }) {
         </div>
       )}
 
-      {brand.receiptFooter && (
+      {receiptBrandSettings.footer && (
         <div className={styles.footerRight}>
-          <h3 className={styles.footerLabel} style={{color :"var(--brand-primary-dark)"}}>Notes:</h3>{brand.receiptFooter}
+          <h3 className={styles.footerLabel} style={{color :"var(--brand-primary-dark)"}}>Notes:</h3>{receiptBrandSettings.footer}
         </div>
       )}
 

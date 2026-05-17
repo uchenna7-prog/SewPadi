@@ -1,8 +1,3 @@
-// src/services/orderService.js
-// ─────────────────────────────────────────────────────────────
-// Data path: users/{uid}/customers/{customerId}/orders/{orderId}
-// ─────────────────────────────────────────────────────────────
-
 import {
   collection,
   doc,
@@ -79,6 +74,6 @@ export function subscribeToOrders(uid, customerId, callback, onError) {
   return onSnapshot(
     q,
     snap => callback(snap.docs.map(d => ({ id: d.id, ...d.data() }))),
-    err  => { console.error('[orderService]', err); onError?.(err) }
+    err  => { onError?.(err) }
   )
 }

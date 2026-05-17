@@ -1,0 +1,26 @@
+.sectionHeader { 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+}
+
+.sectionTitle {
+  font-size: 0.78rem; 
+  font-weight: 800; 
+  color: var(--text);
+  text-transform: uppercase; 
+  letter-spacing: 0.8px; 
+  margin-bottom: 12px;
+}
+
+.seeAllBtn {
+  background: none; 
+  border: none; 
+  font-size: 0.75rem; 
+  font-weight: 700;
+  color: var(--accent); 
+  cursor: pointer; 
+  font-family: inherit; 
+  padding: 0; 
+  margin-bottom: 12px;
+}

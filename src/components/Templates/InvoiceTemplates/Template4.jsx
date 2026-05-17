@@ -3,10 +3,10 @@ import { getDueDate } from "../utils/invoiceUtils"
 import { ItemsTable } from "../components/InvoiceItemsTable/InvoiceItemsTable"
 import { LogoOrName } from "../components/LogoOrBrandName/LogoOrBrandName"
 
-export function InvoiceTemplate4({ invoice, customer, brand }) {
+export function InvoiceTemplate4({ invoice, customer, invoiceBrandSettings }) {
 
-  const bannerBg = brand.colour || '#1C1814'
-  const dueDate  = getDueDate(invoice, brand.invoiceDueDays)
+  const bannerBg = invoiceBrandSettings.colour || '#1C1814'
+  const dueDate  = getDueDate(invoice, invoiceBrandSettings.dueDays)
 
   return (
 
@@ -15,7 +15,7 @@ export function InvoiceTemplate4({ invoice, customer, brand }) {
       <div className={styles.customBanner} style={{ background : bannerBg }}>
 
         <div className={styles.customBannerLogo}>
-          <LogoOrName brand={brand} darkBg />
+          <LogoOrName invoiceBrandSettings={invoiceBrandSettings} darkBg />
         </div>
 
         <div className={styles.customBannerRight}>
@@ -34,9 +34,9 @@ export function InvoiceTemplate4({ invoice, customer, brand }) {
           <div className={styles.metaItem}>
 
             <div className={styles.metaLabel}>BILL FROM</div>
-            <div className={styles.metaVal}>{brand.name}</div>
-            {brand.phone   && <div className={styles.metaSub}>{brand.phone}</div>}
-            {brand.address && <div className={styles.metaSub}>{brand.address}</div>}
+            <div className={styles.metaVal}>{invoiceBrandSettings.name}</div>
+            {invoiceBrandSettings.phone   && <div className={styles.metaSub}>{invoiceBrandSettings.phone}</div>}
+            {invoiceBrandSettings.address && <div className={styles.metaSub}>{invoiceBrandSettings.address}</div>}
 
           </div>
 
@@ -65,24 +65,24 @@ export function InvoiceTemplate4({ invoice, customer, brand }) {
 
         </div>
 
-        <ItemsTable invoice={invoice} brand={brand} />
+        <ItemsTable invoice={invoice} invoiceBrandSettings={invoiceBrandSettings} />
 
-        {brand.accountBank && (
+        {invoiceBrandSettings.accountBank && (
           <div className={styles.paymentRow}>
             <strong style={{fontWeight :900,color :"var(--brand-primary-dark)"}}>Payment Information :</strong><br/>
 
               <div>
 
-                {brand.accountBank && (
-                  <div>Bank Name : {brand.accountBank}</div>
+                {invoiceBrandSettings.accountBank && (
+                  <div>Bank Name : {invoiceBrandSettings.accountBank}</div>
                 )}
 
-                {brand.accountNumber && (
-                  <div>Account Number : {brand.accountNumber}</div>
+                {invoiceBrandSettings.accountNumber && (
+                  <div>Account Number : {invoiceBrandSettings.accountNumber}</div>
                 )}
 
-                {brand.accountName && (
-                  <div>Account Name : {brand.accountName}</div>
+                {invoiceBrandSettings.accountName && (
+                  <div>Account Name : {invoiceBrandSettings.accountName}</div>
                 )}
                 
               </div>
@@ -91,7 +91,7 @@ export function InvoiceTemplate4({ invoice, customer, brand }) {
       </div>
 
       <div className={styles.footer}>
-        <div className={styles.footerText} >{brand.invoiceFooter || 'Thank you for your patronage'}</div>
+        <div className={styles.footerText} >{invoiceBrandSettings.footer || 'Thank you for your patronage'}</div>
       </div>
 
     </div>

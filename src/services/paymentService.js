@@ -1,9 +1,3 @@
-// src/services/paymentService.js
-// ─────────────────────────────────────────────────────────────
-// Firestore CRUD for the payments subcollection.
-// Path: users/{uid}/customers/{customerId}/payments/{paymentId}
-// ─────────────────────────────────────────────────────────────
-
 import {
   collection,
   doc,
@@ -24,7 +18,6 @@ function paymentDoc(uid, customerId, paymentId) {
   return doc(db, 'users', uid, 'customers', customerId, 'payments', paymentId)
 }
 
-// ── Subscribe ─────────────────────────────────────────────────
 export function subscribeToPayments(uid, customerId, onData, onError) {
   const q = query(paymentsRef(uid, customerId))
   return onSnapshot(
@@ -43,7 +36,6 @@ export function subscribeToPayments(uid, customerId, onData, onError) {
   )
 }
 
-// ── Create ────────────────────────────────────────────────────
 export async function createPayment(uid, customerId, data) {
   return addDoc(paymentsRef(uid, customerId), {
     ...data,
@@ -51,12 +43,10 @@ export async function createPayment(uid, customerId, data) {
   })
 }
 
-// ── Update ────────────────────────────────────────────────────
 export async function updatePayment(uid, customerId, paymentId, data) {
   return updateDoc(paymentDoc(uid, customerId, paymentId), data)
 }
 
-// ── Delete ────────────────────────────────────────────────────
 export async function deletePayment(uid, customerId, paymentId) {
   return deleteDoc(paymentDoc(uid, customerId, paymentId))
 }

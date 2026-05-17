@@ -119,7 +119,6 @@ export default function Login() {
   )
 }
 
-// ── Firebase error code → human message ──────────────────────
 function friendlyError(code) {
   switch (code) {
     case 'auth/user-not-found':

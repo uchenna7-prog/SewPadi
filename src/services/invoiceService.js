@@ -1,10 +1,3 @@
-// src/services/invoiceService.js
-// ─────────────────────────────────────────────────────────────
-// Data path: users/{uid}/customers/{customerId}/invoices/{invoiceId}
-// Invoices live as a subcollection under each customer, same
-// pattern as orders.
-// ─────────────────────────────────────────────────────────────
-
 import {
   collection,
   doc,

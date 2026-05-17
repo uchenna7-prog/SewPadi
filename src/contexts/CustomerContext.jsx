@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { 
+  createContext, 
+  useContext, 
+  useState, 
+  useEffect, 
+  useCallback 
+} from 'react'
 import { useAuth } from './AuthContext'
 import {
   subscribeToCustomers,
@@ -7,15 +13,15 @@ import {
   deleteCustomer as deleteCustomerFromDb
 } from '../services/customerService'
 
+
 const CustomerContext = createContext(null)
 
 export function CustomerProvider({ children }) {
 
   const { user } = useAuth()
-
   const [customers, setCustomers] = useState([])
-  const [loading,   setLoading]   = useState(true)
-  const [error,     setError]     = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
 
@@ -29,13 +35,19 @@ export function CustomerProvider({ children }) {
     setLoading(true)
     setError(null)
 
-    const unsub = subscribeToCustomers(
+    const unsubscribe = subscribeToCustomers(
       user.uid,
-      (data) => { setCustomers(data); setLoading(false) },
-      (err)  => { setError(err.message); setLoading(false) }
+      (customers) => { 
+        setCustomers(customers); 
+        setLoading(false) 
+      },
+      (err)  => { 
+        setError(err.message); 
+        setLoading(false) 
+      }
     )
 
-    return unsub
+    return unsubscribe
   }, [user])
 
   const addCustomer = useCallback(async (customer) => {
@@ -49,7 +61,6 @@ export function CustomerProvider({ children }) {
     } 
     catch (err) {
       setError(err.message)
-      throw err
     }
   }, [user])
 
@@ -59,9 +70,9 @@ export function CustomerProvider({ children }) {
 
     try {
       await updateCustomerInDb(user.uid, String(id), updates)
-    } catch (err) {
+    } 
+    catch (err) {
       setError(err.message)
-      throw err
     }
   }, [user])
 
@@ -73,7 +84,6 @@ export function CustomerProvider({ children }) {
     } 
     catch (err) {
       setError(err.message)
-      throw err
     }
   }, [user])
 
@@ -99,6 +109,5 @@ export function CustomerProvider({ children }) {
 
 export function useCustomers() {
   const ctx = useContext(CustomerContext)
-  if (!ctx) throw new Error('useCustomers must be used inside CustomerProvider')
   return ctx
 }

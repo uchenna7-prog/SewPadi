@@ -9,7 +9,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { collection, query, orderBy, onSnapshot, doc, where } from 'firebase/firestore'
 import { db } from '../../firebase'
-import { getBrandFromFirestore } from '../../services/brandService'
+import { getBrandDataFromFirestore } from '../../services/profileService'
 import { getPortfolioSettings } from '../../services/portfolioSettingsService'
 import { resolveSlug } from '../../services/slugService'
 import { useBrandTokens } from '../../hooks/useBrandTokens'
@@ -235,7 +235,7 @@ export default function Portfolio() {
 
   useEffect(() => {
     if (!resolvedUid) return
-    getBrandFromFirestore(resolvedUid)
+    getBrandDataFromFirestore(resolvedUid)
       .then(data => { if (!data) setNotFound(true); else setBrand(data) })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false))

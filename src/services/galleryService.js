@@ -14,7 +14,6 @@ import {
 } from 'firebase/firestore'
 import { db } from '../firebase'
 
-// ── Refs ──────────────────────────────────────────────────────
 
 function photosRef(uid) {
   return collection(db, 'users', uid, 'galleryPhotos')

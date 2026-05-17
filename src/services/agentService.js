@@ -28,7 +28,7 @@ export async function saveAgentMessage(uid, message) {
       createdAt: serverTimestamp(),
     })
   } catch (err) {
-    console.error('[agentService] saveAgentMessage:', err)
+    
   }
 }
 
@@ -41,7 +41,7 @@ export async function loadAgentMessages(uid, count = 80) {
       .map(d => ({ id: d.id, ...d.data() }))
       .reverse()
   } catch (err) {
-    console.error('[agentService] loadAgentMessages:', err)
+    
     return []
   }
 }
@@ -52,6 +52,6 @@ export async function clearAgentMessages(uid) {
     const snap = await getDocs(messagesCol(uid))
     await Promise.all(snap.docs.map(d => deleteDoc(doc(db, 'users', uid, 'agentMessages', d.id))))
   } catch (err) {
-    console.error('[agentService] clearAgentMessages:', err)
+    
   }
 }

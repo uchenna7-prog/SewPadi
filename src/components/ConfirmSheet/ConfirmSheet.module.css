@@ -1,7 +1,57 @@
-.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 5000; display: flex; align-items: flex-end; justify-content: center; }
-.sheet { background: var(--surface); border-radius: 20px 20px 0 0; padding: 24px 20px calc(24px + var(--sb)); width: 100%; border-top: 1px solid var(--border); }
-.sheet h4 { font-size: 1rem; font-weight: 800; margin-bottom: 6px; }
-.sheet p { font-size: 0.8rem; color: var(--text2); margin-bottom: 20px; }
-.actions { display: flex; flex-direction: column; gap: 10px; }
-.btnDel { background: var(--danger); color: #fff; padding: 16px; border-radius: 12px; font-weight: 800; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; cursor: pointer; }
-.btnCancel { background: var(--surface2); color: var(--text2); padding: 16px; border-radius: 12px; font-weight: 700; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; cursor: pointer; }
+.overlay { 
+    position: fixed; 
+    inset: 0; 
+    background: rgba(0,0,0,0.7); 
+    z-index: 5000; 
+    display: flex; 
+    align-items: flex-end; 
+    justify-content: center; 
+}
+
+.sheet { 
+    background: var(--surface); 
+    border-radius: 20px 20px 0 0; 
+    padding: 24px 20px calc(24px + var(--sb)); 
+    width: 100%; 
+    border-top: 1px solid var(--border); 
+}
+
+.sheet h4 { 
+    font-size: 1rem; 
+    font-weight: 800; margin-bottom: 6px; 
+}
+
+.sheet p { 
+    font-size: 0.8rem; 
+    color: var(--text2); 
+    margin-bottom: 20px; 
+}
+
+.actions { 
+    display: flex; 
+    flex-direction: column; gap: 10px; 
+}
+
+.btnDel { 
+    background: var(--danger); 
+    color: #fff; 
+    padding: 16px; 
+    border-radius: 12px; 
+    font-weight: 800; 
+    border: none; 
+    font-family: 'DM Sans', sans-serif; 
+    font-size: 0.85rem; 
+    cursor: pointer; 
+}
+.btnCancel { 
+    background: var(--surface2); 
+    color: var(--text2); 
+    padding: 16px; 
+    border-radius: 12px; 
+    font-weight: 700; 
+    border: none; 
+    font-family: 'DM Sans', 
+    sans-serif; 
+    font-size: 0.85rem; 
+    cursor: pointer; 
+}

@@ -1,0 +1,14 @@
+.emptyState {
+  text-align:     center;
+  padding-top:    60px;
+  padding-bottom: 20px;
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  gap:            10px;
+}
+
+.emptyState p {
+  font-size: 0.8rem;
+  color:     var(--text3);
+}

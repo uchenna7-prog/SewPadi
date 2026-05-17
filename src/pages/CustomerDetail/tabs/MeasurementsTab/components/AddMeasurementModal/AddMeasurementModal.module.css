@@ -1,0 +1,234 @@
+
+.formOverlay {
+  position:       fixed;
+  top:            0;
+  left:           0;
+  width:          100%;
+  height:         100%;
+  background:     var(--bg);
+  z-index:        2000;
+  transform:      translateY(100%);
+  transition:     transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+  display:        flex;
+  flex-direction: column;
+}
+
+.formOverlay_open {
+  transform: translateY(0);
+}
+
+.formScrollBody {
+  flex:                       1;
+  overflow-y:                 auto;
+  padding-bottom:             100px;
+  -webkit-overflow-scrolling: touch;
+}
+
+
+.stepHeading {
+  font-size:      0.65rem;
+  font-weight:    800;
+  color:          var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom:  12px;
+  margin-top:     0;
+}
+
+
+.unitChipRow {
+  display:       flex;
+  gap:           8px;
+  margin-bottom: 4px;
+}
+
+.unitChip {
+  flex:          1;
+  text-align:    center;
+  padding:       9px 4px;
+  border-radius: 10px;
+  border:        1px solid var(--border2);
+  font-size:     0.7rem;
+  font-weight:   800;
+  color:         var(--text3);
+  cursor:        pointer;
+  transition:    all 0.2s;
+  font-family:   'DM Sans', sans-serif;
+  background:    transparent;
+}
+
+.unitChip_active {
+  background:   var(--surface2);
+  border-color: var(--accent);
+  color:        var(--accent);
+}
+
+
+.clothCard {
+  background:    var(--surface);
+  border:        1px solid var(--border);
+  border-radius: 14px;
+  padding:       16px;
+  margin-bottom: 12px;
+  position:      relative;
+}
+
+.clothCardHeader {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  margin-bottom:   14px;
+}
+
+.clothCardLabel {
+  font-size:      0.65rem;
+  font-weight:    800;
+  color:          var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.removeCardButton {
+  background:  none;
+  border:      none;
+  color:       var(--text3);
+  cursor:      pointer;
+  display:     flex;
+  align-items: center;
+  padding:     2px;
+  transition:  color 0.15s;
+}
+
+.removeCardButton:active {
+  color: var(--danger);
+}
+
+
+.fieldLabel {
+  font-size:      0.58rem;
+  font-weight:    800;
+  color:          var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom:  5px;
+  display:        block;
+}
+
+.underlineInput {
+  width:          100%;
+  background:     transparent;
+  border:         none;
+  color:          var(--text);
+  font-size:      1.05rem;
+  font-weight:    700;
+  outline:        none;
+  border-bottom:  1px solid var(--border2);
+  padding-bottom: 10px;
+  margin-bottom:  20px;
+  font-family:    'DM Sans', sans-serif;
+}
+
+
+.measureFieldList {
+  margin-bottom: 4px;
+}
+
+.measureFieldRow {
+  display:       flex;
+  align-items:   flex-end;
+  gap:           10px;
+  margin-bottom: 12px;
+}
+
+.measureFieldColumn {
+  flex:           1;
+  border-bottom:  1px solid var(--border2);
+  padding-bottom: 8px;
+}
+
+.measureFieldColumn label {
+  font-size:      0.58rem;
+  font-weight:    800;
+  color:          var(--text3);
+  text-transform: uppercase;
+  display:        block;
+  margin-bottom:  4px;
+  letter-spacing: 0.4px;
+}
+
+.measureFieldInput {
+  background:  transparent;
+  border:      none;
+  color:       var(--text);
+  font-size:   0.95rem;
+  font-weight: 600;
+  outline:     none;
+  width:       100%;
+  font-family: 'DM Sans', sans-serif;
+}
+
+
+
+.removeFieldButton {
+  color:       var(--danger);
+  background:  none;
+  border:      none;
+  cursor:      pointer;
+  padding:     4px;
+  display:     flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.removeFieldButton:active {
+  opacity: 0.6;
+}
+
+
+.addFieldButton {
+  background:    transparent;
+  border:        1px solid var(--border2);
+  color:         var(--text2);
+  padding:       9px 16px;
+  border-radius: 10px;
+  font-weight:   700;
+  display:       flex;
+  align-items:   center;
+  gap:           6px;
+  font-size:     0.68rem;
+  margin-top:    4px;
+  cursor:        pointer;
+  font-family:   'DM Sans', sans-serif;
+  transition:    border-color 0.2s;
+}
+
+.addFieldButton:active {
+  border-color: var(--accent);
+  color:        var(--accent);
+}
+
+.addClothButton {
+  width:           100%;
+  background:      var(--surface);
+  border:          1px solid var(--border);
+  color:           var(--text2);
+  padding:         14px 16px;
+  border-radius:   14px;
+  font-weight:     800;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             8px;
+  cursor:          pointer;
+  font-size:       0.82rem;
+  font-family:     'DM Sans', sans-serif;
+  transition:      border-color 0.2s, color 0.2s;
+  text-transform:  uppercase;
+  letter-spacing:  0.5px;
+}
+
+.addClothButton:active {
+  border-color: var(--accent);
+  color:        var(--accent);
+}
+

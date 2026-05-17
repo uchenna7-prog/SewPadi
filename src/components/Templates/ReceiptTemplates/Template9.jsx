@@ -1,25 +1,24 @@
 import styles from "../styles/Template9.module.css"
 import { calcTax } from "../utils/receiptUtils"
 import { ReceiptPaymentSummary } from "../components/ReceiptPaymentSummary/ReceiptPaymentSummary"
-import { formatCurrency } from "../../../utils/formatCurrency"
+import { formatMoney } from "../../../utils/moneyUtils"
 
-export function ReceiptTemplate9({ receipt, customer, brand }) {
+export function ReceiptTemplate9({ receipt, customer, receiptBrandSettings }) {
 
-  const { currency, showTax, receiptTaxRate: brandTaxRate } = brand
+  const { currency, showTax, receiptTaxRate: receiptBrandSettingsTaxRate } = receiptBrandSettings
 
   const subtotal = receipt.items?.length > 0
     ? receipt.items.reduce((sum, item) => sum + ((item.qty ?? 1) * (parseFloat(item.price) || 0)), 0)
     : 0
 
-  // Prefer frozen values from the receipt object; fall back to brand/calc
-  const shippingFee    = parseFloat(receipt.shippingFee)    || 0
+  const shippingFee = parseFloat(receipt.shippingFee) || 0
   const discountAmount = parseFloat(receipt.discountAmount) || 0
-  const discountType   = receipt.discountType   || null   // 'percent' | 'flat' | null
+  const discountType = receipt.discountType || null 
   const discountValue  = parseFloat(receipt.discountValue)  || 0
-  const useTax         = receipt.taxRate != null ? receipt.taxRate > 0 : (showTax && brandTaxRate > 0)
-  const taxRate        = receipt.taxRate != null ? receipt.taxRate : brandTaxRate
-  const taxAmount      = parseFloat(receipt.taxAmount) || calcTax(subtotal, taxRate, useTax)
-  const grandTotal     = receipt.totalAmount != null
+  const useTax  = receipt.taxRate != null ? receipt.taxRate > 0 : (showTax && receiptBrandSettingsTaxRate > 0)
+  const taxRate  = receipt.taxRate != null ? receipt.taxRate : receiptBrandSettingsTaxRate
+  const taxAmount  = parseFloat(receipt.taxAmount) || calcTax(subtotal, taxRate, useTax)
+  const grandTotal = receipt.totalAmount != null
     ? parseFloat(receipt.totalAmount)
     : subtotal + shippingFee - discountAmount + taxAmount
 
@@ -41,29 +40,29 @@ export function ReceiptTemplate9({ receipt, customer, brand }) {
         <div className={styles.logoArea}>
 
           <div className={styles.logoCircle}>
-            {brand.logo
-              ? <img src={brand.logo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', display: 'block' }} />
+            {receiptBrandSettings.logo
+              ? <img src={receiptBrandSettings.logo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', display: 'block' }} />
                : <span className="mi" style={{ fontSize : 13, color : 'var(--brand-on-primary)' }}>checkroom</span>
             }
           </div>
 
           <div>
             
-            <div className={styles.companyName}>{(brand.name || brand.ownerName || 'YOUR BRAND').toUpperCase()}</div>
-            {brand.tagline && <div className={styles.tagline}>{brand.tagline}</div>}
+            <div className={styles.companyName}>{(receiptBrandSettings.name || receiptBrandSettings.ownerName || 'YOUR receiptBrandSettings').toUpperCase()}</div>
+            {receiptBrandSettings.tagline && <div className={styles.tagline}>{receiptBrandSettings.tagline}</div>}
 
           </div>
 
         </div>
         
         <div className={styles.headerRight}>
-          {brand.address && <div>{brand.address}</div>}
+          {receiptBrandSettings.address && <div>{receiptBrandSettings.address}</div>}
         </div>
 
         <div className={styles.headerRight}>
-          {brand.phone && <div>{brand.phone}</div>}
-          {brand.email && <div>{brand.email}</div>}
-          {brand.website && <div>{brand.website}</div>}
+          {receiptBrandSettings.phone && <div>{receiptBrandSettings.phone}</div>}
+          {receiptBrandSettings.email && <div>{receiptBrandSettings.email}</div>}
+          {receiptBrandSettings.website && <div>{receiptBrandSettings.website}</div>}
         </div>
 
       </div>
@@ -79,19 +78,19 @@ export function ReceiptTemplate9({ receipt, customer, brand }) {
         </div>
       </div>
       <div className={styles.infoRow}>
-        {brand.accountBank && (
+        {receiptBrandSettings.accountBank && (
           <div>
             <div className={styles.infoLabel}>PAYMENT</div>
-            <strong>{brand.accountBank}</strong><br />
-            {brand.accountName && <span>{brand.accountName}<br /></span>}
-            {brand.accountNumber && <span>Acct : {brand.accountNumber}</span>}
+            <strong>{receiptBrandSettings.accountBank}</strong><br />
+            {receiptBrandSettings.accountName && <span>{receiptBrandSettings.accountName}<br /></span>}
+            {receiptBrandSettings.accountNumber && <span>Acct : {receiptBrandSettings.accountNumber}</span>}
           </div>
         )}
         <div>
           <div className={styles.infoLabel}>RECEIVED BY</div>
-          {brand.name || brand.ownerName}<br />
-          {brand.phone   && <div>{brand.phone}</div>}
-          {brand.address}
+          {receiptBrandSettings.name || receiptBrandSettings.ownerName}<br />
+          {receiptBrandSettings.phone   && <div>{receiptBrandSettings.phone}</div>}
+          {receiptBrandSettings.address}
         </div>
         <div>
           <div className={`${styles.infoLabel} ${styles.infoLabelRight}`}>RECEIVED FROM</div>
@@ -125,9 +124,9 @@ export function ReceiptTemplate9({ receipt, customer, brand }) {
                 return (
                   <tr key={i} className={styles.tableRow}>
                     <td className={styles.colDesc}>{item.name}</td>
-                    <td className={styles.colPrice}>{ formatCurrency(currency, unitPrice)}</td>
+                    <td className={styles.colPrice}>{ formatMoney(currency, unitPrice)}</td>
                     <td className={styles.colQty}>{qty}</td>
-                    <td className={styles.colTotal}>{ formatCurrency(currency, lineAmount)}</td>
+                    <td className={styles.colTotal}>{ formatMoney(currency, lineAmount)}</td>
                   </tr>
                 );
               })}
@@ -136,54 +135,52 @@ export function ReceiptTemplate9({ receipt, customer, brand }) {
 
           <div>
 
-            {/* Breakdown rows — only shown when there are extras beyond subtotal */}
             {hasExtras && (
               <div className={styles.breakdownBlock}>
                 <div className={styles.breakdownRow}>
                   <span className={styles.breakdownKey}>Subtotal</span>
-                  <span className={styles.breakdownVal}>{ formatCurrency(currency, subtotal)}</span>
+                  <span className={styles.breakdownVal}>{ formatMoney(currency, subtotal)}</span>
                 </div>
     
                 {shippingFee > 0 && (
                   <div className={styles.breakdownRow}>
                     <span className={styles.breakdownKey}>Shipping &amp; Delivery</span>
-                    <span className={styles.breakdownVal}>{ formatCurrency(currency, shippingFee)}</span>
+                    <span className={styles.breakdownVal}>{ formatMoney(currency, shippingFee)}</span>
                   </div>
                 )}
     
                 {discountAmount > 0 && (
                   <div className={styles.breakdownRow}>
                     <span className={`${styles.breakdownKey} ${styles.breakdownKeyDiscount}`}>{discountLabel}</span>
-                    <span className={`${styles.breakdownVal} ${styles.breakdownValDiscount}`}>−{ formatCurrency(currency, discountAmount)}</span>
+                    <span className={`${styles.breakdownVal} ${styles.breakdownValDiscount}`}>−{ formatMoney(currency, discountAmount)}</span>
                   </div>
                 )}
     
                 {useTax && taxAmount > 0 && (
                   <div className={styles.breakdownRow}>
                     <span className={styles.breakdownKey}>VAT ({taxRate}%)</span>
-                    <span className={styles.breakdownVal}>{ formatCurrency(currency, taxAmount)}</span>
+                    <span className={styles.breakdownVal}>{ formatMoney(currency, taxAmount)}</span>
                   </div>
                 )}
               </div>
             )}
-    
-            {/* Grand total bar — always shown, full width */}
+
             <div className={styles.orderTotalWrap}>
               <div className={styles.orderTotalLabel}>Order Total</div>
-              <div className={styles.orderTotalValue}>{ formatCurrency(currency, grandTotal)}</div>
+              <div className={styles.orderTotalValue}>{ formatMoney(currency, grandTotal)}</div>
             </div>
 
             
 
           </div>
 
-          <ReceiptPaymentSummary receipt={receipt} brand={brand} />
+          <ReceiptPaymentSummary receipt={receipt} receiptBrandSettings={receiptBrandSettings} />
           
         </div>
       
        
       
-      <div className={styles.thankYou}>{brand.receiptFooter || 'THANK YOU FOR YOUR BUSINESS'}</div>
+      <div className={styles.thankYou}>{receiptBrandSettings.footer || 'THANK YOU FOR YOUR BUSINESS'}</div>
     </div>
   )
 }

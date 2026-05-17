@@ -1,6 +1,3 @@
-// src/services/receiptService.js
-// Path: users/{uid}/customers/{customerId}/receipts/{receiptId}
-
 import {
   collection,
   doc,

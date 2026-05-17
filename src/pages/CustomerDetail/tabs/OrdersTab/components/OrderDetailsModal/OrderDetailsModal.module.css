@@ -1,0 +1,528 @@
+
+.stageChipRow {
+  display:    flex;
+  flex-wrap:  wrap;
+  gap:        8px;
+  margin-top: 4px;
+}
+
+.stageChip {
+  display:       flex;
+  align-items:   center;
+  gap:           5px;
+  padding:       8px 12px;
+  border-radius: 20px;
+  border:        1px solid var(--border2);
+  background:    transparent;
+  color:         var(--text3);
+  font-size:     0.7rem;
+  line-height:   1.4;
+  font-weight:   800;
+  font-family:   'DM Sans', sans-serif;
+  cursor:        pointer;
+  transition:    all 0.18s;
+  white-space:   nowrap;
+  flex-shrink:   0;
+}
+
+.stageChip:active {
+  opacity: 0.7;
+}
+
+.stageChip_active {
+  background:   rgba(99, 102, 241, 0.1);
+  border-color: var(--accent);
+  color:        var(--accent);
+}
+
+
+.chargesCard {
+  background:    var(--surface);
+  border:        1px solid var(--border);
+  border-radius: 20px;
+  overflow:      hidden;
+}
+
+.chargeRow {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  gap:             12px;
+  padding:         14px 16px;
+}
+
+.chargeRowLeft {
+  display:     flex;
+  align-items: center;
+  gap:         12px;
+  flex:        1;
+  min-width:   0;
+}
+
+.chargeIconBox {
+  width:           36px;
+  height:          36px;
+  border-radius:   10px;
+  background:      var(--surface2);
+  border:          1px solid var(--border2);
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  flex-shrink:     0;
+  color:           var(--text2);
+}
+
+.chargeRowLabel {
+  font-size:   0.85rem;
+  font-weight: 700;
+  color:       var(--text);
+  display:     flex;
+  align-items: center;
+  gap:         7px;
+  flex-wrap:   wrap;
+}
+
+.chargeRowSub {
+  font-size:   0.65rem;
+  color:       var(--text3);
+  font-weight: 600;
+  margin-top:  2px;
+}
+
+.taxBadge {
+  font-size:      0.6rem;
+  font-weight:    800;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color:          var(--text2);
+  background:     var(--surface2);
+  border:         1px solid var(--border2);
+  border-radius:  6px;
+  padding:        2px 7px;
+}
+
+.chargeInputWrapper {
+  display:       flex;
+  align-items:   center;
+  background:    var(--bg);
+  border:        1px solid var(--border2);
+  border-radius: 10px;
+  padding:       0 10px;
+  gap:           4px;
+  flex-shrink:   0;
+  width:         110px;
+}
+
+.chargeInputPrefix {
+  font-size:   0.9rem;
+  font-weight: 700;
+  color:       var(--text3);
+}
+
+.chargeInput {
+  width:       100%;
+  background:  transparent;
+  border:      none;
+  outline:     none;
+  color:       var(--text);
+  font-size:   0.9rem;
+  font-weight: 700;
+  font-family: 'DM Sans', sans-serif;
+  padding:     10px 0;
+  -moz-appearance: textfield;
+}
+
+.chargeInput::-webkit-outer-spin-button,
+.chargeInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.chargeReadOnly {
+  display:     flex;
+  align-items: center;
+  gap:         6px;
+  font-size:   0.9rem;
+  font-weight: 800;
+  color:       var(--text2);
+  flex-shrink: 0;
+}
+
+.lockIcon {
+  display:     flex;
+  align-items: center;
+  color:       var(--text3);
+  opacity:     0.6;
+}
+
+.chargeDivider {
+  height:     1px;
+  background: var(--border);
+  margin:     0 16px;
+}
+
+
+.discountInputGroup {
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+  flex-shrink: 0;
+}
+
+.discountTypeToggle {
+  display:       flex;
+  border:        1px solid var(--border2);
+  border-radius: 8px;
+  overflow:      hidden;
+  flex-shrink:   0;
+}
+
+.discountTypeBtn {
+  padding:     8px 12px;
+  font-size:   0.8rem;
+  font-weight: 800;
+  font-family: 'DM Sans', sans-serif;
+  background:  transparent;
+  border:      none;
+  color:       var(--text3);
+  cursor:      pointer;
+  transition:  background 0.15s, color 0.15s;
+  line-height: 1;
+}
+
+.discountTypeBtn_active {
+  background: var(--accent);
+  color:      var(--bg);
+}
+
+
+
+.chargeTotalBlock {
+  background:     var(--surface2);
+  border-top:     1px solid var(--border);
+  padding:        14px 16px;
+  display:        flex;
+  flex-direction: column;
+  gap:            8px;
+}
+
+.chargeSummaryRow {
+  display:         flex;
+  justify-content: space-between;
+  align-items:     center;
+}
+
+.chargeSummaryLabel {
+  font-size:   0.78rem;
+  font-weight: 600;
+  color:       var(--text3);
+}
+
+.chargeSummaryLabel_discount {
+  color: var(--success);
+}
+
+.chargeSummaryValue {
+  font-size:   0.78rem;
+  font-weight: 700;
+  color:       var(--text2);
+}
+
+.chargeSummaryValue_discount {
+  color: var(--success);
+}
+
+.chargeTotalDivider {
+  height:     1px;
+  background: var(--border2);
+  margin:     2px 0;
+}
+
+.chargeTotalRow {
+  display:         flex;
+  justify-content: space-between;
+  align-items:     center;
+  font-size:       1rem;
+  font-weight:     800;
+  color:           var(--accent);
+}
+
+
+
+.detailPanel {
+  position:       fixed;
+  top:            0;
+  left:           0;
+  width:          100%;
+  height:         100%;
+  background:     var(--bg);
+  z-index:        3000;
+  transform:      translateX(100%);
+  transition:     transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  display:        flex;
+  flex-direction: column;
+  overflow:       hidden;
+}
+
+.detailPanel_open {
+  transform: translateX(0);
+}
+
+.detailScrollBody {
+  flex:                       1;
+  overflow-y:                 auto;
+  padding:                    20px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.detailFooterDates {
+  font-size:  0.7rem;
+  color:      var(--text3);
+  margin-top: 20px;
+  text-align: center;
+}
+
+
+
+.priorityBanner {
+  font-size:      0.65rem;
+  font-weight:    800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding:        7px 12px;
+  border-radius:  8px;
+  display:        inline-block;
+  margin-bottom:  18px;
+}
+
+.priorityBanner_normal {
+  color:      var(--text2);
+  background: var(--surface);
+  border:     1px solid var(--border2);
+}
+
+.priorityBanner_urgent {
+  color:      var(--warning);
+  background: rgba(251, 146, 60, 0.1);
+  border:     1px solid rgba(251, 146, 60, 0.3);
+}
+
+.priorityBanner_vip {
+  color:      #a855f7;
+  background: rgba(168, 85, 247, 0.1);
+  border:     1px solid rgba(168, 85, 247, 0.3);
+}
+
+
+
+.infoGrid {
+  display:               grid;
+  grid-template-columns: 1fr 1fr;
+  gap:                   12px;
+  margin-bottom:         20px;
+}
+
+.infoGridCell {
+  background:    var(--surface);
+  border:        1px solid var(--border);
+  border-radius: 14px;
+  padding:       12px 14px;
+}
+
+.infoGridLabel {
+  font-size:      0.6rem;
+  font-weight:    800;
+  color:          var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom:  4px;
+}
+
+.infoGridValue {
+  font-size:   1rem;
+  font-weight: 800;
+  color:       var(--text);
+}
+
+
+
+.sectionCard {
+  background:    var(--surface);
+  border:        1px solid var(--border);
+  border-radius: 14px;
+  padding:       14px;
+  margin-bottom: 16px;
+}
+
+.sectionCardLabel {
+  font-size:      0.6rem;
+  font-weight:    800;
+  color:          var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom:  10px;
+}
+
+.garmentRow {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  gap:             10px;
+  margin-bottom:   10px;
+}
+
+.garmentRow:last-child {
+  margin-bottom: 0;
+}
+
+.garmentThumb {
+  width:           36px;
+  height:          36px;
+  border-radius:   8px;
+  background:      var(--surface2);
+  border:          1px solid var(--border2);
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  overflow:        hidden;
+  flex-shrink:     0;
+}
+
+
+.detailChargeRow {
+  display:         flex;
+  justify-content: space-between;
+  align-items:     center;
+  padding:         6px 0;
+}
+
+.detailChargeLabel {
+  font-size:   0.8rem;
+  font-weight: 600;
+  color:       var(--text3);
+  display:     flex;
+  align-items: center;
+}
+
+.detailChargeValue {
+  font-size:   0.8rem;
+  font-weight: 700;
+  color:       var(--text2);
+}
+
+.detailChargeValue_discount {
+  color: var(--success);
+}
+
+.detailChargeDivider {
+  height:     1px;
+  background: var(--border2);
+  margin:     8px 0 6px;
+}
+
+.detailChargeTotalRow {
+  display:         flex;
+  justify-content: space-between;
+  align-items:     center;
+  font-size:       0.95rem;
+  font-weight:     800;
+  color:           var(--accent);
+  padding:         2px 0;
+}
+
+
+
+.notesCard {
+  background:    var(--surface);
+  border:        1px solid var(--border);
+  border-radius: 14px;
+  padding:       14px;
+  margin-bottom: 16px;
+}
+
+.notesCard p {
+  font-size:   0.85rem;
+  color:       var(--text2);
+  line-height: 1.5;
+}
+
+
+
+.statusButton {
+  flex:          1;
+  padding:       11px;
+  border-radius: 10px;
+  border:        1px solid var(--border2);
+  font-size:     0.72rem;
+  font-weight:   800;
+  font-family:   'DM Sans', sans-serif;
+  cursor:        pointer;
+  transition:    all 0.2s;
+  color:         var(--text3);
+  background:    transparent;
+}
+
+.statusButton_active {
+  background:   var(--surface2);
+  border-color: var(--success);
+  color:        var(--success);
+}
+
+
+
+.shareReviewButton {
+  width:          100%;
+  display:        flex;
+  align-items:    center;
+  gap:            10px;
+  padding:        14px 16px;
+  border-radius:  14px;
+  border:         1px solid rgba(34, 197, 94, 0.4);
+  background:     rgba(34, 197, 94, 0.07);
+  color:          #22c55e;
+  font-family:    'DM Sans', sans-serif;
+  font-size:      0.72rem;
+  font-weight:    800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor:         pointer;
+  margin-bottom:  16px;
+  transition:     opacity 0.15s, background 0.15s;
+}
+
+.shareReviewButton:active {
+  opacity:    0.75;
+  background: rgba(34, 197, 94, 0.14);
+}
+
+.generateInvoiceButton {
+  width:           100%;
+  margin-top:      20px;
+  padding:         16px;
+  border-radius:   14px;
+  border:          1px solid var(--border2);
+  background:      var(--surface);
+  color:           var(--text2);
+  font-family:     'DM Sans', sans-serif;
+  font-size:       0.82rem;
+  font-weight:     800;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             8px;
+  cursor:          pointer;
+  transition:      border-color 0.2s, color 0.2s;
+  text-transform:  uppercase;
+  letter-spacing:  0.8px;
+}
+
+.generateInvoiceButton:active {
+  border-color: var(--accent);
+  color:        var(--accent);
+}
+
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}

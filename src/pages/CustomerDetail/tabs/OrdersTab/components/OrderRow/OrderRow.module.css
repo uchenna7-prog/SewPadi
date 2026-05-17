@@ -1,0 +1,99 @@
+.orderRow {
+  display:      flex;
+  align-items:  center;
+  gap:          12px;
+  padding:      12px 0;
+  cursor:       pointer;
+  transition:   background 0.15s;
+  background:   var(--bg);
+  position:     relative;
+}
+
+.orderRow::after {
+  content:    '';
+  position:   absolute;
+  bottom:     0;
+  left:       0;
+  right:      0;
+  height:     1px;
+  background: var(--border);
+}
+
+.orderRow_last::after {
+  display: none;
+}
+
+.orderRow:active {
+  background: var(--surface);
+}
+
+.orderRowInfo {
+  flex:      1;
+  min-width: 0;
+}
+
+.orderRowDescription {
+  font-size:     0.9rem;
+  font-weight:   600;
+  color:         var(--text);
+  margin-bottom: 3px;
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+}
+
+.orderRowMeta {
+  margin-bottom: 2px;
+}
+
+.orderRowMetaText {
+  font-size:   0.75rem;
+  font-weight: 400;
+  color:       var(--text2);
+}
+
+.orderRowStage {
+  display:     flex;
+  align-items: center;
+  gap:         4px;
+  font-weight: 600;
+  color:       var(--accent);
+  margin-top:  3px;
+}
+
+.orderRowStage span {
+  font-size: 0.65rem;
+}
+
+.orderRowRight {
+  text-align:  right;
+  flex-shrink: 0;
+}
+
+.orderRowPrice {
+  font-size:   0.88rem;
+  font-weight: 700;
+  color:       var(--text);
+  white-space: nowrap;
+}
+
+.orderRowDueDate {
+  font-size:      0.6rem;
+  font-weight:    700;
+  color:          #ef4444;
+  margin-top:     4px;
+  letter-spacing: 0.1px;
+  white-space:    nowrap;
+}
+
+.orderStatusBadge {
+  display:        inline-block;
+  font-size:      0.6rem;
+  font-weight:    700;
+  text-transform: capitalize;
+  letter-spacing: 0.2px;
+  border:         1px solid;
+  border-radius:  5px;
+  padding:        2px 7px;
+  margin-top:     3px;
+}

@@ -3,7 +3,7 @@ import { ReceiptPaymentSummary } from "../components/ReceiptPaymentSummary/Recei
 import { ItemsTable } from "../components/ReceiptItemsTable/ReceiptItemsTable"
 import { LogoOrName } from "../components/LogoOrBrandName/LogoOrBrandName"
 
-export function ReceiptTemplate2({ receipt, customer, brand }) {
+export function ReceiptTemplate2({ receipt, customer, receiptBrandSettings }) {
 
 
   return (
@@ -19,7 +19,7 @@ export function ReceiptTemplate2({ receipt, customer, brand }) {
 
         </div>
 
-        <div className={styles.logoBox}><LogoOrName brand={brand} /></div>
+        <div className={styles.logoBox}><LogoOrName receiptBrandSettings={receiptBrandSettings} /></div>
 
       </div>
 
@@ -28,9 +28,9 @@ export function ReceiptTemplate2({ receipt, customer, brand }) {
         <div className={styles.gridBox}>
 
           <strong>RECEIVED BY</strong><br />
-          {brand.name}<br />
-          {brand.phone}<br />
-          {brand.address && <span>{brand.address}<br /></span>}
+          {receiptBrandSettings.name}<br />
+          {receiptBrandSettings.phone}<br />
+          {receiptBrandSettings.address && <span>{receiptBrandSettings.address}<br /></span>}
 
         </div>
 
@@ -52,13 +52,12 @@ export function ReceiptTemplate2({ receipt, customer, brand }) {
 
       </div>
 
-      {/* grows to push footer down */}
       <div className={styles.body}>
 
-        <ItemsTable receipt={receipt} brand={brand} />
-        <ReceiptPaymentSummary receipt={receipt} brand={brand} />
+        <ItemsTable receipt={receipt} receiptBrandSettings={receiptBrandSettings} />
+        <ReceiptPaymentSummary receipt={receipt} receiptBrandSettings={receiptBrandSettings} />
 
-        {brand.accountBank && (
+        {receiptBrandSettings.accountBank && (
           <div className={styles.paymentInfo}>
             <strong style={{fontWeight :900,color :"var(--brand-primary-dark)"}}>Payment Details</strong><br/>
 
@@ -66,8 +65,8 @@ export function ReceiptTemplate2({ receipt, customer, brand }) {
 
                 <div>
 
-                    {brand.name && (
-                      <div>Received By  : {brand.name}</div>
+                    {receiptBrandSettings.name && (
+                      <div>Received By  : {receiptBrandSettings.name}</div>
                     )}
                   
                 </div>
@@ -78,7 +77,7 @@ export function ReceiptTemplate2({ receipt, customer, brand }) {
 
       </div>
 
-      <div className={styles.footerCenteredText}>{brand.receiptFooter || 'Thank you!'}</div>
+      <div className={styles.footerCenteredText}>{receiptBrandSettings.footer || 'Thank you!'}</div>
 
     </div>
   )

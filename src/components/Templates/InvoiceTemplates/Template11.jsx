@@ -1,27 +1,27 @@
 import styles from "../styles/Template11.module.css"
 import { getDueDate,calcTax } from "../utils/invoiceUtils"
-import { formatCurrency } from "../../../utils/formatCurrency"
+import { formatMoney } from "../../../utils/moneyUtils"
 
 
-export function InvoiceTemplate11({ invoice, customer, brand }) {
+export function InvoiceTemplate11({ invoice, customer, invoiceBrandSettings }) {
 
   
-  const dueDate     = getDueDate(invoice, brand.invoiceDueDays)
-  const accentColor = brand.colour || '#1C1814'
-  const { currency, showTax, invoiceTaxRate: brandTaxRate } = brand
+  const dueDate     = getDueDate(invoice, invoiceBrandSettings.dueDays)
+  const accentColor = invoiceBrandSettings.colour || '#1C1814'
+  const { currency, showTax, invoiceTaxRate: invoiceBrandSettingsTaxRate } = invoiceBrandSettings
 
   const subtotal = invoice.items?.length > 0
     ? invoice.items.reduce((sum, item) => sum + ((item.qty ?? 1) * (parseFloat(item.price) || 0)), 0)
     : 0
 
-  const shippingFee    = parseFloat(invoice.shippingFee)    || 0
+  const shippingFee = parseFloat(invoice.shippingFee) || 0
   const discountAmount = parseFloat(invoice.discountAmount) || 0
-  const discountType   = invoice.discountType   || null   // 'percent' | 'flat' | null
+  const discountType = invoice.discountType || null 
   const discountValue  = parseFloat(invoice.discountValue)  || 0
-  const useTax         = invoice.taxRate != null ? invoice.taxRate > 0 : (showTax && brandTaxRate > 0)
-  const taxRate        = invoice.taxRate != null ? invoice.taxRate : brandTaxRate
-  const taxAmount      = parseFloat(invoice.taxAmount) || calcTax(subtotal, taxRate, useTax)
-  const grandTotal     = invoice.totalAmount != null
+  const useTax = invoice.taxRate != null ? invoice.taxRate > 0 : (showTax && invoiceBrandSettingsTaxRate > 0)
+  const taxRate  = invoice.taxRate != null ? invoice.taxRate : invoiceBrandSettingsTaxRate
+  const taxAmount = parseFloat(invoice.taxAmount) || calcTax(subtotal, taxRate, useTax)
+  const grandTotal = invoice.totalAmount != null
     ? parseFloat(invoice.totalAmount)
     : subtotal + shippingFee - discountAmount + taxAmount
 
@@ -39,26 +39,26 @@ export function InvoiceTemplate11({ invoice, customer, brand }) {
         <div className={styles.logoArea}>
 
           <div className={styles.logoCircle}>
-            {brand.logo
-              ? <img src={brand.logo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', display: 'block' }} />
+            {invoiceBrandSettings.logo
+              ? <img src={invoiceBrandSettings.logo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', display: 'block' }} />
                : <span className="mi" style={{ fontSize : 11, color : '#fff' }}>checkroom</span>
             }
           </div>
 
           <div>
-            <div className={styles.companyName}>{(brand.name || brand.ownerName || '').toUpperCase()}</div>
-            {brand.tagline && <div className={styles.tagline}>{brand.tagline}</div>}
+            <div className={styles.companyName}>{(invoiceBrandSettings.name || invoiceBrandSettings.ownerName || '').toUpperCase()}</div>
+            {invoiceBrandSettings.tagline && <div className={styles.tagline}>{invoiceBrandSettings.tagline}</div>}
       
           </div>
 
         </div>
 
-        {brand.address && <div className={styles.companyInfo}>{brand.address}</div>}
+        {invoiceBrandSettings.address && <div className={styles.companyInfo}>{invoiceBrandSettings.address}</div>}
 
         <div className={styles.companyInfo} style={{ textAlign : 'right' }}>
-          {brand.website && <div>{brand.website}</div>}
-          {brand.email   && <div>{brand.email}</div>}
-          {brand.phone   && <div>{brand.phone}</div>}
+          {invoiceBrandSettings.website && <div>{invoiceBrandSettings.website}</div>}
+          {invoiceBrandSettings.email   && <div>{invoiceBrandSettings.email}</div>}
+          {invoiceBrandSettings.phone   && <div>{invoiceBrandSettings.phone}</div>}
         </div>
 
       </div>
@@ -82,7 +82,7 @@ export function InvoiceTemplate11({ invoice, customer, brand }) {
 
         <div style={{ textAlign : 'right' }}>
           <div className={styles.amountLabel} style={{ color : accentColor }}>AMOUNT</div>
-          <div className={styles.amountVal} style={{ color : accentColor }}>{ formatCurrency(currency,grandTotal)}</div>
+          <div className={styles.amountVal} style={{ color : accentColor }}>{ formatMoney(currency,grandTotal)}</div>
         </div>
 
       </div>
@@ -115,40 +115,39 @@ export function InvoiceTemplate11({ invoice, customer, brand }) {
                 <tr key={i} className={styles.tableRow}>
                   <td className={styles.colDesc}>• {item.name}</td>
                   <td className={styles.colQty}>{qty}</td>
-                  <td className={styles.colPrice}>{ formatCurrency(currency, unitPrice)}</td>
-                  <td className={styles.colTotal}>{ formatCurrency(currency, lineAmount)}</td>
+                  <td className={styles.colPrice}>{ formatMoney(currency, unitPrice)}</td>
+                  <td className={styles.colTotal}>{ formatMoney(currency, lineAmount)}</td>
                 </tr>
               );
             })}
           </tbody>
         </table>
 
-        {/* ── Right-aligned summary block ── */}
       <div className={styles.summaryBlock}>
 
         <div className={styles.summaryRow}>
           <span className={styles.summaryKey}>Subtotal</span>
-          <span className={styles.summaryVal}>{ formatCurrency(currency, subtotal)}</span>
+          <span className={styles.summaryVal}>{ formatMoney(currency, subtotal)}</span>
         </div>
 
         {shippingFee > 0 && (
           <div className={styles.summaryRow}>
             <span className={styles.summaryKey}>Shipping &amp; Delivery</span>
-            <span className={styles.summaryVal}>{ formatCurrency(currency, shippingFee)}</span>
+            <span className={styles.summaryVal}>{ formatMoney(currency, shippingFee)}</span>
           </div>
         )}
 
         {discountAmount > 0 && (
           <div className={styles.summaryRow}>
             <span className={`${styles.summaryKey} ${styles.summaryKeyDiscount}`}>{discountLabel}</span>
-            <span className={`${styles.summaryVal} ${styles.summaryValDiscount}`}>−{ formatCurrency(currency, discountAmount)}</span>
+            <span className={`${styles.summaryVal} ${styles.summaryValDiscount}`}>−{ formatMoney(currency, discountAmount)}</span>
           </div>
         )}
 
         {useTax && taxAmount > 0 && (
           <div className={styles.summaryRow}>
             <span className={styles.summaryKey}>VAT ({taxRate}%)</span>
-            <span className={styles.summaryVal}>{ formatCurrency(currency, taxAmount)}</span>
+            <span className={styles.summaryVal}>{ formatMoney(currency, taxAmount)}</span>
           </div>
         )}
 
@@ -156,7 +155,7 @@ export function InvoiceTemplate11({ invoice, customer, brand }) {
 
         <div className={styles.summaryTotalRow}>
           <span className={styles.summaryTotalKey}>Total Due</span>
-          <span className={styles.summaryTotalVal}>{ formatCurrency(currency, grandTotal)}</span>
+          <span className={styles.summaryTotalVal}>{ formatMoney(currency, grandTotal)}</span>
         </div>
 
       </div>
@@ -167,39 +166,39 @@ export function InvoiceTemplate11({ invoice, customer, brand }) {
             
 
 
-      {(brand.accountBank || brand.phone) && (
+      {(invoiceBrandSettings.accountBank || invoiceBrandSettings.phone) && (
         <>
           <div className={styles.paymentTitle}>Payment Information</div>
           <div className={styles.paymentBoxRow}>
-            {brand.accountBank && (
+            {invoiceBrandSettings.accountBank && (
               <div className={styles.paymentBox} style={{background : "var(--brand-muted)"}}>
                 <div className={styles.paymentBoxTitle}>Bank Transfer</div>
                 <div>
-                  {brand.accountBank}<br />
-                  {brand.accountName && <span>{brand.accountName}<br /></span>}
-                  {brand.accountNumber && <span>Acct : {brand.accountNumber}</span>}
+                  {invoiceBrandSettings.accountBank}<br />
+                  {invoiceBrandSettings.accountName && <span>{invoiceBrandSettings.accountName}<br /></span>}
+                  {invoiceBrandSettings.accountNumber && <span>Acct : {invoiceBrandSettings.accountNumber}</span>}
                 </div>
               </div>
             )}
-            {brand.phone && (
+            {invoiceBrandSettings.phone && (
               <div className={styles.paymentBox} style={{background : "var(--brand-muted)"}}>
                 <div className={styles.paymentBoxTitle}>Contact</div>
                 <div>
-                  {brand.phone}<br />
-                  {brand.email && <span>{brand.email}</span>}
+                  {invoiceBrandSettings.phone}<br />
+                  {invoiceBrandSettings.email && <span>{invoiceBrandSettings.email}</span>}
                 </div>
               </div>
             )}
-            {brand.address && (
+            {invoiceBrandSettings.address && (
               <div className={styles.paymentBox} style={{ background : "var(--brand-muted)"}}>
                 <div className={styles.paymentBoxTitle}>Visit Us</div>
-                <div>{brand.address}</div>
+                <div>{invoiceBrandSettings.address}</div>
               </div>
             )}
           </div>
         </>
       )}
-      <div className={styles.thankYou} style={{ color : accentColor }}>{brand.invoiceFooter || 'THANK YOU!'}</div>
+      <div className={styles.thankYou} style={{ color : accentColor }}>{invoiceBrandSettings.footer || 'THANK YOU!'}</div>
     </div>
   )
 }

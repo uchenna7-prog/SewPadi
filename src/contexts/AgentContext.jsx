@@ -1,10 +1,3 @@
-// src/contexts/AgentContext.jsx
-// ─────────────────────────────────────────────────────────────
-// Two exports:
-//   useAgent            — conversational chat agent (unchanged)
-//   useAutonomousAgent  — drives the Done / Upcoming / Drafts tabs
-// ─────────────────────────────────────────────────────────────
-
 import {
   createContext,
   useContext,
@@ -21,14 +14,10 @@ import { useInvoices }        from './InvoiceContext'
 import { usePayments }        from './PaymentContext'
 import { useTasks }           from './TaskContext'
 import { useAppointments }    from './AppointmentContext'
-import { useBrand }           from './BrandContext'
+import { useProfileSettings } from './ProfileSettingsContext'
 import { useGeneralSettings } from './GeneralSettingsContext'
 import { saveAgentMessage, loadAgentMessages, clearAgentMessages } from '../services/agentService'
 
-// ─────────────────────────────────────────────────────────────
-// DURATION HELPER
-// Convert { amount, unit } → milliseconds
-// ─────────────────────────────────────────────────────────────
 
 const UNIT_MS = {
   seconds: 1000,
@@ -233,8 +222,8 @@ export function AgentProvider({ children }) {
   const { allPayments }   = usePayments()
   const { tasks, addTask } = useTasks()
   const { allAppointments } = useAppointments()
-  const { brand }         = useBrand()
-
+  const { profileSettings } = useProfileSettings()
+  const { generalSettings } = useGeneralSettings()
   const [messages,   setMessages]   = useState([])
   const [isTyping,   setIsTyping]   = useState(false)
   const [isLoading,  setIsLoading]  = useState(true)
@@ -246,7 +235,7 @@ export function AgentProvider({ children }) {
       if (history.length > 0) {
         setMessages(history)
       } else {
-        const greeting = makeAgentMsg(getGreeting(brand.ownerName || brand.name))
+        const greeting = makeAgentMsg(getGreeting(profileSettings.personalFullname || profileSettings.brandName))
         setMessages([greeting])
       }
       setIsLoading(false)
@@ -391,7 +380,7 @@ export function AgentProvider({ children }) {
       const lines = [
         `✅ Order created for **${customer.name}**`,
         `📦 ${data.desc}`,
-        `💰 ${formatCurrency(data.price, brand.invoiceCurrency)}`,
+        `💰 ${formatCurrency(data.price, generalSettings.invoiceCurrency)}`,
         `📅 Due ${formatDateNice(data.dueDate)}`,
       ]
 
@@ -411,7 +400,7 @@ export function AgentProvider({ children }) {
       }
 
       if (hasDeposit) {
-        lines.push(`💵 Deposit of ${formatCurrency(depositAmount, brand.invoiceCurrency)} noted — record it in Payments`)
+        lines.push(`💵 Deposit of ${formatCurrency(depositAmount, generalSettings.invoiceCurrency)} noted — record it in Payments`)
       }
 
       actions.push({ label: 'Generate invoice now', action: 'gen_invoice', payload: { customerName: customer.name } })
@@ -445,7 +434,7 @@ export function AgentProvider({ children }) {
 
     const order = uninvoicedOrders[0]
     await agentReply(
-      `I found an uninvoiced order for ${customer.name}:\n📦 **${order.desc}** · ${formatCurrency(order.totalAmount || order.price, brand.invoiceCurrency)}\n\nHead to the Invoices page to generate it.`,
+      `I found an uninvoiced order for ${customer.name}:\n📦 **${order.desc}** · ${formatCurrency(order.totalAmount || order.price, generalSettings.invoiceCurrency)}\n\nHead to the Invoices page to generate it.`,
       null,
       [
         { label: 'Go to Invoices', action: 'navigate', payload: { route: '/invoices' } },
@@ -461,7 +450,7 @@ export function AgentProvider({ children }) {
     const method = /transfer/i.test(data.method) ? 'transfer' : /card/i.test(data.method) ? 'card' : 'cash'
 
     await agentReply(
-      `Got it — ${formatCurrency(data.amount, brand.invoiceCurrency)} from **${customer.name}** via ${method}.\n\nHead to their profile to attach this payment to a specific order.`,
+      `Got it — ${formatCurrency(data.amount, generalSettings.invoiceCurrency)} from **${customer.name}** via ${method}.\n\nHead to their profile to attach this payment to a specific order.`,
       null,
       [
         { label: 'Go to Payments', action: 'navigate', payload: { route: '/customers' } },
@@ -525,7 +514,7 @@ export function AgentProvider({ children }) {
 
         const lines = [
           `**${customer.name}**`,
-          totalOwed > 0 ? `💰 Outstanding: ${formatCurrency(balance, brand.invoiceCurrency)}` : `✅ All paid up — no outstanding balance`,
+          totalOwed > 0 ? `💰 Outstanding: ${formatCurrency(balance, generalSettings.invoiceCurrency)}` : `✅ All paid up — no outstanding balance`,
         ]
         if (customerInvoices.length) lines.push(`🧾 ${customerInvoices.length} unpaid invoice${customerInvoices.length > 1 ? 's' : ''}`)
 
@@ -698,9 +687,9 @@ export function AgentProvider({ children }) {
   const clearHistory = useCallback(async () => {
     if (!user) return
     await clearAgentMessages(user.uid)
-    const greeting = makeAgentMsg(getGreeting(brand.ownerName || brand.name))
+    const greeting = makeAgentMsg(getGreeting(profileSettings.personalFullName || profileSettings.brandName))
     setMessages([greeting])
-  }, [user, brand])
+  }, [user, profileSettings])
 
   return (
     <AgentContext.Provider value={{
@@ -734,7 +723,7 @@ export function useAutonomousAgent() {
   const { customers }       = useCustomers()
   const { allOrders }       = useOrders()
   const { allInvoices }     = useInvoices()
-  const { brand }           = useBrand()
+
 
   // Local state for cancelled upcoming items and discarded drafts
   // These are session-only — resets on app reload (intentional for now)
@@ -977,7 +966,7 @@ export function useAutonomousAgent() {
   const drafts = useMemo(() => {
     if (!enabled) return []
     const items   = []
-    const currency = brand.invoiceCurrency || '₦'
+    const currency = generalSettings.invoiceCurrency || '₦'
 
     // Invoice drafts
     if (generalSettings.agentAutoInvoice) {
@@ -1108,7 +1097,7 @@ export function useAutonomousAgent() {
     }
 
     return items
-  }, [enabled, generalSettings, allOrders, allInvoices, customers, brand, discardedIds])
+  }, [enabled, generalSettings, allOrders, allInvoices, customers, discardedIds])
 
   function cancelUpcoming(id) {
     setCancelledIds(prev => [...prev, id])

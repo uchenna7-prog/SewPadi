@@ -3,6 +3,7 @@ import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 
 export function calcTax(subtotal, taxRate, showTax) {
+
   if (!showTax || !taxRate){
     return 0
   }   
@@ -10,6 +11,7 @@ export function calcTax(subtotal, taxRate, showTax) {
 }
 
 export function getDueDate(invoice, dueDays) {
+  
   if (invoice.due) {
     return invoice.due
   }

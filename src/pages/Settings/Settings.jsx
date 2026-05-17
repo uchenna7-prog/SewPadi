@@ -1,29 +1,24 @@
 import { useState, useRef } from 'react'
 import { useGeneralSettings } from '../../contexts/GeneralSettingsContext'
-import { useBrand } from '../../contexts/BrandContext'
-
+import { useProfileSettings } from '../../contexts/ProfileSettingsContext'
 import Header from '../../components/Header/Header'
 import Toast from '../../components/Toast/Toast'
 import ConfirmSheet from '../../components/ConfirmSheet/ConfirmSheet'
 import BottomNav from '../../components/BottomNav/BottomNav'
-
 import { Toggle } from './components/Toggle/Toggle'
 import { SettingRow } from './components/SettingRow/SettingRow'
 import { SectionHeader } from './components/SectionHeader/SectionHeader'
-
-import { TemplateModal } from './modals/TemplateModal/TemplateModal'
-import { ReceiptSettingsModal } from './modals/ReceiptSettingsModal/ReceiptSettingsModal'
-import { InvoiceSettingsModal } from './modals/InvoiceSettingsModal/InvoiceSettingsModal'
-import { AgentSettingsModal } from './modals/AgentSettingsModal/AgentSettingsModal'
-
+import { TemplateModal } from './components/TemplateModal/TemplateModal'
+import { ReceiptSettingsModal } from './components/ReceiptSettingsModal/ReceiptSettingsModal'
+import { InvoiceSettingsModal } from './components/InvoiceSettingsModal/InvoiceSettingsModal'
+import { AgentSettingsModal } from './components/AgentSettingsModal/AgentSettingsModal'
 import styles from './Settings.module.css'
 
 
 export default function Settings({ onMenuClick }) {
-  const { generalSettings, updateGeneralSetting, updateManyGeneralSettings, resetGeneralSettings } = useGeneralSettings()
-  const { brand } = useBrand()
 
-  // ── Toast ──────────────────────────────────────────────────────────────────
+  const { generalSettings, updateGeneralSetting, updateManyGeneralSettings, resetGeneralSettings } = useGeneralSettings()
+  const { profileSettings } = useProfileSettings()
   const [toastMessage, setToastMessage] = useState('')
   const toastTimerRef = useRef(null)
 
@@ -33,21 +28,18 @@ export default function Settings({ onMenuClick }) {
     toastTimerRef.current = setTimeout(() => setToastMessage(''), 2400)
   }
 
-  // ── Modal visibility ───────────────────────────────────────────────────────
-  const [isTemplateModalOpen,     setIsTemplateModalOpen]     = useState(false)
-  const [isInvoiceModalOpen,      setIsInvoiceModalOpen]      = useState(false)
-  const [isReceiptModalOpen,      setIsReceiptModalOpen]      = useState(false)
-  const [isAgentModalOpen,        setIsAgentModalOpen]        = useState(false)
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false)
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false)
+  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false)
+  const [isAgentModalOpen, setIsAgentModalOpen] = useState(false)
 
-  // ── Confirm sheet visibility ───────────────────────────────────────────────
-  const [isClearDataConfirmOpen,      setIsClearDataConfirmOpen]      = useState(false)
-  const [isResetSettingsConfirmOpen,  setIsResetSettingsConfirmOpen]  = useState(false)
+  const [isClearDataConfirmOpen, setIsClearDataConfirmOpen] = useState(false)
+  const [isResetSettingsConfirmOpen,  setIsResetSettingsConfirmOpen] = useState(false)
 
-  // ── Derived values ─────────────────────────────────────────────────────────
   const isDarkMode = generalSettings.theme === 'dark'
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
   function handleTemplateSelect(selectedTemplates) {
+
     updateManyGeneralSettings({
       invoiceTemplate: selectedTemplates.invoiceTemplate,
       receiptTemplate: selectedTemplates.receiptTemplate,
@@ -56,18 +48,21 @@ export default function Settings({ onMenuClick }) {
   }
 
   function handleClearAllData() {
+
     localStorage.clear()
     setIsClearDataConfirmOpen(false)
     showToast('Cleared')
   }
 
   function handleResetAllSettings() {
+
     resetGeneralSettings()
     setIsResetSettingsConfirmOpen(false)
     showToast('Settings reset')
   }
 
   function getSelectedTemplates() {
+
     const invoiceTemplate = generalSettings.invoiceTemplate
     const receiptTemplate = generalSettings.receiptTemplate
     const invoiceTemplateNumber = invoiceTemplate.replace('invoiceTemplate', '')
@@ -99,7 +94,6 @@ export default function Settings({ onMenuClick }) {
 
       <div className={styles.settingsScrollArea}>
 
-        {/* ── Appearance ──────────────────────────────────────────────────── */}
         <SectionHeader icon="palette" label="Appearance" />
 
         <SettingRow
@@ -113,7 +107,7 @@ export default function Settings({ onMenuClick }) {
           />
         </SettingRow>
 
-        {/* ── Invoice & Receipt ────────────────────────────────────────────── */}
+    
         <SectionHeader icon="receipt_long" label="Invoice & Receipt" />
 
         <SettingRow
@@ -141,7 +135,6 @@ export default function Settings({ onMenuClick }) {
           chevron
         />
 
-        {/* ── Agent ───────────────────────────────────────────────────────── */}
         <SectionHeader icon="smart_toy" label="Agent" />
 
         <SettingRow
@@ -152,7 +145,6 @@ export default function Settings({ onMenuClick }) {
           chevron
         />
 
-        {/* ── Notifications ────────────────────────────────────────────────── */}
         <SectionHeader icon="notifications" label="Notifications" />
 
         <SettingRow
@@ -188,7 +180,6 @@ export default function Settings({ onMenuClick }) {
           />
         </SettingRow>
 
-        {/* ── Data ─────────────────────────────────────────────────────────── */}
         <SectionHeader icon="storage" label="Data" />
 
         <SettingRow
@@ -214,13 +205,12 @@ export default function Settings({ onMenuClick }) {
 
       </div>
 
-      {/* ── Modals ────────────────────────────────────────────────────────── */}
 
       <TemplateModal
         isOpen={isTemplateModalOpen}
         currentInvoiceTemplate={generalSettings.invoiceTemplate || 'invoiceTemplate1'}
         currentReceiptTemplate={generalSettings.receiptTemplate || 'receiptTemplate1'}
-        colourId={brand.colourId}
+        colourId={profileSettings.brandColourId}
         onClose={() => setIsTemplateModalOpen(false)}
         onSelect={handleTemplateSelect}
       />
@@ -246,7 +236,6 @@ export default function Settings({ onMenuClick }) {
         />
       )}
 
-      {/* ── Confirm Sheets ────────────────────────────────────────────────── */}
       <ConfirmSheet
         open={isClearDataConfirmOpen}
         title="Delete All Data?"

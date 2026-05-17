@@ -1,0 +1,173 @@
+
+.inlineFormCard {
+  display: flex;
+  flex-direction: column;
+}
+
+.inlineOrderTotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.inlineOrderTotalLabel {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.inlineOrderTotalValue {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+
+.inlineFormDivider {
+  border-top: 2px dashed var(--border);
+  margin: 4px 0 16px;
+}
+
+
+.inlineSaveButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  background: var(--accent);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.inlineSaveButton:active  { opacity: 0.8; }
+.inlineSaveButton:disabled { opacity: 0.4; cursor: not-allowed; }
+
+
+.inlineSpinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: inlineSpin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes inlineSpin {
+  to { transform: rotate(360deg); }
+}
+
+
+.methodChipRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.methodChip {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border2);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text3);
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.methodChipActive {
+  background: var(--surface2);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.fieldLabel {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: var(--text2);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: block;
+  letter-spacing: 0.5px;
+}
+
+.fieldLabelOptional {
+  color: var(--text3);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.textInput {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 1.05rem;
+  font-weight: 700;
+  outline: none;
+  border-bottom: 1px solid var(--border2);
+  padding-bottom: 10px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+
+.textareaInput {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border2);
+  color: var(--text);
+  font-size: 0.9rem;
+  outline: none;
+  resize: none;
+  min-height: 60px;
+  font-family: 'DM Sans', sans-serif;
+  padding-bottom: 8px;
+}
+
+.textareaInput::placeholder { color: var(--text3); }
+
+
+.chipRow {
+  display: flex;
+  gap: 8px;
+}
+
+.typeChip {
+  flex: 1;
+  padding: 10px 4px;
+  border-radius: 10px;
+  border: 1px solid var(--border2);
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--text3);
+  cursor: pointer;
+  background: transparent;
+  text-align: center;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.typeChipActive { font-weight: 800; }
+
+

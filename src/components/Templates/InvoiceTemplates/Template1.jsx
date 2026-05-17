@@ -3,11 +3,11 @@ import { ItemsTable } from "../components/InvoiceItemsTable/InvoiceItemsTable"
 import { getDueDate } from "../utils/invoiceUtils"
 
 
-export function InvoiceTemplate1({ invoice, customer, brand }) {
+export function InvoiceTemplate1({ invoice, customer, invoiceBrandSettings }) {
 
 
-  const dueDate = getDueDate(invoice, brand.invoiceDueDays)
-  const lineColor = brand.colour || '#1C1814'
+  const dueDate = getDueDate(invoice, invoiceBrandSettings.dueDays)
+  const lineColor = invoiceBrandSettings.colour || '#1C1814'
 
 
   return (
@@ -16,8 +16,8 @@ export function InvoiceTemplate1({ invoice, customer, brand }) {
 
       <div className={styles.header}>
 
-        <div className={styles.brandName}>{brand.name || 'Your Brand'}</div>
-        {brand.tagline && <div className={styles.tagline}>{brand.tagline}</div>}
+        <div className={styles.brandName}>{invoiceBrandSettings.name || 'Your Brand'}</div>
+        {invoiceBrandSettings.tagline && <div className={styles.tagline}>{invoiceBrandSettings.tagline}</div>}
 
         <div className={styles.titleRow}>
 
@@ -61,18 +61,18 @@ export function InvoiceTemplate1({ invoice, customer, brand }) {
 
       </div>
 
-      {/* grows to push footer down */}
+  
       <div className={styles.body}>
 
-        <ItemsTable invoice={invoice} brand={brand} />
+        <ItemsTable invoice={invoice} invoiceBrandSettings={invoiceBrandSettings} />
 
       </div>
 
-      {(brand.accountBank || brand.phone || brand.email || brand.invoiceFooter) && (
+      {(invoiceBrandSettings.accountBank || invoiceBrandSettings.phone || invoiceBrandSettings.email || invoiceBrandSettings.footer) && (
 
         <div className={styles.footer}>
 
-          {brand.accountBank && (
+          {invoiceBrandSettings.accountBank && (
 
             <div className={styles.footerLeft}>
 
@@ -82,16 +82,16 @@ export function InvoiceTemplate1({ invoice, customer, brand }) {
 
                 <div>
 
-                  {brand.accountBank && (
-                    <div>Bank Name: {brand.accountBank}</div>
+                  {invoiceBrandSettings.accountBank && (
+                    <div>Bank Name: {invoiceBrandSettings.accountBank}</div>
                   )}
 
-                  {brand.accountNumber && (
-                    <div>Account Number: {brand.accountNumber}</div>
+                  {invoiceBrandSettings.accountNumber && (
+                    <div>Account Number: {invoiceBrandSettings.accountNumber}</div>
                   )}
 
-                  {brand.accountName && (
-                    <div>Account Name: {brand.accountName}</div>
+                  {invoiceBrandSettings.accountName && (
+                    <div>Account Name: {invoiceBrandSettings.accountName}</div>
                   )}
                   
                 </div>
@@ -102,14 +102,14 @@ export function InvoiceTemplate1({ invoice, customer, brand }) {
 
           )}
 
-          {(brand.phone || brand.email || brand.invoiceFooter) && (
+          {(invoiceBrandSettings.phone || invoiceBrandSettings.email || invoiceBrandSettings.footer) && (
 
             <div className={styles.footRight}>
 
               <strong style={{fontWeight :900,color :"var(--brand-primary-dark)"}}>Notes: </strong><br />
-              {brand.phone   && <span>{brand.phone}<br /></span>}
-              {brand.email   && <span>{brand.email}<br /></span>}
-              {brand.invoiceFooter  && <span>{brand.invoiceFooter}</span>}
+              {invoiceBrandSettings.phone   && <span>{invoiceBrandSettings.phone}<br /></span>}
+              {invoiceBrandSettings.email   && <span>{invoiceBrandSettings.email}<br /></span>}
+              {invoiceBrandSettings.footer  && <span>{invoiceBrandSettings.footer}</span>}
 
             </div>
 

@@ -1,19 +1,15 @@
-// src/pages/Invoices/Invoices.jsx
-// ─────────────────────────────────────────────────────────────
-// Displays ALL invoices across ALL customers.
-// Subscribes to each customer's invoices subcollection live.
-// ─────────────────────────────────────────────────────────────
-
 import { useState, useEffect, useRef } from 'react'
 import { useAuth }      from '../../contexts/AuthContext'
 import { useCustomers } from '../../contexts/CustomerContext'
 import { useGeneralSettings }  from '../../contexts/GeneralSettingsContext'
 import { useOrders }    from '../../contexts/OrdersContext'
 import { subscribeToInvoices, updateInvoiceStatus, deleteInvoice } from '../../services/invoiceService'
+import { INVOICE_STATUS_STYLES, INVOICE_STATUS_LABELS } from '../../datas/invoiceDatas'
 import InvoiceView from '../../components/InvoiceViewer/InvoiceViewer'
 import Header from '../../components/Header/Header'
 import styles from './Invoices.module.css'
 import BottomNav from '../../components/BottomNav/BottomNav'
+import OrderMosaic from '../../components/OrderMosaic/OrderMosaic'
 
 // ── Helpers ───────────────────────────────────────────────────
 
@@ -45,95 +41,6 @@ const TABS = [
   { id: 'overdue',   label: 'Overdue'      },
 ]
 
-const STATUS_LABELS = { unpaid: 'Unpaid', part_paid: 'Part Payment', paid: 'Paid', overdue: 'Overdue' }
-
-const STATUS_STYLES = {
-  paid:      { bg: 'rgba(34,197,94,0.12)',   color: '#15803d', border: 'rgba(34,197,94,0.3)'   },
-  part_paid: { bg: 'rgba(251,146,60,0.12)',  color: '#c2410c', border: 'rgba(251,146,60,0.3)'  },
-  unpaid:    { bg: 'rgba(234,179,8,0.12)',   color: '#a16207', border: 'rgba(234,179,8,0.3)'   },
-  overdue:   { bg: 'rgba(239,68,68,0.12)',   color: '#dc2626', border: 'rgba(239,68,68,0.3)'   },
-}
-
-// ── Invoice Mosaic Thumbnail ──────────────────────────────────
-
-function InvoiceMosaic({ items, overdue }) {
-  const covers = (items || []).map(item => item.imgSrc ?? null).filter(Boolean)
-  const total  = items?.length ?? 0
-
-  if (!covers.length) {
-    return (
-      <div className={styles.invoiceListOuter}>
-        <div className={styles.invoiceListInner}>
-          <span className="mi" style={{ fontSize: '1.5rem', color: overdue ? '#ef4444' : 'var(--text3)' }}>
-            receipt_long
-          </span>
-        </div>
-      </div>
-    )
-  }
-
-  if (total === 1) {
-    return (
-      <div className={styles.invoiceListOuter}>
-        <div className={styles.invoiceListInner}>
-          <img src={covers[0]} alt="" className={styles.orderImg} />
-        </div>
-      </div>
-    )
-  }
-
-  if (total === 2) {
-    return (
-      <div className={styles.invoiceListOuter}>
-        <div className={`${styles.invoiceListInner} ${styles.mosaicInner}`}>
-          <div className={styles.mosaicLeft}>
-            <img src={covers[0]} alt="" className={styles.mosaicImg} />
-          </div>
-          <div className={styles.mosaicDividerV} />
-          <div className={styles.mosaicRight}>
-            <div className={styles.mosaicRightCell}>
-              {covers[1]
-                ? <img src={covers[1]} alt="" className={styles.mosaicImg} />
-                : <span className="mi" style={{ fontSize: '0.75rem', color: 'var(--text3)' }}>checkroom</span>
-              }
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  const extra = total > 3 ? total - 3 : 0
-  return (
-    <div className={styles.invoiceListOuter}>
-      <div className={`${styles.invoiceListInner} ${styles.mosaicInner}`}>
-        <div className={styles.mosaicLeft}>
-          {covers[0]
-            ? <img src={covers[0]} alt="" className={styles.mosaicImg} />
-            : <span className="mi" style={{ fontSize: '0.9rem', color: 'var(--text3)' }}>checkroom</span>
-          }
-        </div>
-        <div className={styles.mosaicDividerV} />
-        <div className={styles.mosaicRight}>
-          <div className={styles.mosaicRightCell}>
-            {covers[1]
-              ? <img src={covers[1]} alt="" className={styles.mosaicImg} />
-              : <span className="mi" style={{ fontSize: '0.75rem', color: 'var(--text3)' }}>checkroom</span>
-            }
-          </div>
-          <div className={styles.mosaicDividerH} />
-          <div className={`${styles.mosaicRightCell} ${extra > 0 ? styles.mosaicOverlayWrap : ''}`}>
-            {covers[2]
-              ? <img src={covers[2]} alt="" className={styles.mosaicImg} />
-              : <span className="mi" style={{ fontSize: '0.75rem', color: 'var(--text3)' }}>checkroom</span>
-            }
-            {extra > 0 && <div className={styles.mosaicOverlay}>+{extra}</div>}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
 
 // ── Invoice List Item ─────────────────────────────────────────
 
@@ -143,14 +50,14 @@ function InvoiceCard({ invoice, currency, onTap, isLast, orderItems }) {
     : (parseFloat(invoice.price) || 0)
   const overdue    = isOverdue(invoice)
   const statusKey  = overdue && invoice.status !== 'paid' ? 'overdue' : (invoice.status || 'unpaid')
-  const sty        = STATUS_STYLES[statusKey] ?? STATUS_STYLES.unpaid
+  const sty        = INVOICE_STATUS_STYLES[statusKey] ?? INVOICE_STATUS_STYLES.unpaid
 
   return (
     <div
       className={`${styles.invoiceListItem} ${isLast ? styles.invoiceListItemLast : ''} ${overdue ? styles.invoiceListItemOverdue : ''}`}
       onClick={onTap}
     >
-      <InvoiceMosaic items={orderItems} overdue={overdue} />
+      <OrderMosaic items={orderItems} overdue={overdue} />
 
       {/* Centre: description, number, customer */}
       <div className={styles.invoiceListInfo}>
@@ -170,7 +77,7 @@ function InvoiceCard({ invoice, currency, onTap, isLast, orderItems }) {
           color:      sty.color,
           border:     `1px solid ${sty.border}`,
         }}>
-          {STATUS_LABELS[statusKey] ?? statusKey}
+          {INVOICE_STATUS_LABELS[statusKey] ?? statusKey}
         </span>
       </div>
     </div>

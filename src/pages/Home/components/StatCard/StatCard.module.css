@@ -1,0 +1,143 @@
+
+.statCard {
+  background: var(--surface);
+  border: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 1px 8px rgba(0,0,0,0.04);
+  border-radius: 10px;
+  padding: 16px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+  min-height: 130px;
+  min-width: 0;
+  overflow: hidden;
+}
+.statCard:active {
+  background: var(--surface2);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.statIconWrap {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-bottom: 12px;
+}
+
+.statBgIcon { 
+    display: none; 
+}
+.statCardBody { 
+    display: contents; 
+}
+
+.statValue {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+  letter-spacing: -1px;
+  margin-bottom: 6px;
+  white-space: nowrap;
+}
+
+.statLabel {
+  font-size: 0.6rem;
+  color: var(--text3);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.35;
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  width:         100%;
+}
+
+.statSub {
+  font-size: 0.65rem;
+  font-weight: 700;
+  margin-top: 6px;
+  line-height: 1.2;
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  width:         100%;
+}
+
+
+
+
+@media (max-width: 600px) {
+
+
+  .statCard { 
+    padding: 14px 12px 12px; 
+    min-height: 120px; 
+    border-radius: 10px; 
+}
+  .statIconWrap { 
+    width: 24px; 
+    height: 24px; 
+    margin-bottom: 10px; 
+}
+  .statValue { 
+    font-size: 2rem; 
+    letter-spacing: -1px; 
+    margin-bottom: 5px; 
+}
+  .statLabel { 
+    font-size: 0.58rem; 
+}
+  .statSub { 
+    font-size: 0.63rem; 
+    margin-top: 5px; 
+}
+
+}
+
+
+@media (min-width: 769px) {
+
+
+  .statCard {
+    padding: 20px 18px 18px;
+    min-height: 160px;
+    border-radius: 12px;
+    transition: background 0.15s, box-shadow 0.15s, transform 0.15s;
+  }
+
+  .statCard:hover {
+    background: var(--surface2);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+  }
+
+  .statCard:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  }
+
+  .statIconWrap {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 16px;
+  }
+
+  .statValue {
+    font-size: 2.6rem;
+    letter-spacing: -1.5px;
+  }
+
+  .statLabel {
+    font-size: 0.65rem;
+  }
+
+
+}

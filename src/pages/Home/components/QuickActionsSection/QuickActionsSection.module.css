@@ -1,0 +1,76 @@
+.quickActionsDesktop { 
+    display: block; 
+    margin-bottom: 22px; 
+}
+
+.sectionTitle {
+  font-size: 0.78rem; 
+  font-weight: 800; 
+  color: var(--text);
+  text-transform: uppercase; 
+  letter-spacing: 0.8px; 
+  margin-bottom: 12px;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+
+.actionCard {
+  background: var(--surface); 
+  border: 1px solid var(--border); 
+  border-radius: 10px;
+  padding: 16px 10px; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 10px;
+  align-items: center; 
+  justify-content: center; 
+  text-align: center;
+  cursor: pointer; 
+  transition: background 0.15s;
+}
+
+.actionCard:active { 
+    background: var(--surface2); 
+}
+
+.actionCardText { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+}
+.actionLabel { 
+    font-size: 0.75rem; 
+    font-weight: 700; 
+    color: var(--text); 
+}
+
+@media (min-width: 769px) {
+
+  .actionCard:hover {
+    background: var(--surface2);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+  }
+
+    .statsGrid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-bottom: 16px;
+  }
+
+}
+
+@media (max-width: 600px) {
+
+  .quickActionsDesktop { 
+    display: none; 
+  }
+
+}
+
