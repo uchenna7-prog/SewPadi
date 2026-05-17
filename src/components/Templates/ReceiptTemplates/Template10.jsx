@@ -51,12 +51,11 @@ export function ReceiptTemplate10({ receipt, customer, receiptBrandSettings }) {
 
               <span className={styles.companyName}>{(receiptBrandSettings.name || receiptBrandSettings.ownerName || '').toUpperCase()}</span>
               {receiptBrandSettings.tagline  && <div className={styles.companySub}>{receiptBrandSettings.tagline}</div>}
-              
             </div>
            
           </div>
 
-          {receiptBrandSettings.address  && <div className={styles.companyAddress}>{receiptBrandSettings.address}</div>}
+         
         </div>
         <div className={styles.receiptTitle} style={{ color : accentColor }}>RECEIPT</div>
       </div>

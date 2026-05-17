@@ -6,47 +6,55 @@ import {
   deleteDoc,
   onSnapshot,
   query,
+  where,
+  orderBy,
   serverTimestamp,
 } from 'firebase/firestore'
 import { db } from '../firebase'
 
-function paymentsRef(uid, customerId) {
-  return collection(db, 'users', uid, 'customers', customerId, 'payments')
-}
+const paymentsCollection = (uid) =>
+  collection(db, 'users', uid, 'payments')
 
-function paymentDoc(uid, customerId, paymentId) {
-  return doc(db, 'users', uid, 'customers', customerId, 'payments', paymentId)
-}
-
-export function subscribeToPayments(uid, customerId, onData, onError) {
-  const q = query(paymentsRef(uid, customerId))
-  return onSnapshot(
-    q,
-    (snap) => {
-      const data = snap.docs
-        .map(d => ({ id: d.id, ...d.data() }))
-        .sort((a, b) => {
-          const aTime = a.createdAt?.toMillis?.() ?? 0
-          const bTime = b.createdAt?.toMillis?.() ?? 0
-          return bTime - aTime
-        })
-      onData(data)
-    },
-    onError
-  )
-}
+const paymentDocument = (uid, paymentId) =>
+  doc(db, 'users', uid, 'payments', paymentId)
 
 export async function createPayment(uid, customerId, data) {
-  return addDoc(paymentsRef(uid, customerId), {
+  const ref = await addDoc(paymentsCollection(uid), {
     ...data,
+    customerId,
     createdAt: serverTimestamp(),
+  })
+  return ref.id
+}
+
+export async function updatePayment(uid, paymentId, data) {
+  await updateDoc(paymentDocument(uid, paymentId), {
+    ...data,
+    updatedAt: serverTimestamp(),
   })
 }
 
-export async function updatePayment(uid, customerId, paymentId, data) {
-  return updateDoc(paymentDoc(uid, customerId, paymentId), data)
+export async function deletePayment(uid, paymentId) {
+  await deleteDoc(paymentDocument(uid, paymentId))
 }
 
-export async function deletePayment(uid, customerId, paymentId) {
-  return deleteDoc(paymentDoc(uid, customerId, paymentId))
+export function subscribeToPayments(uid, callback) {
+  const q = query(
+    paymentsCollection(uid),
+    orderBy('createdAt', 'desc')
+  )
+  return onSnapshot(q, snap =>
+    callback(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+  )
+}
+
+export function subscribeToCustomerPayments(uid, customerId, callback) {
+  const q = query(
+    paymentsCollection(uid),
+    where('customerId', '==', customerId),
+    orderBy('createdAt', 'desc')
+  )
+  return onSnapshot(q, snap =>
+    callback(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+  )
 }

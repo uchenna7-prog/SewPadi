@@ -46,8 +46,8 @@ export function InvoiceTemplate8({ invoice, customer, invoiceBrandSettings }) {
 
           </div>
           <div>
-            <div className={styles.invoiceBrandSettingsName}>{invoiceBrandSettings.name || invoiceBrandSettings.ownerName}</div>
-            {invoiceBrandSettings.tagline && <div className={styles.invoiceBrandSettingsSub}>{invoiceBrandSettings.tagline}</div>}
+            <div className={styles.brandName}>{invoiceBrandSettings.name || invoiceBrandSettings.ownerName}</div>
+            {invoiceBrandSettings.tagline && <div className={styles.brandSub}>{invoiceBrandSettings.tagline}</div>}
           </div>
         </div>
 

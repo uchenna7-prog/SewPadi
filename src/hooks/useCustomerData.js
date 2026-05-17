@@ -3,26 +3,26 @@ import { useAuth } from '../contexts/AuthContext'
 
 import {
   subscribeToMeasurements,
-  addMeasurement as addMeasurementToDb,
+  addMeasurement    as addMeasurementToDb,
   deleteMeasurement as deleteMeasurementFromDb,
 } from '../services/measurementService'
 
 import {
-  subscribeToOrders,
-  addOrder as addOrderToDb,
+  subscribeToCustomerOrders,
+  addOrder          as addOrderToDb,
   updateOrderStatus as updateOrderStatusInDb,
-  deleteOrder as deleteOrderFromDb,
+  deleteOrder       as deleteOrderFromDb,
 } from '../services/orderService'
 
 import {
-  subscribeToInvoices,
-  addInvoice as addInvoiceToDb,
+  subscribeToCustomerInvoices,
+  addInvoice          as addInvoiceToDb,
   updateInvoiceStatus as updateInvoiceStatusInDb,
-  deleteInvoice as deleteInvoiceFromDb,
+  deleteInvoice       as deleteInvoiceFromDb,
 } from '../services/invoiceService'
 
 import {
-  subscribeToPayments,
+  subscribeToCustomerPayments,
   createPayment as fsCreatePayment,
   updatePayment as fsUpdatePayment,
   deletePayment as fsDeletePayment,
@@ -35,132 +35,15 @@ import {
 } from '../services/receiptService'
 
 
-// ─────────────────────────────────────────────────────────────
-// DATA SHAPES — every object structure stored in Firestore
-// ─────────────────────────────────────────────────────────────
-//
-// MEASUREMENT
-// {
-//   id:        string   (Firestore doc id)
-//   name:      string   e.g. "Ankara Gown"
-//   fields:    object   e.g. { bust: "38", waist: "32", ... }
-//   images:    string[] (download URLs)
-//   createdAt: Timestamp
-// }
-//
-// ORDER
-// {
-//   id:             string
-//   customerId:     string
-//   customerName:   string
-//   desc:           string   e.g. "Wedding Gown"
-//   status:         'pending' | 'in-progress' | 'completed' | 'delivered' | 'cancelled'
-//   stage:          string   e.g. "sewing" (nullable)
-//   priority:       'normal' | 'urgent' | 'vip'
-//   items:          { name, price, qty, imgSrc }[]
-//   price:          number   subtotal (sum of items)
-//   totalAmount:    number   grand total (price + shipping - discount + tax)
-//   shippingFee:    number
-//   discountType:   'flat' | 'percent' | null
-//   discountValue:  number
-//   discountAmount: number
-//   taxRate:        number
-//   taxAmount:      number
-//   dueDate:        string   'YYYY-MM-DD'
-//   dueRaw:         string   'YYYY-MM-DD'
-//   due:            string   formatted e.g. "May 7, 2026"
-//   takenAt:        string   formatted date
-//   notes:          string
-//   measurementIds: string[]
-//   createdAt:      Timestamp
-// }
-//
-// INVOICE
-// {
-//   id:             string
-//   orderId:        string
-//   number:         string   e.g. "INV-001"
-//   orderDesc:      string
-//   status:         'unpaid' | 'part_paid' | 'paid' | 'overdue'
-//   date:           string   formatted e.g. "May 7, 2026"
-//   due:            string
-//   items:          { name, price, qty }[]
-//   price:          number   subtotal
-//   totalAmount:    number   grand total
-//   shippingFee:    number
-//   discountType:   'flat' | 'percent' | null
-//   discountValue:  number
-//   discountAmount: number
-//   taxRate:        number
-//   taxAmount:      number
-//   template:       string   e.g. "invoiceTemplate1"
-//   brandSnapshot:  object   { name, tagline, phone, email, address, logo, ... }
-//   linkedNames:    string[]
-//   notes:          string
-//   createdAt:      Timestamp
-// }
-//
-// PAYMENT
-// {
-//   id:           string
-//   orderId:      string
-//   orderDesc:    string
-//   orderPrice:   number   grand total (totalAmount ?? price) — used for progress/balance
-//   orderItems:   { name, price, qty, imgSrc }[]
-//   status:       'not_paid' | 'part' | 'paid'
-//   installments: {
-//                   id:     number  (Date.now())
-//                   amount: number
-//                   method: 'cash' | 'transfer' | 'card' | 'other'
-//                   date:   string  formatted
-//                 }[]
-//   notes:        string
-//   date:         string   formatted
-//   createdAt:    Timestamp
-// }
-//
-// RECEIPT
-// {
-//   id:                   string
-//   paymentId:            string
-//   orderId:              string
-//   orderDesc:            string
-//   orderPrice:           number   subtotal (legacy — prefer totalAmount)
-//   totalAmount:          number   grand total
-//   number:               string   e.g. "RCP-01-003"
-//   date:                 string   formatted
-//   items:                { name, price, qty, imgSrc }[]
-//   payments:             { id, amount, method, date }[]
-//   installmentIds:       string[]
-//   previousInstallments: { id, amount, method, date }[]
-//   previousPaid:         number
-//   cumulativePaid:       number
-//   isFullPayment:        boolean
-//   balance:              number
-//   shippingFee:          number
-//   discountType:         'flat' | 'percent' | null
-//   discountValue:        number
-//   discountAmount:       number
-//   taxRate:              number
-//   taxAmount:            number
-//   template:             string
-//   brandSnapshot:        object
-//   notes:                string
-//   createdAt:            Timestamp
-// }
-//
-// ─────────────────────────────────────────────────────────────
-
-
 export function useCustomerData(customerId) {
 
   const { user } = useAuth()
 
-  const [measurements,        setMeasurements]        = useState([])
-  const [orders,              setOrders]              = useState([])
-  const [invoices,            setInvoices]            = useState([])
-  const [payments,            setPayments]            = useState([])
-  const [receipts,            setReceipts]            = useState([])
+  const [measurements, setMeasurements] = useState([])
+  const [orders,       setOrders]       = useState([])
+  const [invoices,     setInvoices]     = useState([])
+  const [payments,     setPayments]     = useState([])
+  const [receipts,     setReceipts]     = useState([])
 
   const [measurementsLoading, setMeasurementsLoading] = useState(true)
   const [ordersLoading,       setOrdersLoading]       = useState(true)
@@ -191,38 +74,32 @@ export function useCustomerData(customerId) {
 
     const unsubMeasurements = subscribeToMeasurements(
       user.uid, customerId,
-      (data) => { 
-        setMeasurements(data); 
-        setMeasurementsLoading(false) 
-      },
-      (err)  => { setMeasurementsLoading(false) }
+      (data) => { setMeasurements(data); setMeasurementsLoading(false) },
+      ()     => { setMeasurementsLoading(false) }
     )
 
-    const unsubOrders = subscribeToOrders(
+    const unsubOrders = subscribeToCustomerOrders(
       user.uid, customerId,
-      (data) => { 
-        setOrders(data); 
-        setOrdersLoading(false) 
-      },
-      (err)  => { setOrdersLoading(false) }
+      (data) => { setOrders(data); setOrdersLoading(false) },
+      ()     => { setOrdersLoading(false) }
     )
 
-    const unsubInvoices = subscribeToInvoices(
+    const unsubInvoices = subscribeToCustomerInvoices(
       user.uid, customerId,
       (data) => { setInvoices(data); setInvoicesLoading(false) },
-      (err)  => {  setInvoicesLoading(false) }
+      ()     => { setInvoicesLoading(false) }
     )
 
-    const unsubPayments = subscribeToPayments(
+    const unsubPayments = subscribeToCustomerPayments(
       user.uid, customerId,
       (data) => { setPayments(data); setPaymentsLoading(false) },
-      (err)  => {  setPaymentsLoading(false) }
+      ()     => { setPaymentsLoading(false) }
     )
 
     const unsubReceipts = subscribeToReceipts(
       user.uid, customerId,
       (data) => { setReceipts(data); setReceiptsLoading(false) },
-      (err)  => {  setReceiptsLoading(false) }
+      ()     => { setReceiptsLoading(false) }
     )
 
     return () => {
@@ -235,116 +112,85 @@ export function useCustomerData(customerId) {
   }, [user, customerId])
 
 
-  // ── MEASUREMENTS ─────────────────────────────────────────
+  // ── MEASUREMENTS ──────────────────────────────────────────────────────────
 
   const saveMeasurement = useCallback(async (entry) => {
     if (!user || !customerId) return
-
-    const { id: _localId, ...data } = entry
-    try { 
-      await addMeasurementToDb(user.uid, customerId, data) 
-    }
-    catch (err) { 
-      
-    }
+    const { id: _, ...data } = entry
+    await addMeasurementToDb(user.uid, customerId, data)
   }, [user, customerId])
 
   const deleteMeasurement = useCallback(async (id) => {
     if (!user || !customerId) return
-    try { 
-      await deleteMeasurementFromDb(user.uid, customerId, String(id)) 
-    }
-    catch (err) {  }
+    await deleteMeasurementFromDb(user.uid, customerId, String(id))
   }, [user, customerId])
 
 
-  // ── ORDERS ───────────────────────────────────────────────
+  // ── ORDERS ────────────────────────────────────────────────────────────────
 
   const saveOrder = useCallback(async (order) => {
     if (!user || !customerId) return
-    const { id: _localId, ...data } = order
-    try { await addOrderToDb(user.uid, customerId, data) }
-    catch (err) { console.error('[useCustomerData] saveOrder:', err); throw err }
+    const { id: _, ...data } = order
+    return addOrderToDb(user.uid, customerId, data)
   }, [user, customerId])
 
   const updateOrderStatus = useCallback(async (id, status) => {
-    if (!user || !customerId) return
-    try { await updateOrderStatusInDb(user.uid, customerId, String(id), status) }
-    catch (err) { console.error('[useCustomerData] updateOrderStatus:', err); throw err }
-  }, [user, customerId])
+    if (!user) return
+    await updateOrderStatusInDb(user.uid, String(id), status)
+  }, [user])
 
   const deleteOrder = useCallback(async (id) => {
-    if (!user || !customerId) return
-    try { await deleteOrderFromDb(user.uid, customerId, String(id)) }
-    catch (err) { console.error('[useCustomerData] deleteOrder:', err); throw err }
-  }, [user, customerId])
+    if (!user) return
+    await deleteOrderFromDb(user.uid, String(id))
+  }, [user])
 
 
-  // ── INVOICES ─────────────────────────────────────────────
+  // ── INVOICES ──────────────────────────────────────────────────────────────
 
   const saveInvoice = useCallback(async (invoice) => {
-
     if (!user || !customerId) return
-    try { 
-      await addInvoiceToDb(user.uid, customerId, invoice) 
-    }
-    catch (err) {  }
+    await addInvoiceToDb(user.uid, customerId, invoice)
   }, [user, customerId])
 
   const updateInvoiceStatus = useCallback(async (id, status) => {
-
-    if (!user || !customerId) return
-    try { 
-      await updateInvoiceStatusInDb(user.uid, customerId, String(id), status) 
-    }
-    catch (err) {  }
-  }, [user, customerId])
+    if (!user) return
+    await updateInvoiceStatusInDb(user.uid, String(id), status)
+  }, [user])
 
   const deleteInvoice = useCallback(async (id) => {
+    if (!user) return
+    await deleteInvoiceFromDb(user.uid, String(id))
+  }, [user])
 
+
+  // ── PAYMENTS ──────────────────────────────────────────────────────────────
+
+  const savePayment = useCallback(async (data) => {
     if (!user || !customerId) return
-    try { 
-      await deleteInvoiceFromDb(user.uid, customerId, String(id)) 
-    }
-    catch (err) {  }
+    await fsCreatePayment(user.uid, customerId, data)
   }, [user, customerId])
 
-
-
-
-  // ── PAYMENTS ─────────────────────────────────────────────
-
-  const savePayment = useCallback(async (paymentData) => {
-    if (!user || !customerId) return
-    try { await fsCreatePayment(user.uid, customerId, paymentData) }
-    catch (err) {  }
-  }, [user, customerId])
-
-  const updatePayment = useCallback(async (paymentId, paymentData) => {
-    if (!user || !customerId) return
-    try { await fsUpdatePayment(user.uid, customerId, paymentId, paymentData) }
-    catch (err) {  }
-  }, [user, customerId])
+  const updatePayment = useCallback(async (paymentId, data) => {
+    if (!user) return
+    await fsUpdatePayment(user.uid, paymentId, data)
+  }, [user])
 
   const deletePayment = useCallback(async (paymentId) => {
+    if (!user) return
+    await fsDeletePayment(user.uid, paymentId)
+  }, [user])
+
+
+  // ── RECEIPTS ──────────────────────────────────────────────────────────────
+
+  const saveReceipt = useCallback(async (data) => {
     if (!user || !customerId) return
-    try { await fsDeletePayment(user.uid, customerId, paymentId) }
-    catch (err) {  }
-  }, [user, customerId])
-
-
-  // ── RECEIPTS ─────────────────────────────────────────────
-
-  const saveReceipt = useCallback(async (receiptData) => {
-    if (!user || !customerId) return
-    try { return await fsAddReceipt(user.uid, customerId, receiptData) }
-    catch (err) {  }
+    return fsAddReceipt(user.uid, customerId, data)
   }, [user, customerId])
 
   const deleteReceipt = useCallback(async (receiptId) => {
     if (!user || !customerId) return
-    try { await fsDeleteReceipt(user.uid, customerId, receiptId) }
-    catch (err) {  }
+    await fsDeleteReceipt(user.uid, customerId, receiptId)
   }, [user, customerId])
 
 

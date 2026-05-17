@@ -163,8 +163,6 @@ export function InvoiceTemplate11({ invoice, customer, invoiceBrandSettings }) {
       </div>
 
       
-            
-
 
       {(invoiceBrandSettings.accountBank || invoiceBrandSettings.phone) && (
         <>

@@ -63,7 +63,7 @@ export function ReceiptTemplate7({ receipt, customer, receiptBrandSettings }) {
 
         <div className={styles.fromToBlock}>
 
-          <div className={styles.fromLabel}>FROM :</div>
+          <div className={styles.fromLabel}>FROM</div>
           <div className={styles.fromDivider} />
           {[
             ['NAME :', receiptBrandSettings.ownerName || receiptBrandSettings.name],
@@ -80,7 +80,7 @@ export function ReceiptTemplate7({ receipt, customer, receiptBrandSettings }) {
         </div>
 
         <div className={styles.fromToBlock}>
-          <div className={styles.toLabel}>TO :</div>
+          <div className={styles.toLabel}>TO</div>
 
           <div className={styles.fromDivider} />
           {[
@@ -100,7 +100,7 @@ export function ReceiptTemplate7({ receipt, customer, receiptBrandSettings }) {
       <div className={styles.divider} />
 
 
-      <div className={styles.forLabel}>FOR :</div>
+      <div className={styles.forLabel}>FOR</div>
 
 
       <div className={styles.tableWrapper}>

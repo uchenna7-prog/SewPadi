@@ -30,9 +30,9 @@ export default function InvoiceTab({
   const groupedByDate = groupInvoicesByDate(invoices)
 
   useEffect(() => {
-    const openPicker = () => setaddInvoiceModalOpen(true)
-    document.addEventListener('openInvoiceModal', openPicker)
-    return () => document.removeEventListener('openInvoiceModal', openPicker)
+    const openAddInvoiceModal = () => setaddInvoiceModalOpen(true)
+    document.addEventListener('openAddInvoiceModal', openAddInvoiceModal)
+    return () => document.removeEventListener('openAddInvoiceModal', openAddInvoiceModal)
   }, [])
 
   async function handleGenerateSelected(selectedOrders) {

@@ -27,25 +27,24 @@
   flex-shrink: 0;
 }
 
-/* Update existing */
 .logoRow { 
   display: flex; 
   align-items: center; 
-  gap: 8px;           /* slightly more breathing room */
+  gap: 8px;           
 }
 
-/* Add new */
+
 .logoSquare {
   width: 42px;
   height: 42px;
-  border-radius: 6px;              /* rounded square, not full circle */
+  border-radius: 6px;             
   border: 1.5px solid var(--brand-primary);
-  background: #f9f9f9;             /* light backing for transparent PNGs */
+  background: #f9f9f9;            
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  overflow: hidden;                /* clips image to rounded square */
+  overflow: hidden;                
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 .companyName { 
@@ -61,7 +60,7 @@
    margin-top: 1px; 
 }
 .companyAddress { 
-   font-size: 10px; 
+   font-size: 8.5px; 
    color: #555; 
    line-height: 1.5; 
    margin-top: 2px; 

@@ -1,6 +1,7 @@
 import { useEffect,useRef,useState} from "react"
 import { InlineInstallmentList } from "../InlineInstallmentList/InlineInstallmentList"
 import { getTotalPaid } from "../../utils"
+import { isPaymentFullyReceipted } from "../../utils"
 import OrderMosaic from "../../../../../../components/OrderMosaic/OrderMosaic"
 import Header from "../../../../../../components/Header/Header"
 import styles from "./AddReceiptModal.module.css"

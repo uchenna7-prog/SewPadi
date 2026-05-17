@@ -84,11 +84,11 @@ export function ReceiptTemplate6({ receipt, customer, receiptBrandSettings }) {
         <div style={{ position : 'absolute', top : 10, left : 18, zIndex : 1 }}>
           <span className={styles.bannerTitle}>RECEIPT</span>
         </div>
-        <div className={styles.receiptBrandSettingsInBanner}>
+        <div className={styles.brandInBanner}>
 
           <div>
-            <div className={styles.receiptBrandSettingsName} style={{ color : "var(--brand-on-primary)" }} >{receiptBrandSettings.name || receiptBrandSettings.ownerName}</div>
-            <div className={styles.receiptBrandSettingsSub}>TAILOR SHOP</div>
+            <div className={styles.brandName} style={{ color : "var(--brand-on-primary)" }} >{receiptBrandSettings.name || receiptBrandSettings.ownerName}</div>
+
           </div>
         </div>
       </div>
@@ -232,7 +232,7 @@ export function ReceiptTemplate6({ receipt, customer, receiptBrandSettings }) {
           <div className={styles.thankYou}>{receiptBrandSettings.footer || 'Thank you for your business'}</div>
           {receiptBrandSettings.accountBank && (
             <>
-              <div className={styles.paymentLabel}>Payment Details:</div>
+              <div className={styles.paymentLabel}>Payment Details</div>
               <div className={styles.paymentInfo}>
 
                 {receiptBrandSettings.name && (

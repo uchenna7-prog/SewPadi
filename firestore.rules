@@ -2,7 +2,6 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ── Slug registry ──────────────────────────────────────────
     match /slugs/{slug} {
       allow read: if true;
       allow create: if request.auth != null
@@ -11,9 +10,12 @@ service cloud.firestore {
         && resource.data.uid == request.auth.uid;
     }
 
-    // ── Per-user data ──────────────────────────────────────────
     match /users/{uid} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
+
+      match /settings/{docId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
 
       match /publicProfile/{docId} {
         allow read: if true;
@@ -38,19 +40,7 @@ service cloud.firestore {
       match /customers/{customerId} {
         allow read, write: if request.auth != null && request.auth.uid == uid;
 
-        match /orders/{orderId} {
-          allow read, write: if request.auth != null && request.auth.uid == uid;
-        }
-
-        match /invoices/{invoiceId} {
-          allow read, write: if request.auth != null && request.auth.uid == uid;
-        }
-
         match /measurements/{measurementId} {
-          allow read, write: if request.auth != null && request.auth.uid == uid;
-        }
-
-        match /payments/{paymentId} {
           allow read, write: if request.auth != null && request.auth.uid == uid;
         }
 
@@ -59,11 +49,19 @@ service cloud.firestore {
         }
       }
 
-      match /tasks/{taskId} {
+      match /orders/{orderId} {
         allow read, write: if request.auth != null && request.auth.uid == uid;
       }
 
-      match /gallery/{itemId} {
+      match /invoices/{invoiceId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+
+      match /payments/{paymentId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+
+      match /tasks/{taskId} {
         allow read, write: if request.auth != null && request.auth.uid == uid;
       }
 
@@ -71,11 +69,14 @@ service cloud.firestore {
         allow read, write: if request.auth != null && request.auth.uid == uid;
       }
 
+      match /gallery/{itemId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+
       match /inventory/{itemId} {
         allow read, write: if request.auth != null && request.auth.uid == uid;
       }
 
-      // ── Reviews ───────────────────────────────────────────────
       match /reviews/{reviewId} {
         allow read, write: if request.auth != null && request.auth.uid == uid;
 

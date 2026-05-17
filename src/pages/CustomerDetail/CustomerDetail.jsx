@@ -29,11 +29,11 @@ export default function CustomerDetail({ onMenuClick }) {
   const navigate = useNavigate()
 
   const { getCustomer, deleteCustomer, updateCustomer } = useCustomers()
-  const { getOrders } = useOrders()
+  const { allOrders } = useOrders()
   const { isPremium } = usePremium()
 
   const customerData = useCustomerData(id)
-  const orders = getOrders(id) ?? []
+  const orders = allOrders.filter(o => o.customerId === id)
 
   const [activeTab,     setActiveTab]     = useState('measurements')
   const [isScrolled,    setIsScrolled]    = useState(false)

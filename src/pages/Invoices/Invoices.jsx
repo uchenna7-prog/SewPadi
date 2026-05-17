@@ -1,17 +1,16 @@
 import { useState, useEffect, useRef } from 'react'
-import { useAuth }      from '../../contexts/AuthContext'
-import { useCustomers } from '../../contexts/CustomerContext'
+import { useAuth } from '../../contexts/AuthContext'
 import { useGeneralSettings }  from '../../contexts/GeneralSettingsContext'
-import { useOrders }    from '../../contexts/OrdersContext'
-import { subscribeToInvoices, updateInvoiceStatus, deleteInvoice } from '../../services/invoiceService'
+import { useOrders } from '../../contexts/OrdersContext'
+import { useInvoices } from '../../contexts/InvoiceContext'
 import { INVOICE_STATUS_STYLES, INVOICE_STATUS_LABELS } from '../../datas/invoiceDatas'
-import InvoiceView from '../../components/InvoiceViewer/InvoiceViewer'
+import InvoiceViewer from '../../components/InvoiceViewer/InvoiceViewer'
 import Header from '../../components/Header/Header'
 import styles from './Invoices.module.css'
 import BottomNav from '../../components/BottomNav/BottomNav'
 import OrderMosaic from '../../components/OrderMosaic/OrderMosaic'
 
-// ── Helpers ───────────────────────────────────────────────────
+
 
 function fmt(currency = '₦', amount) {
   const n = parseFloat(amount) || 0
@@ -88,60 +87,17 @@ function InvoiceCard({ invoice, currency, onTap, isLast, orderItems }) {
 
 export default function Invoices({ onMenuClick }) {
   const { user }      = useAuth()
-  const { customers } = useCustomers()
   const { generalSettings }  = useGeneralSettings()
   const { allOrders } = useOrders()
   const currency      = generalSettings.invoiceCurrency || '₦'
 
-  const [allInvoices, setAllInvoices] = useState([])
+
   const [activeTab,   setActiveTab]   = useState('all')
   const [viewing,     setViewing]     = useState(null)
   const [search,      setSearch]      = useState('')
   const [filterOpen,  setFilterOpen]  = useState(false)
-  const unsubsRef = useRef({})
 
-  // ── Subscribe to every customer's invoices ────────────────
-  useEffect(() => {
-    Object.values(unsubsRef.current).forEach(u => u())
-    unsubsRef.current = {}
-
-    if (!user || !customers.length) {
-      setAllInvoices([])
-      return
-    }
-
-    const invoiceMap = {}
-
-    customers.forEach(customer => {
-      const unsub = subscribeToInvoices(
-        user.uid,
-        customer.id,
-        (invoices) => {
-          invoiceMap[customer.id] = invoices.map(inv => ({
-            ...inv,
-            customerName: inv.customerName || customer.name,
-            customerId:   customer.id,
-          }))
-          const flat = Object.values(invoiceMap)
-            .flat()
-            .sort((a, b) => {
-              const aTime = a.createdAt?.toMillis?.() ?? 0
-              const bTime = b.createdAt?.toMillis?.() ?? 0
-              return bTime - aTime
-            })
-          setAllInvoices([...flat])
-        },
-        (err) => console.error('[Invoices]', customer.id, err)
-      )
-      unsubsRef.current[customer.id] = unsub
-    })
-
-    return () => {
-      Object.values(unsubsRef.current).forEach(u => u())
-      unsubsRef.current = {}
-    }
-  }, [user, customers])
-
+ const { allInvoices } = useInvoices()
   // ── Build order image lookup: "customerId__orderId" → items[] ──
   const orderItemsMap = {}
   for (const order of allOrders) {
@@ -311,13 +267,13 @@ export default function Invoices({ onMenuClick }) {
           onClose={() => setViewing(null)}
           onStatusChange={async (id, newStatus) => {
             try {
-              await updateInvoiceStatus(user.uid, viewing.customerId, id, newStatus)
+              await updateInvoiceStatus(user.uid, id, newStatus)
               setViewing(prev => prev ? { ...prev, status: newStatus } : null)
             } catch { /* silent */ }
           }}
           onDelete={async (id) => {
             try {
-              await deleteInvoice(user.uid, viewing.customerId, id)
+              await deleteInvoice(user.uid, id)
               setViewing(null)
             } catch { /* silent */ }
           }}

@@ -42,11 +42,10 @@ export function InvoiceTemplate6({ invoice, customer, invoiceBrandSettings }) {
         <div style={{ position : 'absolute', top : 10, left : 18, zIndex : 1 }}>
           <span className={styles.bannerTitle}>INVOICE</span>
         </div>
-        <div className={styles.invoiceBrandSettingsInBanner}>
+        <div className={styles.brandInBanner}>
 
           <div>
-            <div className={styles.invoiceBrandSettingsName} style={{ color : "var(--brand-on-primary)" }} >{invoiceBrandSettings.name || invoiceBrandSettings.ownerName}</div>
-            <div className={styles.invoiceBrandSettingsSub}>TAILOR SHOP</div>
+            <div className={styles.brandName} style={{ color : "var(--brand-on-primary)" }} >{invoiceBrandSettings.name || invoiceBrandSettings.ownerName}</div>
           </div>
         </div>
       </div>
@@ -110,7 +109,7 @@ export function InvoiceTemplate6({ invoice, customer, invoiceBrandSettings }) {
           <div className={styles.thankYou}>{invoiceBrandSettings.footer || 'Thank you for your business'}</div>
           {invoiceBrandSettings.accountBank && (
             <>
-              <div className={styles.paymentLabel}>Payment Information :</div>
+              <div className={styles.paymentLabel}>Payment Information</div>
               <div className={styles.paymentInfo}>
                 {invoiceBrandSettings.accountNumber && <span>Account Number : {invoiceBrandSettings.accountNumber}<br /></span>}
                 {invoiceBrandSettings.accountBank   && <span>Bank : {invoiceBrandSettings.accountBank}<br/></span>}

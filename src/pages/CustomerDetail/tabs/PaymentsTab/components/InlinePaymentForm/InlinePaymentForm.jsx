@@ -1,6 +1,7 @@
 
+import { useState } from 'react'
 import { resolvePaymentStatus,getTodayLabel,getTimeLabel,capitalise } from "../../utils"
-import { formatMoney } from "../../../../../../utils/moneyUtils"
+import { formatMoney,getCurrency } from "../../../../../../utils/moneyUtils"
 import styles from "./InlinePaymentForm.module.css"
 
 
@@ -9,6 +10,7 @@ export function InlinePaymentForm({ order, onSave, saving }) {
   const [amount,      setAmount]      = useState('')
   const [method,      setMethod]      = useState('cash')
   const [notes,       setNotes]       = useState('')
+  const currency = getCurrency()
 
   const fullPrice = parseFloat(order?.totalAmount ?? order?.price) || 0
 
@@ -41,7 +43,7 @@ export function InlinePaymentForm({ order, onSave, saving }) {
       {fullPrice > 0 && (
         <div className={styles.inlineOrderTotal}>
           <span className={styles.inlineOrderTotalLabel}>Order value</span>
-          <span className={styles.inlineOrderTotalValue}>{formatMoney(fullPrice)}</span>
+          <span className={styles.inlineOrderTotalValue}>{formatMoney(currency, fullPrice)}</span>
         </div>
       )}
 
@@ -69,7 +71,7 @@ export function InlinePaymentForm({ order, onSave, saving }) {
       <input
         type="number"
         className={styles.textInput}
-        placeholder={fullPrice > 0 ? `of ${formatMoney(fullPrice)}` : '0.00'}
+        placeholder={fullPrice > 0 ? `of ${formatMoney(currency, fullPrice)}` : '0.00'}
         inputMode="decimal"
         value={amount}
         onChange={e => handleAmountChange(e.target.value)}

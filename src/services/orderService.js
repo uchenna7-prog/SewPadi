@@ -3,77 +3,82 @@ import {
   doc,
   addDoc,
   getDoc,
-  getDocs,
   updateDoc,
   deleteDoc,
   onSnapshot,
   query,
   orderBy,
+  where,
   serverTimestamp,
 } from 'firebase/firestore'
 import { db } from '../firebase'
 
-function ordersRef(uid, customerId) {
-  return collection(db, 'users', uid, 'customers', customerId, 'orders')
-}
+const ordersCollection = (uid) =>
+  collection(db, 'users', uid, 'orders')
 
-function orderDoc(uid, customerId, orderId) {
-  return doc(db, 'users', uid, 'customers', customerId, 'orders', orderId)
-}
+const orderDocument = (uid, orderId) =>
+  doc(db, 'users', uid, 'orders', orderId)
 
 export async function addOrder(uid, customerId, data) {
-  const ref = await addDoc(ordersRef(uid, customerId), {
+  const ref = await addDoc(ordersCollection(uid), {
     ...data,
-    status:    data.status    || 'pending',
-    stage:     data.stage     || null,
+    customerId,
+    status:    data.status ?? 'pending',
+    stage:     data.stage  ?? null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
   return ref.id
 }
 
-export async function getOrder(uid, customerId, orderId) {
-  const snap = await getDoc(orderDoc(uid, customerId, orderId))
+export async function getOrder(uid, orderId) {
+  const snap = await getDoc(orderDocument(uid, orderId))
   if (!snap.exists()) return null
   return { id: snap.id, ...snap.data() }
 }
 
-export async function getAllOrders(uid, customerId) {
-  const q    = query(ordersRef(uid, customerId), orderBy('createdAt', 'desc'))
-  const snap = await getDocs(q)
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }))
-}
-
-export async function updateOrder(uid, customerId, orderId, data) {
-  await updateDoc(orderDoc(uid, customerId, orderId), {
+export async function updateOrder(uid, orderId, data) {
+  await updateDoc(orderDocument(uid, orderId), {
     ...data,
     updatedAt: serverTimestamp(),
   })
 }
 
-export async function updateOrderStatus(uid, customerId, orderId, status) {
-  await updateDoc(orderDoc(uid, customerId, orderId), {
+export async function updateOrderStatus(uid, orderId, status) {
+  await updateDoc(orderDocument(uid, orderId), {
     status,
     updatedAt: serverTimestamp(),
   })
 }
 
-export async function updateOrderStage(uid, customerId, orderId, stage) {
-  await updateDoc(orderDoc(uid, customerId, orderId), {
+export async function updateOrderStage(uid, orderId, stage) {
+  await updateDoc(orderDocument(uid, orderId), {
     stage,
     updatedAt: serverTimestamp(),
   })
 }
 
-export async function deleteOrder(uid, customerId, orderId) {
-  await deleteDoc(orderDoc(uid, customerId, orderId))
+export async function deleteOrder(uid, orderId) {
+  await deleteDoc(orderDocument(uid, orderId))
 }
 
-export function subscribeToOrders(uid, customerId, callback, onError) {
-  const q = query(ordersRef(uid, customerId), orderBy('createdAt', 'desc'))
-  return onSnapshot(
-    q,
-    snap => callback(snap.docs.map(d => ({ id: d.id, ...d.data() }))),
-    err  => { onError?.(err) }
+export function subscribeToOrders(uid, callback) {
+  const q = query(
+    ordersCollection(uid),
+    orderBy('createdAt', 'desc')
+  )
+  return onSnapshot(q, snap =>
+    callback(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+  )
+}
+
+export function subscribeToCustomerOrders(uid, customerId, callback) {
+  const q = query(
+    ordersCollection(uid),
+    where('customerId', '==', customerId),
+    orderBy('createdAt', 'desc')
+  )
+  return onSnapshot(q, snap =>
+    callback(snap.docs.map(d => ({ id: d.id, ...d.data() })))
   )
 }

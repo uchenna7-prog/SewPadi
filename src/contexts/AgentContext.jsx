@@ -622,7 +622,7 @@ export function AgentProvider({ children }) {
 
         const order = customerOrders[0]
         try {
-          await updateOrderStatus(customer.id, order.id, newStatus)
+          await updateOrderStatus(order.id, newStatus)
           await agentReply(`✅ **${order.desc}** for ${customer.name} marked as ${newStatus}.`)
         } catch {
           await agentReply(`Couldn't update that order. Please try from the Orders page.`)

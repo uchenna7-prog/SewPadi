@@ -52,7 +52,6 @@ export function InvoiceTemplate10({ invoice, customer, invoiceBrandSettings }) {
            
           </div>
          
-          {invoiceBrandSettings.address && <div className={styles.companyAddress}>{invoiceBrandSettings.address}</div>}
         </div>
         <div className={styles.invoiceTitle} style={{ color : accentColor }}>INVOICE</div>
       </div>

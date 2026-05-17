@@ -64,7 +64,7 @@ export function InvoiceTemplate7({ invoice, customer, invoiceBrandSettings }) {
 
         <div className={styles.fromToBlock}>
 
-          <div className={styles.fromLabel}>FROM :</div>
+          <div className={styles.fromLabel}>FROM</div>
           <div className={styles.fromDivider} />
           {[
             ['NAME :', invoiceBrandSettings.ownerName || invoiceBrandSettings.name],
@@ -81,7 +81,7 @@ export function InvoiceTemplate7({ invoice, customer, invoiceBrandSettings }) {
         </div>
 
         <div className={styles.fromToBlock}>
-          <div className={styles.toLabel}>TO :</div>
+          <div className={styles.toLabel}>TO</div>
           <div className={styles.fromDivider} />
           {[
             ['NAME :', (customer.name || '')],
@@ -99,7 +99,7 @@ export function InvoiceTemplate7({ invoice, customer, invoiceBrandSettings }) {
 
       <div className={styles.divider} />
 
-      <div className={styles.forLabel}>FOR :</div>
+      <div className={styles.forLabel}>FOR</div>
 
       <div className={styles.tableWrapper}>
 

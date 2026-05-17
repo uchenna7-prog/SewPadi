@@ -35,13 +35,8 @@
 .brandName {
   font-size: 10px;
   font-weight: 700;
-  color: #1a1a1a;
 }
-.brandSub {
-  color: var(--brand-on-primary);
-  font-size: 8px;
-  letter-spacing: 0.06em;
-}
+
 .metaRow {
   display: flex;
   justify-content: space-between;

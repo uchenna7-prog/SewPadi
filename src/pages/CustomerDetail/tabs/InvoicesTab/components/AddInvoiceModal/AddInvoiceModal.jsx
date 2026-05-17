@@ -160,7 +160,7 @@ export function AddInvoiceModal({
               })}
             </div>
 
-            {/* Step 2 — generate */}
+  
             {selectedOrders.length > 0 && (
               <div ref={step2Ref}>
                 <p className={styles.stepHeading} style={{ marginTop: 24 }}>
@@ -213,7 +213,7 @@ export function AddInvoiceModal({
                       </>
                     ) : (
                       <>
-                        <span className="material-icons" style={{ fontSize: '1.1rem' }}>receipt_long</span>
+                        <span className="material-icons" style={{ fontSize: '1.1rem', color:"var(--text)" }}>receipt_long</span>
                         {selectedOrders.length > 1
                           ? `Generate ${selectedOrders.length} Invoices`
                           : 'Generate Invoice'

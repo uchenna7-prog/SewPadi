@@ -6,52 +6,64 @@ import {
   deleteDoc,
   onSnapshot,
   query,
+  where,
   orderBy,
   serverTimestamp,
 } from 'firebase/firestore'
 import { db } from '../firebase'
 
-function invoicesRef(uid, customerId) {
-  return collection(db, 'users', uid, 'customers', customerId, 'invoices')
-}
+const invoicesCollection = (uid) =>
+  collection(db, 'users', uid, 'invoices')
 
-function invoiceDoc(uid, customerId, invoiceId) {
-  return doc(db, 'users', uid, 'customers', customerId, 'invoices', invoiceId)
-}
+const invoiceDocument = (uid, invoiceId) =>
+  doc(db, 'users', uid, 'invoices', invoiceId)
 
 export async function addInvoice(uid, customerId, data) {
-  const { id: _localId, ...rest } = data
-  const ref = await addDoc(invoicesRef(uid, customerId), {
-    ...rest,
+  const { id: _, ...invoiceData } = data
+  const ref = await addDoc(invoicesCollection(uid), {
+    ...invoiceData,
+    customerId,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
   return ref.id
 }
 
-export async function updateInvoice(uid, customerId, invoiceId, data) {
-  await updateDoc(invoiceDoc(uid, customerId, invoiceId), {
+export async function updateInvoice(uid, invoiceId, data) {
+  await updateDoc(invoiceDocument(uid, invoiceId), {
     ...data,
     updatedAt: serverTimestamp(),
   })
 }
 
-export async function updateInvoiceStatus(uid, customerId, invoiceId, status) {
-  await updateDoc(invoiceDoc(uid, customerId, invoiceId), {
+export async function updateInvoiceStatus(uid, invoiceId, status) {
+  await updateDoc(invoiceDocument(uid, invoiceId), {
     status,
     updatedAt: serverTimestamp(),
   })
 }
 
-export async function deleteInvoice(uid, customerId, invoiceId) {
-  await deleteDoc(invoiceDoc(uid, customerId, invoiceId))
+export async function deleteInvoice(uid, invoiceId) {
+  await deleteDoc(invoiceDocument(uid, invoiceId))
 }
 
-export function subscribeToInvoices(uid, customerId, callback, onError) {
-  const q = query(invoicesRef(uid, customerId), orderBy('createdAt', 'desc'))
-  return onSnapshot(
-    q,
-    snap => callback(snap.docs.map(d => ({ id: d.id, ...d.data() }))),
-    err  => { console.error('[invoiceService]', err); onError?.(err) }
+export function subscribeToInvoices(uid, callback) {
+  const q = query(
+    invoicesCollection(uid),
+    orderBy('createdAt', 'desc')
+  )
+  return onSnapshot(q, snap =>
+    callback(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+  )
+}
+
+export function subscribeToCustomerInvoices(uid, customerId, callback) {
+  const q = query(
+    invoicesCollection(uid),
+    where('customerId', '==', customerId),
+    orderBy('createdAt', 'desc')
+  )
+  return onSnapshot(q, snap =>
+    callback(snap.docs.map(d => ({ id: d.id, ...d.data() })))
   )
 }

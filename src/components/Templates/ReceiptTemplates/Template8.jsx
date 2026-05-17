@@ -60,8 +60,8 @@ export function ReceiptTemplate8({ receipt, customer, receiptBrandSettings }) {
           </div>
 
           <div>
-            <div className={styles.receiptBrandSettingsName}>{receiptBrandSettings.name || receiptBrandSettings.ownerName}</div>
-            {receiptBrandSettings.tagline && <div className={styles.receiptBrandSettingsSub}>{receiptBrandSettings.tagline}</div>}
+            <div className={styles.brandName}>{receiptBrandSettings.name || receiptBrandSettings.ownerName}</div>
+            {receiptBrandSettings.tagline && <div className={styles.brandSub}>{receiptBrandSettings.tagline}</div>}
           </div>
 
         </div>
