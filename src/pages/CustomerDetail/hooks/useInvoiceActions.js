@@ -135,7 +135,8 @@ export function useInvoiceActions({ customerData, orders, showToast, setActiveTa
       await customerData.updateInvoiceStatus(matchingInvoice.id, status)
       const label = status === 'part_paid' ? 'Part Payment' : 'Full Payment'
       showToast(`Invoice marked as ${label} ✓`)
-    } catch {
+    } 
+    catch {
       showToast('Could not auto-update invoice.')
     }
   }, [customerData, showToast])

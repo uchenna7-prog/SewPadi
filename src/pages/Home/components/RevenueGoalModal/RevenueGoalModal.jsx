@@ -1,4 +1,4 @@
-import styles from "./RevenueGoalModaL.module.css"
+import styles from "./RevenueGoalModal.module.css"
 
 
 export function RevenueGoalModal({ onSave, onClose }) {

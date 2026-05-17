@@ -1,10 +1,3 @@
-// src/contexts/PaymentContext.jsx
-// ─────────────────────────────────────────────────────────────
-// Subscribes to every customer's payments subcollection and
-// exposes allPayments globally so a future "All Payments" page
-// can consume it without re-subscribing.
-// ─────────────────────────────────────────────────────────────
-
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { useAuth }      from './AuthContext'
 import { useCustomers } from './CustomerContext'

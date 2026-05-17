@@ -1,50 +1,41 @@
-// src/contexts/OrdersContext.jsx
-// ─────────────────────────────────────────────────────────────
-// Provides:
-//   - allOrders: flat list of every order across all customers
-//     (used by Home dashboard and Orders page)
-//   - getOrders(customerId): orders for one customer
-//     (used by CustomerDetail)
-// ─────────────────────────────────────────────────────────────
-
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { useAuth }      from './AuthContext'
 import { useCustomers } from './CustomerContext'
 import {
   subscribeToOrders,
-  addOrder          as fsAdd,
-  updateOrder       as fsUpdate,
-  updateOrderStatus as fsUpdateStatus,
-  updateOrderStage  as fsUpdateStage,
-  deleteOrder       as fsDelete,
+  addOrder          as addOrderToDb,
+  updateOrder       as updateOrderInDb,
+  updateOrderStatus as updateOrderStatusInDb,
+  updateOrderStage  as updateOrderStageInDb,
+  deleteOrder       as deleteOrderFromDb,
 } from '../services/orderService'
+
 
 const OrdersContext = createContext(null)
 
 export function OrdersProvider({ children }) {
+
   const { user }      = useAuth()
   const { customers } = useCustomers()
 
-  // orderMap: { [customerId]: Order[] }
-  const [orderMap,  setOrderMap]  = useState({})
-  const unsubsRef = useRef({})
+  const [orderMap, setOrderMap] = useState({})
+  const listenerRefs            = useRef({})
 
-  // ── Subscribe to ALL customers' orders ────────────────────
+
   useEffect(() => {
     if (!user || !customers.length) {
-      Object.values(unsubsRef.current).forEach(u => u())
-      unsubsRef.current = {}
+      Object.values(listenerRefs.current).forEach(unsub => unsub())
+      listenerRefs.current = {}
       setOrderMap({})
       return
     }
 
-    const currentIds = new Set(customers.map(c => c.id))
+    const activeCustomerIds = new Set(customers.map(c => c.id))
 
-    // Remove listeners for customers no longer in the list
-    Object.keys(unsubsRef.current).forEach(id => {
-      if (!currentIds.has(id)) {
-        unsubsRef.current[id]()
-        delete unsubsRef.current[id]
+    Object.keys(listenerRefs.current).forEach(id => {
+      if (!activeCustomerIds.has(id)) {
+        listenerRefs.current[id]()
+        delete listenerRefs.current[id]
         setOrderMap(prev => {
           const next = { ...prev }
           delete next[id]
@@ -53,9 +44,8 @@ export function OrdersProvider({ children }) {
       }
     })
 
-    // Add listeners for new customers
     customers.forEach(customer => {
-      if (unsubsRef.current[customer.id]) return
+      if (listenerRefs.current[customer.id]) return
 
       const unsub = subscribeToOrders(
         user.uid,
@@ -63,26 +53,25 @@ export function OrdersProvider({ children }) {
         (orders) => {
           setOrderMap(prev => ({
             ...prev,
-            [customer.id]: orders.map(o => ({
-              ...o,
-              customerName: o.customerName || customer.name,
+            [customer.id]: orders.map(order => ({
+              ...order,
+              customerName: order.customerName || customer.name,
               customerId:   customer.id,
-            }))
+            })),
           }))
         },
-        (err) => console.error('[OrdersContext]', customer.id, err)
       )
 
-      unsubsRef.current[customer.id] = unsub
+      listenerRefs.current[customer.id] = unsub
     })
 
     return () => {
-      Object.values(unsubsRef.current).forEach(u => u())
-      unsubsRef.current = {}
+      Object.values(listenerRefs.current).forEach(unsub => unsub())
+      listenerRefs.current = {}
     }
   }, [user, customers])
 
-  // ── Derived: flat sorted list of all orders ───────────────
+
   const allOrders = Object.values(orderMap)
     .flat()
     .sort((a, b) => {
@@ -91,62 +80,35 @@ export function OrdersProvider({ children }) {
       return bTime - aTime
     })
 
-  // ── Get orders for a single customer ─────────────────────
   const getOrders = useCallback((customerId) => {
     return orderMap[customerId] || []
   }, [orderMap])
 
-  // ── CRUD ─────────────────────────────────────────────────
 
   const addOrder = useCallback(async (customerId, data) => {
     if (!user) return
-    try {
-      const { id: _localId, ...orderData } = data
-      return await fsAdd(user.uid, customerId, orderData)
-    } catch (err) {
-      console.error('[OrdersContext] addOrder:', err)
-      throw err
-    }
+    const { id: _localId, ...orderData } = data
+    return await addOrderToDb(user.uid, customerId, orderData)
   }, [user])
 
   const updateOrder = useCallback(async (customerId, orderId, data) => {
     if (!user) return
-    try {
-      await fsUpdate(user.uid, customerId, String(orderId), data)
-    } catch (err) {
-      console.error('[OrdersContext] updateOrder:', err)
-      throw err
-    }
+    await updateOrderInDb(user.uid, customerId, String(orderId), data)
   }, [user])
 
   const updateOrderStatus = useCallback(async (customerId, orderId, status) => {
     if (!user) return
-    try {
-      await fsUpdateStatus(user.uid, customerId, String(orderId), status)
-    } catch (err) {
-      console.error('[OrdersContext] updateOrderStatus:', err)
-      throw err
-    }
+    await updateOrderStatusInDb(user.uid, customerId, String(orderId), status)
   }, [user])
 
   const updateOrderStage = useCallback(async (customerId, orderId, stage) => {
     if (!user) return
-    try {
-      await fsUpdateStage(user.uid, customerId, String(orderId), stage)
-    } catch (err) {
-      console.error('[OrdersContext] updateOrderStage:', err)
-      throw err
-    }
+    await updateOrderStageInDb(user.uid, customerId, String(orderId), stage)
   }, [user])
 
   const deleteOrder = useCallback(async (customerId, orderId) => {
     if (!user) return
-    try {
-      await fsDelete(user.uid, customerId, String(orderId))
-    } catch (err) {
-      console.error('[OrdersContext] deleteOrder:', err)
-      throw err
-    }
+    await deleteOrderFromDb(user.uid, customerId, String(orderId))
   }, [user])
 
   return (
